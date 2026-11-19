@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trivia católica · Boceto inicio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+  :root {
+    /* Base Lienzo */
+    --bg: #FFFFFF;
+    --ink: #14161C;
+    --ink-2: #5B6170;
+    --line: #E6E8EE;
+    --track: #EEF0F4;
+    /* Acento principal */
+    --primary: #2F5BD3;
+    --primary-ink: #1E3F9E;
+    --primary-soft: #EEF2FD;
+    /* Logros */
+    --gold: #E8A33D;
+    --gold-ink: #8A5A0B;
+    --gold-soft: #FDF3E1;
+    /* Categorías */
+    --at: #A94C25;  --at-soft: #FBEFE6;   /* Antiguo Testamento */
+    --nt: #2F5BD3;  --nt-soft: #EEF2FD;   /* Nuevo Testamento */
+    --sa: #A83E5A;  --sa-soft: #FBECEF;   /* Santos */
+    --sc: #2B754D;  --sc-soft: #E7F4EC;   /* Sacramentos */
+    --li: #6A52C2;  --li-soft: #F1EEFB;   /* Liturgia */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #F2F3F6;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    color: var(--ink);
+    display: flex; justify-content: center;
+    padding: 24px 16px;
+    min-height: 100vh;
+  }
+  .phone {
+    width: 390px; max-width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .content { padding: 24px 20px 12px; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .hello { font-size: 16px; color: var(--ink-2); }
+  .title { font-size: 28px; font-weight: 700; line-height: 1.15; }
+  .streak {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--gold-soft); color: var(--gold-ink);
+    border-radius: 999px; padding: 6px 12px;
+    font-size: 15px; font-weight: 700; white-space: nowrap;
+  }
+  .streak i { font-size: 20px; color: var(--gold); }
+
+  /* Banner de novedades: el tipo define el color (oración, iniciativa, novedad) */
+  .banner {
+    margin-top: 20px;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--b-soft);
+    border-radius: 18px; padding: 14px 14px 14px 16px;
+    text-decoration: none; color: var(--ink);
+  }
+  .banner-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 14px; background: #fff; color: var(--b);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .banner-body { flex: 1; min-width: 0; }
+  .banner-tag {
+    display: inline-block; font-size: 13px; font-weight: 700;
+    color: var(--b); letter-spacing: .02em;
+  }
+  .banner-title { font-size: 17px; font-weight: 700; line-height: 1.25; margin-top: 1px; }
+  .banner-text { font-size: 15px; color: var(--ink-2); line-height: 1.35; margin-top: 2px; }
+  .banner-go { font-size: 22px; color: var(--b); flex-shrink: 0; }
+  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--line); }
+  .dots span.on { width: 18px; background: var(--li); }
+
+  .daily {
+    margin-top: 18px;
+    background: var(--primary); color: #fff;
+    border-radius: 20px; padding: 18px;
+  }
+  .daily-head { display: flex; justify-content: space-between; align-items: center; }
+  .daily-tag { font-size: 14px; color: #DCE4FA; }
+  .daily-head i { font-size: 24px; color: #FFD27A; }
+  .daily-name { font-size: 22px; font-weight: 600; line-height: 1.25; margin: 4px 0 16px; }
+  .btn-start {
+    display: block; width: 100%;
+    background: #fff; color: var(--primary-ink);
+    border: 0; border-radius: 14px; padding: 14px;
+    font: 700 18px 'Source Sans 3', sans-serif;
+    cursor: pointer;
+  }
+
+  .section { display: flex; justify-content: space-between; align-items: baseline; margin: 26px 0 4px; }
+  .section h2 { font-size: 20px; font-weight: 600; }
+  .section a { font-size: 15px; font-weight: 600; color: var(--primary); text-decoration: none; }
+
+  .cat {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px; margin-top: 8px;
+    border: 1.5px solid var(--line); border-radius: 16px;
+  }
+  .cat-icon {
+    width: 46px; height: 46px; flex-shrink: 0;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    background: var(--soft); color: var(--c);
+  }
+  .cat-body { flex: 1; min-width: 0; }
+  .cat-name { font-size: 17px; font-weight: 600; }
+  .bar { height: 6px; background: var(--track); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+  .cat-count { font-size: 14px; color: var(--ink-2); }
+  .cat-new { font-size: 14px; font-weight: 700; color: var(--c); }
+
+  .nav {
+    display: flex; justify-content: space-around;
+    border-top: 1px solid var(--line);
+    padding: 10px 0 16px; margin-top: 8px;
+  }
+  .nav a {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 13px; color: var(--ink-2); text-decoration: none;
+  }
+  .nav i { font-size: 26px; }
+  .nav a.active { color: var(--primary); font-weight: 700; }
+</style>
+</head>
+<body>
+  <main class="phone">
+    <div class="content">
+      <header class="top">
+        <div>
+          <p class="hello">Buen día, Marta</p>
+          <h1 class="title">¿Jugamos hoy?</h1>
+        </div>
+        <span class="streak"><i class="ph-duotone ph-flame"></i>5 días</span>
+      </header>
+
+      <!-- Banner fijo de novedades / iniciativas / oraciones.
+           Tipos: oración (--li), iniciativa (--sc), novedad (--gold) -->
+      <a href="#" class="banner" style="--b: var(--li); --b-soft: var(--li-soft)">
+        <div class="banner-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+        <div class="banner-body">
+          <span class="banner-tag">Oración</span>
+          <p class="banner-title">Rosario por la paz</p>
+          <p class="banner-text">Sumate hoy a las 20:00 desde tu casa.</p>
+        </div>
+        <i class="ph ph-caret-right banner-go"></i>
+      </a>
+      <div class="dots"><span class="on"></span><span></span><span></span></div>
+
+      <section class="daily">
+        <div class="daily-head">
+          <span class="daily-tag">Desafío del día · 10 preguntas</span>
+          <i class="ph-duotone ph-sparkle"></i>
+        </div>
+        <p class="daily-name">Los milagros de Jesús</p>
+        <button class="btn-start">Comenzar</button>
+      </section>
+
+      <div class="section">
+        <h2>Categorías</h2>
+        <a href="#">Ver todas</a>
+      </div>
+
+      <div class="cat" style="--c: var(--at); --soft: var(--at-soft)">
+        <div class="cat-icon"><i class="ph-duotone ph-scroll"></i></div>
+        <div class="cat-body">
+          <p class="cat-name">Antiguo Testamento</p>
+          <div class="bar"><span style="width:60%"></span></div>
+        </div>
+        <span class="cat-count">12/20</span>
+      </div>
+
+      <div class="cat" style="--c: var(--nt); --soft: var(--nt-soft)">
+        <div class="cat-icon"><i class="ph-duotone ph-book-open-text"></i></div>
+        <div class="cat-body">
+          <p class="cat-name">Nuevo Testamento</p>
+          <div class="bar"><span style="width:35%"></span></div>
+        </div>
+        <span class="cat-count">7/20</span>
+      </div>
+
+      <div class="cat" style="--c: var(--sa); --soft: var(--sa-soft)">
+        <div class="cat-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+        <div class="cat-body">
+          <p class="cat-name">Santos</p>
+          <div class="bar"><span style="width:10%"></span></div>
+        </div>
+        <span class="cat-count">2/20</span>
+      </div>
+
+      <div class="cat" style="--c: var(--sc); --soft: var(--sc-soft)">
+        <div class="cat-icon"><i class="ph-duotone ph-drop"></i></div>
+        <div class="cat-body">
+          <p class="cat-name">Sacramentos</p>
+          <div class="bar"><span style="width:25%"></span></div>
+        </div>
+        <span class="cat-count">5/20</span>
+      </div>
+
+      <div class="cat" style="--c: var(--li); --soft: var(--li-soft)">
+        <div class="cat-icon"><i class="ph-duotone ph-church"></i></div>
+        <div class="cat-body">
+          <p class="cat-name">Liturgia</p>
+          <div class="bar"><span style="width:0%"></span></div>
+        </div>
+        <span class="cat-new">Nuevo</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#" class="active"><i class="ph-duotone ph-house"></i>Inicio</a>
+      <a href="#"><i class="ph ph-trophy"></i>Ranking</a>
+      <a href="#"><i class="ph ph-user-circle"></i>Perfil</a>
+    </nav>
+  </main>
+</body>
+</html>
