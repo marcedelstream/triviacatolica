@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Trivia Católica",
+    "name": "Trivia Catolica",
     "slug": "trivia-catolica",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,6 +25,7 @@
         "applinks:www.triviacatolica.com"
       ],
       "infoPlist": {
+        "CFBundleDisplayName": "Trivia Católica",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
