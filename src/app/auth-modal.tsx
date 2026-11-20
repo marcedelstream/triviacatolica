@@ -42,7 +42,26 @@ export default function AuthModalScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const proceedAfterClose = () => {
+  const proceedAfterAuthSuccess = () => {
+    const latest = useGameStore.getState().profile;
+    if (!latest.hasCompletedOnboarding || !latest.username) {
+      router.replace({
+        pathname: '/onboarding',
+        params: nextLevelId ? { nextLevelId } : {},
+      });
+      return;
+    }
+    if (nextLevelId) {
+      router.replace({
+        pathname: '/play/[levelId]',
+        params: { levelId: nextLevelId },
+      });
+    } else {
+      router.back();
+    }
+  };
+
+  const proceedAfterSkip = () => {
     if (nextLevelId) {
       router.replace({
         pathname: '/play/[levelId]',
@@ -75,7 +94,7 @@ export default function AuthModalScreen() {
     const res = await completeEmailOtpLogin(email, otpCode, name.trim() || undefined);
     setIsLoading(false);
     if (res.ok) {
-      proceedAfterClose();
+      proceedAfterAuthSuccess();
     } else {
       setErrorMessage(res.message);
     }
@@ -89,7 +108,7 @@ export default function AuthModalScreen() {
     const res = await linkAccount(provider, name.trim() || undefined);
     setIsLoading(false);
     if (res.ok) {
-      proceedAfterClose();
+      proceedAfterAuthSuccess();
     } else {
       setErrorMessage(res.message);
     }
@@ -97,7 +116,7 @@ export default function AuthModalScreen() {
 
   const handleSkip = () => {
     dismissSoftAuth();
-    proceedAfterClose();
+    proceedAfterSkip();
   };
 
   return (

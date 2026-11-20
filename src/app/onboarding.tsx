@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   AtIcon,
   BookOpenTextIcon,
@@ -26,6 +26,7 @@ import { sanitizeUsername, useGameStore } from '@/store/useGameStore';
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { nextLevelId } = useLocalSearchParams<{ nextLevelId?: string }>();
   const profile = useGameStore((s) => s.profile);
   const completeOnboarding = useGameStore((s) => s.completeOnboarding);
 
@@ -58,7 +59,12 @@ export default function OnboardingScreen() {
   const handleFinish = () => {
     playGameCue('celebrate', soundEnabled);
     completeOnboarding(displayName.trim() || 'Peregrino', cleanUsername);
-    if (router.canGoBack()) {
+    if (nextLevelId) {
+      router.replace({
+        pathname: '/play/[levelId]',
+        params: { levelId: nextLevelId },
+      });
+    } else if (router.canGoBack()) {
       router.back();
     } else {
       router.replace('/(tabs)');

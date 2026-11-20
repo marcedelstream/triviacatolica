@@ -9,7 +9,9 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 ### A. Tiendas (Google Play Store y App Store) + Dominio `triviacatolica.com`
 - [ ] Completar ficha de Google Play Console (Feature Graphic `1024×500`, capturas de pantalla, Política de Privacidad en `https://triviacatolica.com/privacidad`, instrucciones de eliminación de cuenta, Data Safety, IARC, Prueba cerrada si aplica).
 - [ ] Completar ficha de App Store Connect / TestFlight.
-- [ ] Publicar en `triviacatolica.com` los archivos de verificación de deep links (`/.well-known/apple-app-site-association` y `/.well-known/assetlinks.json`) y páginas con metadatos Open Graph para enlaces compartidos (`/play/<slug>`).
+- [ ] **Deep links + fallback web en `triviacatolica.com/play/<slug>`:**
+  - Publicar `/.well-known/apple-app-site-association` (iOS Universal Links) y `/.well-known/assetlinks.json` (Android App Links) para que quien tenga la app instalada entre **directo al cuestionario** dentro de la app.
+  - Configurar ruta web en `triviacatolica.com/play/<slug>` (sin 404): si el usuario **no** tiene la app instalada, mostrar vista previa del cuestionario (o jugarlo en web) con botón **Abrir en Trivia Católica** (`triviacatolica://play/<slug>`) y enlaces de descarga a App Store / Google Play + metadatos Open Graph para WhatsApp/redes.
 
 ### B. Monetización real (Apple Pay / Google Play vía RevenueCat)
 - [ ] Eliminar todo rastro de "modo prueba" / demo en la app (paywall, recargas de prueba, textos internos).
