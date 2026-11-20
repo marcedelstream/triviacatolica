@@ -4,9 +4,8 @@ import { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BannerCarousel } from '@/components/BannerCarousel';
-import { CategoryCard } from '@/components/CategoryCard';
-import { DailyChallengeCard } from '@/components/DailyChallengeCard';
+import { CategoryGridCard } from '@/components/CategoryGridCard';
+import { HeroCarousel } from '@/components/HeroCarousel';
 import { VaticanNewsSection } from '@/components/VaticanNewsSection';
 import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
@@ -78,6 +77,8 @@ export default function HomeScreen() {
     });
   };
 
+  const isOddTopics = topics.length % 2 === 1;
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <ScrollView
@@ -85,7 +86,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Encabezado de inicio — fiel a boceto-inicio.html */}
+        {/* Encabezado con buen respiro arriba */}
         <View style={styles.top}>
           <View style={styles.greetingCol}>
             <Text style={styles.hello}>
@@ -116,7 +117,7 @@ export default function HomeScreen() {
               accessibilityRole="button"
               accessibilityLabel={
                 profile.isPremium
-                  ? 'Vidas infinitas activas con plan Pro'
+                  ? 'Vidas infinitas activas'
                   : `Tenés ${profile.hearts} de ${MAX_HEARTS} vidas disponibles`
               }
               style={styles.heartsChip}
@@ -133,18 +134,16 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Banner administrable de novedades / oración / iniciativa */}
-        <BannerCarousel banners={banners} />
-
-        {/* Desafío del día — único bloque de color sólido de la pantalla */}
-        <DailyChallengeCard
-          title={DAILY_CHALLENGE.title}
-          questionCount={DAILY_CHALLENGE.questionCount}
-          completedToday={completedDailyToday}
-          onStart={handleStartDaily}
+        {/* Banner superior unificado y deslizable: Desafío del día + Novedades/Oración/Iniciativa */}
+        <HeroCarousel
+          dailyTitle={DAILY_CHALLENGE.title}
+          dailyQuestionCount={DAILY_CHALLENGE.questionCount}
+          dailyCompletedToday={completedDailyToday}
+          onStartDaily={handleStartDaily}
+          banners={banners}
         />
 
-        {/* Sección Categorías */}
+        {/* Categorías en grilla de cuadros */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Categorías</Text>
           <Pressable
@@ -157,30 +156,33 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {topics.map((topic) => {
-          const totalInTopic = questions.filter(
-            (q) => q.topicId === topic.id || q.topicSlug === topic.slug
-          ).length;
-          const completedInTopic = (answeredCorrectByTopic[topic.slug] ?? []).length;
+        <View style={styles.grid}>
+          {topics.map((topic, index) => {
+            const totalInTopic = questions.filter(
+              (q) => q.topicId === topic.id || q.topicSlug === topic.slug
+            ).length;
+            const completedInTopic = (answeredCorrectByTopic[topic.slug] ?? []).length;
+            const isLastOdd = isOddTopics && index === topics.length - 1;
 
-          return (
-            <CategoryCard
-              key={topic.id}
-              topic={topic}
-              completedCount={completedInTopic}
-              totalCount={totalInTopic}
-              compact
-              onPress={() =>
-                router.push({
-                  pathname: '/category/[slug]',
-                  params: { slug: topic.slug },
-                })
-              }
-            />
-          );
-        })}
+            return (
+              <CategoryGridCard
+                key={topic.id}
+                topic={topic}
+                completedCount={completedInTopic}
+                totalCount={totalInTopic}
+                fullWidth={isLastOdd}
+                onPress={() =>
+                  router.push({
+                    pathname: '/category/[slug]',
+                    params: { slug: topic.slug },
+                  })
+                }
+              />
+            );
+          })}
+        </View>
 
-        {/* Sección inferior: últimas noticias de Vatican News con quiz individual */}
+        {/* Nuevas noticias multimedios (Vatican News, ACI Prensa, Aleteia) con mini-quiz */}
         <VaticanNewsSection
           items={vaticanNews}
           completedNewsIds={completedNewsIds}
@@ -202,80 +204,81 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: 28,
-    paddingBottom: LIENZO.space.xl,
+    paddingTop: 34,
+    paddingBottom: LIENZO.space.xxxl,
   },
   top: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: LIENZO.space.sm,
+    gap: LIENZO.space.md,
     flexWrap: 'wrap',
   },
   greetingCol: {
     flexShrink: 1,
-    minWidth: 140,
+    minWidth: 160,
   },
   hello: {
-    ...LIENZO.type.caption,
+    ...LIENZO.type.body,
     color: LIENZO.color.ink2,
   },
   title: {
-    fontSize: 23,
-    lineHeight: 27,
-    fontFamily: LIENZO.font.bold,
+    ...LIENZO.type.display,
     color: LIENZO.color.ink,
-    marginTop: 1,
+    marginTop: 2,
   },
   chipsCol: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     flexWrap: 'wrap',
   },
   streakChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: LIENZO.color.goldSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    minHeight: 32,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    minHeight: 38,
   },
   streakText: {
-    ...LIENZO.type.captionBold,
+    ...LIENZO.type.smallBold,
     color: LIENZO.color.goldInk,
   },
   heartsChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: LIENZO.color.dangerSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingVertical: 5,
-    paddingHorizontal: 9,
-    minHeight: 32,
+    paddingVertical: 7,
+    paddingHorizontal: 11,
+    minHeight: 38,
   },
   heartsText: {
-    ...LIENZO.type.captionBold,
+    ...LIENZO.type.smallBold,
     color: LIENZO.color.danger,
   },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    marginTop: 16,
-    marginBottom: 2,
+    marginTop: 28,
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 18,
-    lineHeight: 23,
-    fontFamily: LIENZO.font.semiBold,
+    ...LIENZO.type.section,
     color: LIENZO.color.ink,
   },
   sectionLink: {
-    ...LIENZO.type.captionBold,
+    ...LIENZO.type.smallSemiBold,
     color: LIENZO.color.primary,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
 });

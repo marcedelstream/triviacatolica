@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeftIcon, HeartIcon, InfinityIcon } from 'phosphor-react-native';
-import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ArrowLeftIcon, HeartIcon, InfinityIcon, LockIcon, XIcon } from 'phosphor-react-native';
+import { useMemo, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { LevelNode } from '@/components/LevelNode';
@@ -25,6 +25,11 @@ export default function CategoryDetailScreen() {
   const hasDismissedSoftAuth = useGameStore((s) => s.hasDismissedSoftAuth);
   const refreshHearts = useGameStore((s) => s.refreshHearts);
   const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
+
+  const [lockedModal, setLockedModal] = useState<{
+    target: Level;
+    previous: Level | null;
+  } | null>(null);
 
   const topic = useMemo(
     () => topics.find((t) => t.slug === slug) ?? topics[0],
@@ -51,27 +56,16 @@ export default function CategoryDetailScreen() {
   const completedQuestions = (answeredCorrectByTopic[topic.slug] ?? []).length;
   const pct = Math.min(100, Math.round((completedQuestions / totalQuestions) * 100));
 
-  // Determinar qué nivel es el siguiente recomendado
   const nextRecommendedId =
     topicLevels.find((lvl) => {
       const done = Boolean(levelProgress[lvl.id]?.stars);
       return !done && (!PAYWALL_ENABLED || !lvl.isPremium || profile.isPremium);
     })?.id ?? topicLevels[0]?.id;
 
-  const handleOpenLevel = (level: Level, isLockedByOrder: boolean) => {
+  const launchLevel = (level: Level) => {
     refreshHearts();
     const currentProfile = useGameStore.getState().profile;
 
-    if (PAYWALL_ENABLED && level.isPremium && !currentProfile.isPremium) {
-      router.push('/paywall?reason=level');
-      return;
-    }
-
-    if (isLockedByOrder) {
-      return;
-    }
-
-    // Regla del MVP: invitar a guardar progreso al pasar al Nivel 2 si sigue como invitado
     if (
       level.levelNumber >= 2 &&
       currentProfile.isAnonymous &&
@@ -96,6 +90,27 @@ export default function CategoryDetailScreen() {
       pathname: '/play/[levelId]',
       params: { levelId: level.slug },
     });
+  };
+
+  const handleOpenLevel = (
+    level: Level,
+    isLockedByOrder: boolean,
+    prevLevel: Level | null
+  ) => {
+    refreshHearts();
+    const currentProfile = useGameStore.getState().profile;
+
+    if (PAYWALL_ENABLED && level.isPremium && !currentProfile.isPremium) {
+      router.push('/paywall?reason=level');
+      return;
+    }
+
+    if (isLockedByOrder) {
+      setLockedModal({ target: level, previous: prevLevel });
+      return;
+    }
+
+    launchLevel(level);
   };
 
   return (
@@ -204,7 +219,7 @@ export default function CategoryDetailScreen() {
                   isLockedByOrder={isLockedByOrder}
                   isLockedByPremium={isLockedByPremium}
                   isNextRecommended={level.id === nextRecommendedId}
-                  onPress={() => handleOpenLevel(level, isLockedByOrder)}
+                  onPress={() => handleOpenLevel(level, isLockedByOrder, prevLevel)}
                 />
               </View>
             );
@@ -215,6 +230,75 @@ export default function CategoryDetailScreen() {
           Completá un nivel con al menos 1 estrella para desbloquear el siguiente.
         </Text>
       </ScrollView>
+
+      {/* Popup amable al tocar un nivel bloqueado */}
+      <Modal
+        visible={Boolean(lockedModal)}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLockedModal(null)}
+      >
+        {lockedModal ? (
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalTop}>
+                <View style={styles.lockIconBox}>
+                  <LockIcon size={28} color={LIENZO.color.primaryInk} weight="duotone" />
+                </View>
+                <Pressable
+                  onPress={() => setLockedModal(null)}
+                  style={styles.modalCloseBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Cerrar aviso"
+                >
+                  <XIcon size={22} color={LIENZO.color.ink} weight="regular" />
+                </Pressable>
+              </View>
+
+              <Text style={styles.modalTitle}>
+                Nivel {lockedModal.target.levelNumber} bloqueado
+              </Text>
+              <Text style={styles.modalText}>
+                Para desbloquear «{lockedModal.target.title}», primero tenés que completar el{' '}
+                {lockedModal.previous
+                  ? `Nivel ${lockedModal.previous.levelNumber} («${lockedModal.previous.title}»)`
+                  : 'nivel anterior'}{' '}
+                con al menos 1 estrella.
+              </Text>
+
+              {lockedModal.previous &&
+              (lockedModal.previous.levelNumber === 1 ||
+                Boolean(
+                  levelProgress[
+                    topicLevels[lockedModal.previous.levelNumber - 2]?.id ?? ''
+                  ]?.stars
+                )) ? (
+                <Pressable
+                  onPress={() => {
+                    const prev = lockedModal.previous!;
+                    setLockedModal(null);
+                    launchLevel(prev);
+                  }}
+                  style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.primaryBtnText}>
+                    Jugar Nivel {lockedModal.previous.levelNumber} ahora
+                  </Text>
+                </Pressable>
+              ) : null}
+
+              <Pressable
+                onPress={() => setLockedModal(null)}
+                style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.secondaryBtnText}>Entendido</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : null}
+      </Modal>
     </ScreenFrame>
   );
 }
@@ -226,7 +310,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: LIENZO.space.sm,
     paddingHorizontal: LIENZO.space.md,
-    paddingVertical: LIENZO.space.sm,
+    paddingTop: 12,
+    paddingBottom: 10,
     borderBottomWidth: LIENZO.borderWidth.hairline,
     borderBottomColor: LIENZO.color.line,
   },
@@ -336,5 +421,80 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink2,
     marginTop: LIENZO.space.lg,
     textAlign: 'center',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(20, 22, 28, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: LIENZO.space.xl,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 390,
+    backgroundColor: LIENZO.color.bg,
+    borderRadius: LIENZO.radius.block,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    padding: LIENZO.space.xl,
+    gap: LIENZO.space.md,
+  },
+  modalTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  lockIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: LIENZO.radius.icon,
+    backgroundColor: LIENZO.color.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseBtn: {
+    width: LIENZO.touchMin,
+    height: LIENZO.touchMin,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    ...LIENZO.type.title,
+    color: LIENZO.color.ink,
+  },
+  modalText: {
+    ...LIENZO.type.body,
+    color: LIENZO.color.ink2,
+  },
+  primaryBtn: {
+    width: '100%',
+    minHeight: LIENZO.buttonMinHeight,
+    borderRadius: LIENZO.radius.icon,
+    backgroundColor: LIENZO.color.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: LIENZO.space.lg,
+  },
+  primaryBtnText: {
+    ...LIENZO.type.button,
+    color: LIENZO.color.onPrimary,
+  },
+  secondaryBtn: {
+    width: '100%',
+    minHeight: LIENZO.buttonMinHeight,
+    borderRadius: LIENZO.radius.icon,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    backgroundColor: LIENZO.color.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: LIENZO.space.lg,
+  },
+  secondaryBtnText: {
+    ...LIENZO.type.button,
+    color: LIENZO.color.ink,
+  },
+  pressed: {
+    opacity: 0.9,
   },
 });

@@ -153,17 +153,8 @@ export default function PaywallScreen() {
           <View style={styles.actions}>
             <View style={styles.feedbackBox}>
               <CheckCircleIcon size={22} color={LIENZO.color.success} weight="duotone" />
-              <Text style={styles.feedbackText}>
-                Tenés el Plan Pro activo (modo prueba local).
-              </Text>
+              <Text style={styles.feedbackText}>Tenés el Plan Pro activo.</Text>
             </View>
-            <Pressable
-              onPress={() => setPremiumDemo(false)}
-              style={styles.secondaryBtn}
-              accessibilityRole="button"
-            >
-              <Text style={styles.secondaryBtnText}>Volver a plan gratuito (prueba)</Text>
-            </Pressable>
           </View>
         ) : (
           <View style={styles.actions}>
@@ -172,7 +163,7 @@ export default function PaywallScreen() {
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
-              <Text style={styles.primaryBtnText}>Activar Pro (modo prueba)</Text>
+              <Text style={styles.primaryBtnText}>Suscribirme a Pro</Text>
             </Pressable>
 
             {profile.hearts < MAX_HEARTS ? (
@@ -186,7 +177,7 @@ export default function PaywallScreen() {
               >
                 <HeartIcon size={20} color={LIENZO.color.danger} weight="duotone" />
                 <Text style={styles.secondaryBtnText}>
-                  Recargar {MAX_HEARTS} vidas gratis (prueba)
+                  Recuperar {MAX_HEARTS} vidas
                 </Text>
               </Pressable>
             ) : null}
@@ -194,8 +185,8 @@ export default function PaywallScreen() {
         )}
 
         <Text style={styles.footnote}>
-          Integración preparada para RevenueCat (react-native-purchases) en el development build
-          para Android (Google Play) e iOS (App Store).
+          La suscripción se gestiona de forma segura a través de tu cuenta de App Store o Google
+          Play y podés cancelarla cuando quieras.
         </Text>
       </ScrollView>
     </ScreenFrame>

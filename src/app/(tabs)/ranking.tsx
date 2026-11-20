@@ -18,6 +18,7 @@ export default function RankingScreen() {
     const selfEntry: LeaderboardEntry = {
       id: profile.id,
       displayName: profile.displayName || 'Peregrino',
+      username: profile.username || undefined,
       xp: profile.xp,
       streakCount: profile.streakCount,
       isCurrentUser: true,
@@ -123,6 +124,7 @@ export default function RankingScreen() {
                   <View style={styles.streakInline}>
                     <FlameIcon size={16} color={LIENZO.color.gold} weight="duotone" />
                     <Text style={styles.streakInlineText}>
+                      {entry.username ? `@${entry.username} · ` : ''}
                       {entry.streakCount === 1 ? '1 día' : `${entry.streakCount} días`}
                     </Text>
                   </View>

@@ -77,6 +77,8 @@ function createInitialProfile(): UserProfile {
   return {
     id: 'guest-local',
     displayName: 'Peregrino',
+    username: '',
+    hasCompletedOnboarding: false,
     isAnonymous: true,
     authProvider: null,
     xp: 0,
@@ -90,6 +92,15 @@ function createInitialProfile(): UserProfile {
     timerEnabled: false, // Desactivado por defecto pensando en personas mayores (LINEA_GRAFICA.md)
     soundEnabled: true,
   };
+}
+
+export function sanitizeUsername(raw: string): string {
+  return raw
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9_]/g, '')
+    .slice(0, 20);
 }
 
 export interface RoundCompletionInput {
@@ -137,7 +148,9 @@ interface GameState {
     displayName?: string
   ) => Promise<{ ok: boolean; message: string }>;
   dismissSoftAuth: () => void;
+  completeOnboarding: (displayName: string, username: string) => void;
   updateDisplayName: (name: string) => void;
+  updateUsername: (username: string) => void;
   toggleTimer: () => void;
   toggleSound: () => void;
   setPremiumDemo: (enabled: boolean) => void;
@@ -363,12 +376,36 @@ export const useGameStore = create<GameState>()(
 
       dismissSoftAuth: () => set({ hasDismissedSoftAuth: true }),
 
+      completeOnboarding: (displayName, username) => {
+        const cleanName = displayName.trim() || 'Peregrino';
+        const cleanUser = sanitizeUsername(username || cleanName);
+        const updatedProfile: UserProfile = {
+          ...get().profile,
+          displayName: cleanName,
+          username: cleanUser,
+          hasCompletedOnboarding: true,
+        };
+        set({ profile: updatedProfile });
+        void syncProfileToSupabase(updatedProfile);
+      },
+
       updateDisplayName: (name) => {
         const clean = name.trim();
         if (!clean) return;
         const updatedProfile: UserProfile = {
           ...get().profile,
           displayName: clean,
+        };
+        set({ profile: updatedProfile });
+        void syncProfileToSupabase(updatedProfile);
+      },
+
+      updateUsername: (username) => {
+        const clean = sanitizeUsername(username);
+        if (!clean) return;
+        const updatedProfile: UserProfile = {
+          ...get().profile,
+          username: clean,
         };
         set({ profile: updatedProfile });
         void syncProfileToSupabase(updatedProfile);

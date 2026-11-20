@@ -15,10 +15,10 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { LIENZO } from '@/constants/theme';
-import { VATICAN_NEWS_PORTAL_URL } from '@/services/newsService';
 import type { VaticanNewsQuizItem } from '@/types/trivia';
 
 interface VaticanNewsSectionProps {
@@ -27,8 +27,7 @@ interface VaticanNewsSectionProps {
   onPlayNewsQuiz: (item: VaticanNewsQuizItem) => void;
 }
 
-const CARD_WIDTH = 276;
-const CARD_GAP = 10;
+const CARD_GAP = 12;
 
 function formatShortDate(iso: string): string {
   try {
@@ -53,14 +52,29 @@ function formatShortDate(iso: string): string {
   }
 }
 
+function getSourceColors(sourceName: string): { bg: string; ink: string } {
+  const s = sourceName.toLowerCase();
+  if (s.includes('aci')) {
+    return { bg: LIENZO.color.goldSoft, ink: LIENZO.color.goldInk };
+  }
+  if (s.includes('aleteia')) {
+    return { bg: LIENZO.category.liturgia.soft, ink: LIENZO.category.liturgia.color };
+  }
+  return { bg: LIENZO.color.primarySoft, ink: LIENZO.color.primaryInk };
+}
+
 export function VaticanNewsSection({
   items,
   completedNewsIds,
   onPlayNewsQuiz,
 }: VaticanNewsSectionProps) {
+  const { width } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (!items.length) return null;
+
+  const containerWidth = Math.min(width, LIENZO.maxPhoneWidth);
+  const cardWidth = Math.max(276, containerWidth - 68);
 
   const handleOpenUrl = async (url: string) => {
     try {
@@ -75,7 +89,7 @@ export function VaticanNewsSection({
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / (CARD_WIDTH + CARD_GAP));
+    const idx = Math.round(x / (cardWidth + CARD_GAP));
     if (idx >= 0 && idx < items.length) {
       setActiveIndex(idx);
     }
@@ -85,25 +99,17 @@ export function VaticanNewsSection({
     <View style={styles.sectionWrap}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <NewspaperIcon size={20} color={LIENZO.color.primary} weight="duotone" />
-          <Text style={styles.sectionTitle}>Vatican News</Text>
+          <NewspaperIcon size={22} color={LIENZO.color.primary} weight="duotone" />
+          <Text style={styles.sectionTitle}>Nuevas noticias</Text>
         </View>
-
-        <Pressable
-          onPress={() => void handleOpenUrl(VATICAN_NEWS_PORTAL_URL)}
-          hitSlop={10}
-          accessibilityRole="link"
-          accessibilityLabel="Abrir portal Vatican News en español"
-        >
-          <Text style={styles.portalLink}>Ver portal</Text>
-        </Pressable>
+        <Text style={styles.sourcesHint}>Vatican News · ACI · Aleteia</Text>
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
-        snapToInterval={CARD_WIDTH + CARD_GAP}
+        snapToInterval={cardWidth + CARD_GAP}
         snapToAlignment="start"
         onMomentumScrollEnd={handleScroll}
         onScrollEndDrag={handleScroll}
@@ -112,9 +118,10 @@ export function VaticanNewsSection({
       >
         {items.map((item) => {
           const isCompleted = completedNewsIds.includes(item.id);
+          const sourceColors = getSourceColors(item.sourceName);
 
           return (
-            <View key={item.id} style={styles.card}>
+            <View key={item.id} style={[styles.card, { width: cardWidth }]}>
               {item.imageUrl ? (
                 <Image
                   source={{ uri: item.imageUrl }}
@@ -126,10 +133,14 @@ export function VaticanNewsSection({
 
               <View style={styles.cardBody}>
                 <View style={styles.metaRow}>
-                  <View style={styles.tagChip}>
-                    <Text style={styles.tagText}>{item.sectionLabel}</Text>
+                  <View style={[styles.tagChip, { backgroundColor: sourceColors.bg }]}>
+                    <Text style={[styles.tagText, { color: sourceColors.ink }]}>
+                      {item.sourceName}
+                    </Text>
                   </View>
-                  <Text style={styles.dateText}>{formatShortDate(item.publishedAt)}</Text>
+                  <Text style={styles.dateText}>
+                    {item.sectionLabel} · {formatShortDate(item.publishedAt)}
+                  </Text>
                   {isCompleted ? (
                     <View style={styles.doneChip}>
                       <CheckCircleIcon
@@ -146,6 +157,10 @@ export function VaticanNewsSection({
                   {item.title}
                 </Text>
 
+                <Text style={styles.summary} numberOfLines={2}>
+                  {item.summary}
+                </Text>
+
                 <View style={styles.actions}>
                   <Pressable
                     onPress={() => onPlayNewsQuiz(item)}
@@ -153,22 +168,22 @@ export function VaticanNewsSection({
                     accessibilityLabel={`Jugar quiz de la noticia: ${item.title}`}
                     style={({ pressed }) => [styles.quizBtn, pressed && styles.pressed]}
                   >
-                    <SparkleIcon size={16} color={LIENZO.color.primaryInk} weight="duotone" />
+                    <SparkleIcon size={17} color={LIENZO.color.primaryInk} weight="duotone" />
                     <Text style={styles.quizBtnText}>
                       {isCompleted
-                        ? `Repetir (${item.questions.length})`
-                        : `Quiz (${item.questions.length})`}
+                        ? `Repetir quiz (${item.questions.length})`
+                        : `Jugar quiz (${item.questions.length})`}
                     </Text>
                   </Pressable>
 
                   <Pressable
                     onPress={() => void handleOpenUrl(item.url)}
                     accessibilityRole="link"
-                    accessibilityLabel={`Leer noticia completa en Vatican News: ${item.title}`}
+                    accessibilityLabel={`Leer noticia completa en ${item.sourceName}: ${item.title}`}
                     style={({ pressed }) => [styles.readBtn, pressed && styles.pressed]}
                   >
                     <ArrowSquareOutIcon
-                      size={16}
+                      size={17}
                       color={LIENZO.color.ink2}
                       weight="regular"
                     />
@@ -191,7 +206,7 @@ export function VaticanNewsSection({
                 style={[
                   styles.dot,
                   isCurrent
-                    ? { width: 16, backgroundColor: LIENZO.color.primary }
+                    ? { width: 18, backgroundColor: LIENZO.color.primary }
                     : { width: 6, backgroundColor: LIENZO.color.line },
                 ]}
               />
@@ -205,29 +220,30 @@ export function VaticanNewsSection({
 
 const styles = StyleSheet.create({
   sectionWrap: {
-    marginTop: 18,
+    marginTop: 28,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'baseline',
     gap: LIENZO.space.sm,
-    marginBottom: 8,
+    marginBottom: 12,
+    flexWrap: 'wrap',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   sectionTitle: {
-    fontSize: 18,
-    lineHeight: 23,
-    fontFamily: LIENZO.font.semiBold,
+    ...LIENZO.type.section,
     color: LIENZO.color.ink,
   },
-  portalLink: {
-    ...LIENZO.type.captionBold,
-    color: LIENZO.color.primary,
+  sourcesHint: {
+    fontSize: 13,
+    lineHeight: 17,
+    fontFamily: LIENZO.font.regular,
+    color: LIENZO.color.ink2,
   },
   carousel: {
     marginHorizontal: -LIENZO.space.xl,
@@ -237,7 +253,6 @@ const styles = StyleSheet.create({
     gap: CARD_GAP,
   },
   card: {
-    width: CARD_WIDTH,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.card,
@@ -246,29 +261,28 @@ const styles = StyleSheet.create({
   },
   thumb: {
     width: '100%',
-    height: 98,
+    height: 122,
     backgroundColor: LIENZO.color.track,
   },
   cardBody: {
-    padding: 12,
+    padding: 14,
     gap: 8,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    flexWrap: 'wrap',
   },
   tagChip: {
-    backgroundColor: LIENZO.color.primarySoft,
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
   },
   tagText: {
     fontSize: 13,
     lineHeight: 16,
     fontFamily: LIENZO.font.bold,
-    color: LIENZO.color.primaryInk,
   },
   dateText: {
     fontSize: 13,
@@ -282,7 +296,7 @@ const styles = StyleSheet.create({
     gap: 3,
     backgroundColor: LIENZO.color.successSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 'auto',
   },
@@ -293,19 +307,23 @@ const styles = StyleSheet.create({
     color: LIENZO.color.successInk,
   },
   title: {
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 16,
+    lineHeight: 21,
     fontFamily: LIENZO.font.bold,
     color: LIENZO.color.ink,
-    minHeight: 40,
+  },
+  summary: {
+    ...LIENZO.type.caption,
+    color: LIENZO.color.ink2,
   },
   actions: {
     flexDirection: 'row',
     gap: 8,
+    marginTop: 4,
   },
   quizBtn: {
     flex: 1,
-    minHeight: 42,
+    minHeight: 46,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primarySoft,
     borderWidth: LIENZO.borderWidth.card,
@@ -313,15 +331,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
+    gap: 6,
+    paddingHorizontal: 12,
   },
   quizBtnText: {
-    ...LIENZO.type.captionBold,
+    ...LIENZO.type.smallBold,
     color: LIENZO.color.primaryInk,
   },
   readBtn: {
-    minHeight: 42,
+    minHeight: 46,
     borderRadius: LIENZO.radius.icon,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
@@ -330,10 +348,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
   },
   readBtnText: {
-    ...LIENZO.type.captionBold,
+    ...LIENZO.type.smallSemiBold,
     color: LIENZO.color.ink,
   },
   pressed: {
@@ -344,10 +362,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 6,
-    marginTop: 8,
+    marginTop: 10,
   },
   dot: {
-    height: 5,
+    height: 6,
     borderRadius: 3,
   },
 });

@@ -36,7 +36,7 @@ export function QuestionCard({
           const isSelected = selectedIndex === idx;
           const isCorrectOption = idx === question.correctIndex;
 
-          // Estados exactos de LINEA_GRAFICA.md sección 2.5
+          // Estados exactos de LINEA_GRAFICA.md sección 2.5 (siempre color + ícono + texto)
           let bg: string = LIENZO.color.bg;
           let borderColor: string = LIENZO.color.line;
           let borderWidth: number = LIENZO.borderWidth.card;
@@ -67,7 +67,6 @@ export function QuestionCard({
             iconType = 'wrong';
             stateLabel = 'Incorrecta';
           } else if (!isSelected && isCorrectOption) {
-            // Correcta no elegida (se revela)
             bg = LIENZO.color.bg;
             borderColor = LIENZO.color.success;
             borderWidth = LIENZO.borderWidth.active;
@@ -75,7 +74,6 @@ export function QuestionCard({
             iconType = 'correct';
             stateLabel = 'Respuesta correcta';
           } else {
-            // Deshabilitada tras responder
             bg = LIENZO.color.bg;
             borderColor = LIENZO.color.line;
             borderWidth = LIENZO.borderWidth.card;
@@ -121,48 +119,49 @@ export function QuestionCard({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: 14,
   },
   categoryChip: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   categoryLabel: {
-    fontSize: 13,
-    lineHeight: 16,
-    fontFamily: LIENZO.font.bold,
+    ...LIENZO.type.captionBold,
   },
   prompt: {
-    fontSize: 19,
-    lineHeight: 24,
+    fontSize: 21,
+    lineHeight: 27,
     fontFamily: LIENZO.font.semiBold,
     color: LIENZO.color.ink,
+    textAlign: 'center',
+    paddingHorizontal: 4,
   },
   optionsList: {
-    gap: 7,
+    gap: 10,
+    marginTop: 4,
   },
   optionButton: {
     width: '100%',
-    minHeight: 44,
-    borderRadius: 14,
-    paddingVertical: 9,
-    paddingHorizontal: 14,
+    minHeight: 52,
+    borderRadius: LIENZO.radius.card,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 12,
   },
   optionPressed: {
     backgroundColor: LIENZO.color.primarySoft,
   },
   optionText: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 22,
     fontFamily: LIENZO.font.semiBold,
     flex: 1,
   },

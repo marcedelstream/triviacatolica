@@ -52,6 +52,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="onboarding" options={{ presentation: 'modal' }} />
         <Stack.Screen name="categories" />
         <Stack.Screen name="category/[slug]" />
         <Stack.Screen name="play/[levelId]" />

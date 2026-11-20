@@ -13,7 +13,7 @@ import {
   XIcon,
 } from 'phosphor-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Animated, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { FeedbackSheet } from '@/components/FeedbackSheet';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -107,6 +107,7 @@ export default function PlayScreen() {
   const [outOfHearts, setOutOfHearts] = useState(false);
   const [summary, setSummary] = useState<RoundCompletionResult | null>(null);
   const [animatedXp, setAnimatedXp] = useState(0);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Animaciones suaves Lienzo (150-250ms)
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -355,29 +356,50 @@ export default function PlayScreen() {
 
           <View style={styles.summaryActions}>
             <Pressable
-              onPress={() => router.back()}
+              onPress={async () => {
+                const shareMessage = `Respondí ${correctIds.length}/${roundQuestions.length} en Trivia Católica (${
+                  currentNewsItem?.title ?? currentLevel?.title ?? DAILY_CHALLENGE.title
+                }). ¡Probalo acá! ${shareUrl}`;
+
+                if (Platform.OS === 'web') {
+                  try {
+                    if (typeof navigator !== 'undefined' && navigator.share) {
+                      await navigator.share({
+                        title: 'Trivia Católica',
+                        text: shareMessage,
+                        url: shareUrl,
+                      });
+                      return;
+                    }
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      await navigator.clipboard.writeText(shareMessage);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2600);
+                      return;
+                    }
+                  } catch {
+                    // fallback below
+                  }
+                }
+                await Share.share({ message: shareMessage, url: shareUrl });
+              }}
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
+              <ShareNetworkIcon size={20} color={LIENZO.color.onPrimary} weight="duotone" />
               <Text style={styles.primaryBtnText}>
-                {isDaily || isNewsQuiz ? 'Volver al inicio' : 'Volver a la categoría'}
+                {copiedLink ? '¡Enlace copiado!' : 'Compartir mi resultado'}
               </Text>
             </Pressable>
 
             <Pressable
-              onPress={() =>
-                void Share.share({
-                  message: `Respondí ${correctIds.length}/${roundQuestions.length} en Trivia Católica (${
-                    currentNewsItem?.title ?? currentLevel?.title ?? DAILY_CHALLENGE.title
-                  }). ¡Probalo acá! ${shareUrl}`,
-                  url: shareUrl,
-                })
-              }
+              onPress={() => router.back()}
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
-              <ShareNetworkIcon size={20} color={LIENZO.color.primary} weight="duotone" />
-              <Text style={styles.secondaryBtnText}>Compartir cuestionario</Text>
+              <Text style={styles.secondaryBtnText}>
+                {isDaily || isNewsQuiz ? 'Volver al inicio' : 'Volver a la categoría'}
+              </Text>
             </Pressable>
 
             {currentNewsItem?.url ? (
@@ -387,7 +409,9 @@ export default function PlayScreen() {
                 accessibilityRole="link"
               >
                 <ArrowSquareOutIcon size={20} color={LIENZO.color.ink} weight="regular" />
-                <Text style={styles.secondaryBtnText}>Leer nota en Vatican News</Text>
+                <Text style={styles.secondaryBtnText}>
+                  Leer nota en {currentNewsItem.sourceName}
+                </Text>
               </Pressable>
             ) : null}
 
@@ -576,7 +600,7 @@ export default function PlayScreen() {
             question={activeQuestion}
             categoryTitle={
               currentNewsItem
-                ? `Vatican News · ${currentNewsItem.sectionLabel}`
+                ? `${currentNewsItem.sourceName} · ${currentNewsItem.sectionLabel}`
                 : (topicForQuestion?.title ?? 'Trivia')
             }
             selectedIndex={selectedIndex}
@@ -629,13 +653,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: LIENZO.space.sm,
     paddingHorizontal: LIENZO.space.md,
-    paddingVertical: 6,
+    paddingTop: 14,
+    paddingBottom: 10,
     borderBottomWidth: LIENZO.borderWidth.hairline,
     borderBottomColor: LIENZO.color.line,
   },
   closeBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: LIENZO.radius.icon,
@@ -735,19 +760,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingTop: 24,
+    paddingBottom: 28,
   },
   confirmBtn: {
-    marginTop: 14,
+    marginTop: 18,
     width: '100%',
-    minHeight: 48,
-    borderRadius: 12,
+    minHeight: 52,
+    borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   confirmBtnDisabled: {
     backgroundColor: LIENZO.color.track,
@@ -760,8 +787,10 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   summaryContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: LIENZO.space.xxxl,
+    paddingTop: LIENZO.space.xxl,
     paddingBottom: LIENZO.space.xxxl,
     alignItems: 'center',
     gap: LIENZO.space.md,
@@ -851,8 +880,10 @@ const styles = StyleSheet.create({
     minHeight: LIENZO.buttonMinHeight,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primary,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: LIENZO.space.sm,
     paddingHorizontal: LIENZO.space.lg,
   },
   primaryBtnText: {

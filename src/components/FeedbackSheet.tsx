@@ -8,7 +8,9 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { ReferenceModal } from '@/components/ReferenceModal';
 import { LIENZO } from '@/constants/theme';
+import { splitReferenceTokens } from '@/data/scriptureCicBank';
 import type { Question } from '@/types/trivia';
 
 interface FeedbackSheetProps {
@@ -42,6 +44,7 @@ export function FeedbackSheet({
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [activeReference, setActiveReference] = useState<string | null>(null);
 
   const entrance = useRef(new Animated.Value(0)).current;
 
@@ -55,6 +58,7 @@ export function FeedbackSheet({
   }, [entrance, question.id]);
 
   const correctAnswer = question.options[question.correctIndex];
+  const refTokens = splitReferenceTokens(question.sourceRef);
 
   const handleSubmitReport = async (reasonText: string) => {
     const clean = reasonText.trim();
@@ -116,17 +120,22 @@ export function FeedbackSheet({
 
       <Text style={styles.explanation}>{question.explanation}</Text>
 
+      {/* Citas tocables (Biblia / CIC) que abren popup con el texto completo + Reportar */}
       <View style={styles.metaFooterRow}>
-        {question.sourceRef ? (
-          <View style={styles.sourceRow}>
-            <BookBookmarkIcon size={15} color={LIENZO.color.ink2} weight="regular" />
-            <Text style={styles.sourceText} numberOfLines={1}>
-              {question.sourceRef}
-            </Text>
-          </View>
-        ) : (
-          <View />
-        )}
+        <View style={styles.refChipsWrap}>
+          {refTokens.map((token) => (
+            <Pressable
+              key={token}
+              onPress={() => setActiveReference(token)}
+              accessibilityRole="button"
+              accessibilityLabel={`Leer texto completo de ${token}`}
+              style={({ pressed }) => [styles.refChip, pressed && styles.pressed]}
+            >
+              <BookBookmarkIcon size={15} color={LIENZO.color.primaryInk} weight="duotone" />
+              <Text style={styles.refChipText}>{token}</Text>
+            </Pressable>
+          ))}
+        </View>
 
         {!reportSent && !showReportForm ? (
           <Pressable
@@ -200,27 +209,32 @@ export function FeedbackSheet({
           {isLastQuestion ? 'Ver resultado' : 'Siguiente'}
         </Text>
       </Pressable>
+
+      <ReferenceModal
+        referenceToken={activeReference}
+        onClose={() => setActiveReference(null)}
+      />
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   sheet: {
-    marginTop: 10,
+    marginTop: 14,
     borderRadius: LIENZO.radius.card,
     borderWidth: LIENZO.borderWidth.active,
-    padding: 12,
-    gap: 8,
+    padding: 16,
+    gap: 10,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     flexWrap: 'wrap',
   },
   statusText: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 22,
     fontFamily: LIENZO.font.bold,
     flex: 1,
   },
@@ -232,8 +246,8 @@ const styles = StyleSheet.create({
     borderRadius: LIENZO.radius.chip,
     borderWidth: LIENZO.borderWidth.hairline,
     borderColor: LIENZO.color.success,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
   xpPillText: {
     fontSize: 13,
@@ -242,8 +256,8 @@ const styles = StyleSheet.create({
     color: LIENZO.color.successInk,
   },
   explanation: {
-    fontSize: 14.5,
-    lineHeight: 20,
+    fontSize: 15.5,
+    lineHeight: 22,
     fontFamily: LIENZO.font.regular,
     color: LIENZO.color.ink,
   },
@@ -252,26 +266,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
+    flexWrap: 'wrap',
   },
-  sourceRow: {
+  refChipsWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  refChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    flex: 1,
-    minWidth: 0,
+    backgroundColor: LIENZO.color.bg,
+    borderWidth: LIENZO.borderWidth.hairline,
+    borderColor: LIENZO.color.primary,
+    borderRadius: LIENZO.radius.chip,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
-  sourceText: {
+  refChipText: {
     fontSize: 13,
-    lineHeight: 17,
-    fontFamily: LIENZO.font.regular,
-    color: LIENZO.color.ink2,
-    flexShrink: 1,
+    lineHeight: 16,
+    fontFamily: LIENZO.font.bold,
+    color: LIENZO.color.primaryInk,
   },
   reportTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
   reportTriggerText: {
     fontSize: 13,
@@ -354,19 +379,17 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     width: '100%',
-    minHeight: 46,
-    borderRadius: 12,
+    minHeight: 50,
+    borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: LIENZO.space.lg,
     marginTop: 2,
   },
   nextButtonText: {
-    fontSize: 16,
-    lineHeight: 20,
-    fontFamily: LIENZO.font.bold,
+    ...LIENZO.type.button,
     color: LIENZO.color.onPrimary,
   },
   pressed: {

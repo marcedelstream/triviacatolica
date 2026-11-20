@@ -1,16 +1,20 @@
 // Supabase Edge Function: sync-vatican-news
-// Lee el RSS oficial en español de Vatican News (https://www.vaticannews.va/es.rss.xml),
-// genera un mini-quiz de 3 preguntas con Gemini Structured Outputs para cada noticia nueva
-// y lo guarda en public.news_quizzes.
+// Sincroniza las últimas noticias católicas en español desde múltiples medios
+// (Vatican News, ACI Prensa y Aleteia), genera un mini-quiz de 3 preguntas
+// con Gemini Structured Outputs para cada noticia nueva y lo guarda en public.news_quizzes.
 //
-// Programable con pg_cron una o dos veces al día.
 // Secretos requeridos: GEMINI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const VATICAN_NEWS_RSS = 'https://www.vaticannews.va/es.rss.xml';
+const NEWS_FEEDS = [
+  { sourceName: 'Vatican News', url: 'https://www.vaticannews.va/es.rss.xml', limit: 2 },
+  { sourceName: 'ACI Prensa', url: 'https://www.aciprensa.com/rss/noticias', limit: 2 },
+  { sourceName: 'Aleteia', url: 'https://es.aleteia.org/feed/', limit: 2 },
+];
 
 interface ParsedRssItem {
+  sourceName: string;
   title: string;
   link: string;
   summary: string;
@@ -46,41 +50,43 @@ function extractTag(block: string, tag: string): string {
     .trim();
 }
 
-function inferSection(link: string): string {
-  if (link.includes('/es/papa/')) return 'El Papa';
-  if (link.includes('/es/vaticano/')) return 'Vaticano';
-  if (link.includes('/es/iglesia/')) return 'Iglesia';
-  return 'Mundo';
+function inferSection(link: string, sourceName: string): string {
+  if (link.includes('/papa/')) return 'El Papa';
+  if (link.includes('/vaticano/')) return 'Vaticano';
+  if (link.includes('/iglesia/')) return 'Iglesia';
+  if (sourceName === 'Aleteia') return 'Fe y cultura';
+  return 'Iglesia';
 }
 
-function parseRss(xml: string, limit = 5): ParsedRssItem[] {
+function parseRss(xml: string, sourceName: string, limit: number): ParsedRssItem[] {
   const matches = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].slice(0, limit);
   return matches
     .map((m) => {
       const block = m[1];
       const title = extractTag(block, 'title');
       const link = extractTag(block, 'link');
-      const summary = extractTag(block, 'description');
+      const summary = extractTag(block, 'description').slice(0, 240);
       const pubDate = extractTag(block, 'pubDate');
       const enc =
         block.match(/enclosure[^>]*url="([^"]+)"/i) ??
-        block.match(/media:content[^>]*url="([^"]+)"/i);
+        block.match(/media:content[^>]*url="([^"]+)"/i) ??
+        block.match(/media:thumbnail[^>]*url="([^"]+)"/i);
 
       return {
+        sourceName,
         title,
         link,
         summary,
         pubDate,
         imageUrl: enc ? enc[1] : null,
-        sectionLabel: inferSection(link),
+        sectionLabel: inferSection(link, sourceName),
       };
     })
     .filter((item) => Boolean(item.title && item.link));
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(async () => {
   try {
-    const { limit = 4 } = await req.json().catch(() => ({}));
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -93,22 +99,23 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const rssRes = await fetch(VATICAN_NEWS_RSS);
-    if (!rssRes.ok) {
-      return new Response(JSON.stringify({ error: 'No se pudo descargar el RSS de Vatican News.' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const rssText = await rssRes.text();
-    const items = parseRss(rssText, Math.min(Number(limit) || 4, 8));
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const allItems: ParsedRssItem[] = [];
+
+    for (const feed of NEWS_FEEDS) {
+      try {
+        const res = await fetch(feed.url);
+        if (!res.ok) continue;
+        const xml = await res.text();
+        allItems.push(...parseRss(xml, feed.sourceName, feed.limit));
+      } catch {
+        // Si un medio falla temporalmente, continuamos con los demás
+      }
+    }
 
     let synced = 0;
 
-    for (const item of items) {
-      // Evitar regenerar noticias ya guardadas
+    for (const item of allItems) {
       const { data: existing } = await supabase
         .from('news_quizzes')
         .select('id')
@@ -118,13 +125,13 @@ Deno.serve(async (req: Request) => {
       if (existing) continue;
 
       const prompt = [
-        'Creá exactamente 3 preguntas de trivia en español basadas en esta noticia de Vatican News y su contexto católico:',
+        `Creá exactamente 3 preguntas de trivia en español basadas en esta noticia de ${item.sourceName} y su contexto católico:`,
         `Titular: ${item.title}`,
         `Resumen: ${item.summary}`,
         'Reglas:',
-        '- 2 preguntas sobre los hechos principales de la noticia y 1 pregunta de cultura/doctrina católica relacionada con el tema.',
+        '- 2 preguntas sobre los hechos principales de la noticia y 1 pregunta de doctrina/Biblia relacionada.',
         '- Exactamente 4 opciones claras y sin ambigüedades; correct_index entre 0 y 3.',
-        '- Explicación amable de máximo 2 frases y source_ref ("Vatican News" o cita del CIC/Biblia).',
+        `- Explicación amable de máximo 2 frases y source_ref ("${item.sourceName}" o cita exacta del CIC/Biblia).`,
       ].join('\n');
 
       const geminiRes = await fetch(
@@ -154,6 +161,7 @@ Deno.serve(async (req: Request) => {
 
       const { error } = await supabase.from('news_quizzes').insert({
         external_url: item.link,
+        source_name: item.sourceName,
         section_label: item.sectionLabel,
         title: item.title,
         summary: item.summary,
@@ -166,7 +174,7 @@ Deno.serve(async (req: Request) => {
       if (!error) synced += 1;
     }
 
-    return new Response(JSON.stringify({ checked: items.length, synced }), {
+    return new Response(JSON.stringify({ checked: allItems.length, synced }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

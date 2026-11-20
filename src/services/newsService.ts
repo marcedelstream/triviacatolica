@@ -42,7 +42,8 @@ export async function loadVaticanNewsQuizzes(): Promise<VaticanNewsQuizItem[]> {
 
           return {
             id: row.id,
-            sectionLabel: row.section_label ?? 'Vaticano',
+            sourceName: row.source_name ?? 'Vatican News',
+            sectionLabel: row.section_label ?? 'Iglesia',
             title: row.title,
             summary: row.summary,
             url: row.external_url,

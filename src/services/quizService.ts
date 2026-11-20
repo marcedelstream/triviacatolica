@@ -167,6 +167,7 @@ export async function syncProfileToSupabase(profile: UserProfile): Promise<void>
       .from('profiles')
       .update({
         display_name: profile.displayName,
+        username: profile.username || null,
         is_anonymous: profile.isAnonymous,
         xp: profile.xp,
         streak_count: profile.streakCount,

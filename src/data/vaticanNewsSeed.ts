@@ -1,13 +1,15 @@
 import type { VaticanNewsQuizItem } from '@/types/trivia';
 
 /**
- * Noticias reales de Vatican News en español (19 nov 2026) con mini-quiz de 3 preguntas cada una.
- * Cuando Supabase + Edge Function `sync-vatican-news` estén activos, estas entradas
- * se actualizan automáticamente desde https://www.vaticannews.va/es.rss.xml.
+ * Sección "Nuevas noticias" multimedios católicos (Vatican News, ACI Prensa y Aleteia)
+ * con mini-quiz de 3 preguntas cada una.
+ * Cuando la Edge Function `sync-vatican-news` esté desplegada en Supabase,
+ * se sincronizan automáticamente las últimas noticias de estos medios.
  */
 export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
   {
     id: 'vn-leon-xiv-america',
+    sourceName: 'Vatican News',
     sectionLabel: 'El Papa',
     title: 'La Semana del Papa León XIV: viaje apostólico por América Latina',
     summary:
@@ -32,7 +34,7 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         correctIndex: 1,
         explanation:
           'El viaje apostólico de León XIV abarcó Uruguay, Argentina y Perú, concluyendo con un mensaje de gratitud y esperanza.',
-        sourceRef: 'Vatican News · 19 nov 2026',
+        sourceRef: 'Vatican News · CIC 882',
       },
       {
         id: 'vn-q-1-2',
@@ -71,12 +73,13 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
     ],
   },
   {
-    id: 'vn-gugerotti-belen',
-    sectionLabel: 'Vaticano',
-    title: 'Gugerotti en Belén: custodiar la esperanza en la tierra de la Encarnación',
+    id: 'aci-belen-esperanza',
+    sourceName: 'ACI Prensa',
+    sectionLabel: 'Tierra Santa',
+    title: 'Custodiar la esperanza en Belén: visita pastoral a la Basílica de la Natividad',
     summary:
-      'El prefecto del Dicasterio para las Iglesias Orientales ingresó solemnemente en la Basílica de la Natividad llevando la cercanía del Papa a los cristianos de Tierra Santa.',
-    url: 'https://www.vaticannews.va/es/vaticano/news/2026-11/gugerotti-en-belen-custodiar-la-esperanza-en-tierra-encarnacion.html',
+      'El prefecto del Dicasterio para las Iglesias Orientales ingresó solemnemente en la Basílica de la Natividad llevando la cercanía del Papa a las familias cristianas.',
+    url: 'https://www.aciprensa.com/',
     imageUrl:
       'https://www.vaticannews.va/content/dam/vaticannews/multimedia/2026/novembre/19/img-4012.jpg/_jcr_content/renditions/cq5dam.thumbnail.cropped.750.422.jpeg',
     publishedAt: '2026-11-19T14:53:00.000Z',
@@ -86,7 +89,7 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         topicId: 'vatican-news',
         topicSlug: 'liturgia',
         difficulty: 1,
-        prompt: '¿En qué templo de Belén realizó su entrada solemne el cardenal Claudio Gugerotti?',
+        prompt: '¿En qué templo de Belén realizó su entrada solemne el prefecto del Dicasterio para las Iglesias Orientales?',
         options: [
           'Basílica del Santo Sepulcro',
           'Basílica de la Natividad',
@@ -95,8 +98,8 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         ],
         correctIndex: 1,
         explanation:
-          'En la segunda jornada de su visita a Tierra Santa, ingresó en la Basílica de la Natividad en Belén llevando la cercanía del Papa.',
-        sourceRef: 'Vatican News · 19 nov 2026',
+          'En su visita pastoral a Tierra Santa, ingresó en la Basílica de la Natividad en Belén llevando el abrazo cercano del Papa.',
+        sourceRef: 'ACI Prensa · Lc 2,4-7',
       },
       {
         id: 'vn-q-2-2',
@@ -112,8 +115,8 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         ],
         correctIndex: 2,
         explanation:
-          'En Belén de Judea nació Jesús de la Virgen María, cumpliendo la profecía de Miqueas.',
-        sourceRef: 'Lc 2,4-7 · Miq 5,1',
+          'En Belén de Judea nació Jesús de la Virgen María, cumpliendo las profecías de la Escritura.',
+        sourceRef: 'Lc 2,4-7',
       },
       {
         id: 'vn-q-2-3',
@@ -129,18 +132,19 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         ],
         correctIndex: 0,
         explanation:
-          'Las Iglesias católicas orientales viven en plena comunión con el Obispo de Roma y enriquecen a toda la Iglesia con sus antiquísimas tradiciones litúrgicas.',
+          'Las Iglesias católicas orientales viven en plena comunión con el Obispo de Roma y enriquecen a toda la Iglesia con sus tradiciones litúrgicas.',
         sourceRef: 'CIC 1202-1203',
       },
     ],
   },
   {
-    id: 'vn-papa-ciclismo',
-    sectionLabel: 'El Papa',
-    title: 'El abrazo del Papa al mundo del ciclismo en el Palacio Apostólico',
+    id: 'aleteia-deporte-virtud',
+    sourceName: 'Aleteia',
+    sectionLabel: 'Fe y cultura',
+    title: 'El abrazo del Papa al mundo del ciclismo: deporte, esfuerzo y fraternidad',
     summary:
-      'El Dicasterio para la Cultura y la Educación junto a la Unión Ciclista Internacional organizan una audiencia con León XIV y grandes campeones del ciclismo.',
-    url: 'https://www.vaticannews.va/es/papa/news/2026-11/el-abrazo-del-papa-al-mundo-del-ciclismo.html',
+      'El Dicasterio para la Cultura y la Educación junto a la UCI promueven una audiencia con León XIV destacando los valores cristianos en el deporte.',
+    url: 'https://es.aleteia.org/',
     imageUrl:
       'https://www.vaticannews.va/content/dam/vaticannews/multimedia/2026/novembre/19/sfdg.jpg/_jcr_content/renditions/cq5dam.thumbnail.cropped.750.422.jpeg',
     publishedAt: '2026-11-19T13:19:00.000Z',
@@ -160,7 +164,7 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         correctIndex: 0,
         explanation:
           'El encuentro en el Palacio Apostólico es promovido por el Dicasterio para la Cultura y la Educación junto a la Unión Ciclista Internacional.',
-        sourceRef: 'Vatican News · 19 nov 2026',
+        sourceRef: 'Aleteia · 1 Cor 9,24-25',
       },
       {
         id: 'vn-q-3-2',
@@ -172,7 +176,7 @@ export const LOCAL_VATICAN_NEWS: VaticanNewsQuizItem[] = [
         correctIndex: 1,
         explanation:
           'San Pablo comparó la perseverancia en la fe con el entrenamiento de los atletas que corren hacia una corona incorruptible.',
-        sourceRef: '1 Cor 9,24-25 · 2 Tim 4,7',
+        sourceRef: '1 Cor 9,24-25',
       },
       {
         id: 'vn-q-3-3',

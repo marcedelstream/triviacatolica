@@ -49,6 +49,8 @@ export interface BannerItem {
 export interface UserProfile {
   id: string;
   displayName: string;
+  username: string;
+  hasCompletedOnboarding: boolean;
   isAnonymous: boolean;
   authProvider?: 'google' | 'apple' | null;
   xp: number;
@@ -74,6 +76,7 @@ export interface LevelProgress {
 export interface LeaderboardEntry {
   id: string;
   displayName: string;
+  username?: string;
   xp: number;
   streakCount: number;
   isCurrentUser?: boolean;
@@ -88,6 +91,7 @@ export interface QuestionReport {
 
 export interface VaticanNewsQuizItem {
   id: string;
+  sourceName: string;
   sectionLabel: string;
   title: string;
   summary: string;

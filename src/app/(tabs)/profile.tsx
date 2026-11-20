@@ -1,10 +1,9 @@
 import { useRouter } from 'expo-router';
 import {
-  ArrowsClockwiseIcon,
+  AtIcon,
   CheckCircleIcon,
   ClockIcon,
   CrownIcon,
-  DatabaseIcon,
   FlameIcon,
   HeartIcon,
   PencilSimpleIcon,
@@ -12,7 +11,6 @@ import {
   SparkleIcon,
   SpeakerHighIcon,
   StarIcon,
-  TrashIcon,
 } from 'phosphor-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
@@ -21,42 +19,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
 import { MAX_HEARTS } from '@/data/localSeed';
-import { checkAndApplyOtaUpdate, getOtaStatus } from '@/lib/otaUpdates';
-import { useGameStore } from '@/store/useGameStore';
+import { sanitizeUsername, useGameStore } from '@/store/useGameStore';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const profile = useGameStore((s) => s.profile);
   const levelProgress = useGameStore((s) => s.levelProgress);
-  const dataSource = useGameStore((s) => s.dataSource);
   const updateDisplayName = useGameStore((s) => s.updateDisplayName);
+  const updateUsername = useGameStore((s) => s.updateUsername);
   const toggleTimer = useGameStore((s) => s.toggleTimer);
   const toggleSound = useGameStore((s) => s.toggleSound);
-  const resetLocalProgress = useGameStore((s) => s.resetLocalProgress);
 
-  const [editingName, setEditingName] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
   const [draftName, setDraftName] = useState(profile.displayName);
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [otaMessage, setOtaMessage] = useState<string | null>(null);
-  const [checkingOta, setCheckingOta] = useState(false);
-
-  const otaStatus = getOtaStatus();
-
-  const handleCheckOta = async () => {
-    if (checkingOta) return;
-    setCheckingOta(true);
-    const res = await checkAndApplyOtaUpdate();
-    setOtaMessage(res.message);
-    setCheckingOta(false);
-  };
+  const [draftUsername, setDraftUsername] = useState(profile.username || '');
 
   const completedLevelsCount = Object.values(levelProgress).filter((p) => p.stars > 0).length;
 
-  const handleSaveName = () => {
+  const handleSaveProfile = () => {
     if (draftName.trim()) {
       updateDisplayName(draftName.trim());
     }
-    setEditingName(false);
+    const cleanUser = sanitizeUsername(draftUsername);
+    if (cleanUser) {
+      updateUsername(cleanUser);
+    }
+    setEditingProfile(false);
   };
 
   return (
@@ -101,26 +89,42 @@ export default function ProfileScreen() {
           ) : null}
         </View>
 
-        {/* Tarjeta de cuenta y nombre */}
+        {/* Tarjeta de cuenta, nombre y @usuario */}
         <View style={styles.card}>
-          {editingName ? (
+          {editingProfile ? (
             <View style={styles.nameEditBox}>
-              <Text style={styles.fieldLabel}>¿Cómo te llamamos en el saludo?</Text>
+              <Text style={styles.fieldLabel}>Tu nombre</Text>
               <TextInput
                 value={draftName}
                 onChangeText={setDraftName}
-                placeholder="Tu nombre"
+                placeholder="Ej.: Marta"
                 placeholderTextColor={LIENZO.color.ink2}
                 style={styles.input}
                 autoFocus
-                returnKeyType="done"
-                onSubmitEditing={handleSaveName}
               />
+
+              <Text style={styles.fieldLabel}>Nombre de usuario (para desafíos)</Text>
+              <View style={styles.usernameField}>
+                <AtIcon size={18} color={LIENZO.color.primary} weight="regular" />
+                <TextInput
+                  value={draftUsername}
+                  onChangeText={(txt) => setDraftUsername(sanitizeUsername(txt))}
+                  placeholder="ej. marta_fe"
+                  placeholderTextColor={LIENZO.color.ink2}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.usernameInput}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSaveProfile}
+                />
+              </View>
+
               <View style={styles.editActions}>
                 <Pressable
                   onPress={() => {
                     setDraftName(profile.displayName);
-                    setEditingName(false);
+                    setDraftUsername(profile.username || '');
+                    setEditingProfile(false);
                   }}
                   style={styles.cancelBtn}
                   accessibilityRole="button"
@@ -128,7 +132,7 @@ export default function ProfileScreen() {
                   <Text style={styles.cancelBtnText}>Cancelar</Text>
                 </Pressable>
                 <Pressable
-                  onPress={handleSaveName}
+                  onPress={handleSaveProfile}
                   style={styles.saveBtn}
                   accessibilityRole="button"
                 >
@@ -140,9 +144,18 @@ export default function ProfileScreen() {
             <View style={styles.accountRow}>
               <View style={styles.accountInfo}>
                 <Text style={styles.accountName}>{profile.displayName}</Text>
+                {profile.username ? (
+                  <Text style={styles.usernameLabel}>@{profile.username}</Text>
+                ) : (
+                  <Pressable onPress={() => router.push('/onboarding')}>
+                    <Text style={styles.usernamePrompt}>
+                      Elegir @usuario para futuros desafíos
+                    </Text>
+                  </Pressable>
+                )}
                 <Text style={styles.accountStatus}>
                   {profile.isAnonymous
-                    ? 'Modo invitado · progreso guardado en este dispositivo'
+                    ? 'Cuenta invitada · vinculala para guardar tu progreso'
                     : `Cuenta vinculada con ${
                         profile.authProvider === 'apple' ? 'Apple' : 'Google'
                       }`}
@@ -151,11 +164,12 @@ export default function ProfileScreen() {
               <Pressable
                 onPress={() => {
                   setDraftName(profile.displayName);
-                  setEditingName(true);
+                  setDraftUsername(profile.username || '');
+                  setEditingProfile(true);
                 }}
                 style={styles.iconBtn}
                 accessibilityRole="button"
-                accessibilityLabel="Cambiar nombre"
+                accessibilityLabel="Editar nombre y usuario"
               >
                 <PencilSimpleIcon size={22} color={LIENZO.color.primary} weight="regular" />
               </Pressable>
@@ -211,8 +225,8 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Ajustes y accesibilidad */}
-        <Text style={styles.sectionTitle}>Ajustes</Text>
+        {/* Ajustes limpios (solo opciones pensadas para el usuario final) */}
+        <Text style={styles.sectionTitle}>Preferencias</Text>
         <View style={styles.card}>
           <View style={styles.settingRow}>
             <View style={styles.settingIcon}>
@@ -253,85 +267,6 @@ export default function ProfileScreen() {
               accessibilityLabel="Activar o desactivar temporizador en preguntas"
             />
           </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingIcon}>
-              <ArrowsClockwiseIcon size={22} color={LIENZO.color.primary} weight="duotone" />
-            </View>
-            <View style={styles.settingBody}>
-              <Text style={styles.settingTitle}>Actualizaciones OTA</Text>
-              <Text style={styles.settingDesc}>
-                {otaMessage ??
-                  `Versión ${otaStatus.runtimeVersion} · canal ${otaStatus.channel}`}
-              </Text>
-            </View>
-            <Pressable
-              onPress={() => void handleCheckOta()}
-              disabled={checkingOta}
-              style={styles.otaBtn}
-              accessibilityRole="button"
-            >
-              <Text style={styles.otaBtnText}>
-                {checkingOta ? '...' : 'Buscar'}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingIcon}>
-              <DatabaseIcon size={22} color={LIENZO.color.ink2} weight="regular" />
-            </View>
-            <View style={styles.settingBody}>
-              <Text style={styles.settingTitle}>Origen de datos</Text>
-              <Text style={styles.settingDesc}>
-                {dataSource === 'supabase'
-                  ? 'Conectado a Supabase'
-                  : 'Modo local precargado (listo para conectar con .env)'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          {confirmReset ? (
-            <View style={styles.resetConfirmBox}>
-              <Text style={styles.resetConfirmText}>
-                ¿Reiniciar tu racha, XP y niveles completados en este dispositivo?
-              </Text>
-              <View style={styles.editActions}>
-                <Pressable
-                  onPress={() => setConfirmReset(false)}
-                  style={styles.cancelBtn}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.cancelBtnText}>Cancelar</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    resetLocalProgress();
-                    setConfirmReset(false);
-                  }}
-                  style={styles.dangerBtn}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.dangerBtnText}>Sí, reiniciar</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : (
-            <Pressable
-              onPress={() => setConfirmReset(true)}
-              style={styles.resetTrigger}
-              accessibilityRole="button"
-            >
-              <TrashIcon size={20} color={LIENZO.color.danger} weight="regular" />
-              <Text style={styles.resetTriggerText}>Reiniciar progreso local</Text>
-            </Pressable>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -348,7 +283,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: 38,
+    paddingTop: 36,
     paddingBottom: LIENZO.space.xxxl,
   },
   headerRow: {
@@ -395,10 +330,19 @@ const styles = StyleSheet.create({
   },
   accountInfo: {
     flex: 1,
+    gap: 2,
   },
   accountName: {
     ...LIENZO.type.title,
     color: LIENZO.color.ink,
+  },
+  usernameLabel: {
+    ...LIENZO.type.smallBold,
+    color: LIENZO.color.primaryInk,
+  },
+  usernamePrompt: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.primary,
   },
   accountStatus: {
     ...LIENZO.type.caption,
@@ -422,7 +366,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: LIENZO.borderWidth.card,
-    borderColor: LIENZO.color.primary,
+    borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.icon,
     paddingHorizontal: LIENZO.space.md,
     paddingVertical: 10,
@@ -430,10 +374,27 @@ const styles = StyleSheet.create({
     ...LIENZO.type.body,
     color: LIENZO.color.ink,
   },
+  usernameField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.primary,
+    borderRadius: LIENZO.radius.icon,
+    paddingHorizontal: LIENZO.space.md,
+    minHeight: LIENZO.touchMin,
+  },
+  usernameInput: {
+    flex: 1,
+    ...LIENZO.type.body,
+    color: LIENZO.color.ink,
+    paddingVertical: 8,
+  },
   editActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: LIENZO.space.sm,
+    marginTop: 4,
   },
   cancelBtn: {
     minHeight: LIENZO.touchMin,
@@ -524,8 +485,8 @@ const styles = StyleSheet.create({
     gap: LIENZO.space.md,
   },
   settingIcon: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.track,
     alignItems: 'center',
@@ -547,46 +508,5 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: LIENZO.color.line,
-  },
-  otaBtn: {
-    minHeight: 40,
-    paddingHorizontal: 12,
-    borderRadius: LIENZO.radius.icon,
-    backgroundColor: LIENZO.color.primarySoft,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  otaBtnText: {
-    ...LIENZO.type.captionBold,
-    color: LIENZO.color.primaryInk,
-  },
-  resetTrigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: LIENZO.space.sm,
-    minHeight: LIENZO.touchMin,
-  },
-  resetTriggerText: {
-    ...LIENZO.type.smallSemiBold,
-    color: LIENZO.color.danger,
-  },
-  resetConfirmBox: {
-    gap: LIENZO.space.sm,
-  },
-  resetConfirmText: {
-    ...LIENZO.type.small,
-    color: LIENZO.color.ink,
-  },
-  dangerBtn: {
-    minHeight: LIENZO.touchMin,
-    paddingHorizontal: LIENZO.space.lg,
-    borderRadius: LIENZO.radius.icon,
-    backgroundColor: LIENZO.color.danger,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dangerBtnText: {
-    ...LIENZO.type.smallBold,
-    color: LIENZO.color.onPrimary,
   },
 });
