@@ -7,6 +7,7 @@ import {
 } from 'phosphor-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO, getCategoryTheme } from '@/constants/theme';
 import type { Level, LevelProgress } from '@/types/trivia';
 
@@ -83,7 +84,7 @@ export function LevelNode({
           <Text style={[styles.levelTag, { color: locked ? LIENZO.color.ink2 : theme.color }]}>
             Nivel {level.levelNumber} · {DIFFICULTY_LABELS[level.difficulty]}
           </Text>
-          {level.isPremium ? (
+          {PAYWALL_ENABLED && level.isPremium ? (
             <View style={styles.proChip}>
               <Text style={styles.proChipText}>Pro</Text>
             </View>

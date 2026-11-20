@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
 import { MAX_HEARTS } from '@/data/localSeed';
 import { checkAndApplyOtaUpdate, getOtaStatus } from '@/lib/otaUpdates';
@@ -72,30 +73,32 @@ export default function ProfileScreen() {
             <Text style={styles.title}>Perfil</Text>
           </View>
 
-          <Pressable
-            onPress={() => router.push('/paywall')}
-            accessibilityRole="button"
-            style={[
-              styles.proPill,
-              profile.isPremium
-                ? { backgroundColor: LIENZO.color.successSoft }
-                : { backgroundColor: LIENZO.color.goldSoft },
-            ]}
-          >
-            <CrownIcon
-              size={18}
-              color={profile.isPremium ? LIENZO.color.success : LIENZO.color.goldInk}
-              weight="duotone"
-            />
-            <Text
+          {PAYWALL_ENABLED ? (
+            <Pressable
+              onPress={() => router.push('/paywall')}
+              accessibilityRole="button"
               style={[
-                styles.proPillText,
-                { color: profile.isPremium ? LIENZO.color.successInk : LIENZO.color.goldInk },
+                styles.proPill,
+                profile.isPremium
+                  ? { backgroundColor: LIENZO.color.successSoft }
+                  : { backgroundColor: LIENZO.color.goldSoft },
               ]}
             >
-              {profile.isPremium ? 'Plan Pro activo' : 'Ver Pro'}
-            </Text>
-          </Pressable>
+              <CrownIcon
+                size={18}
+                color={profile.isPremium ? LIENZO.color.success : LIENZO.color.goldInk}
+                weight="duotone"
+              />
+              <Text
+                style={[
+                  styles.proPillText,
+                  { color: profile.isPremium ? LIENZO.color.successInk : LIENZO.color.goldInk },
+                ]}
+              >
+                {profile.isPremium ? 'Plan Pro activo' : 'Ver Pro'}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
 
         {/* Tarjeta de cuenta y nombre */}

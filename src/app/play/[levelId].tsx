@@ -18,6 +18,7 @@ import { Animated, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View
 import { FeedbackSheet } from '@/components/FeedbackSheet';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ScreenFrame } from '@/components/ScreenFrame';
+import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO, getCategoryTheme } from '@/constants/theme';
 import { DAILY_CHALLENGE, MAX_HEARTS } from '@/data/localSeed';
 import { playGameCue } from '@/lib/gameFeedback';
@@ -47,6 +48,7 @@ export default function PlayScreen() {
   const vaticanNews = useGameStore((s) => s.vaticanNews);
   const profile = useGameStore((s) => s.profile);
   const consumeHeart = useGameStore((s) => s.consumeHeart);
+  const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
   const completeRound = useGameStore((s) => s.completeRound);
   const submitQuestionReport = useGameStore((s) => s.submitQuestionReport);
 
@@ -255,8 +257,11 @@ export default function PlayScreen() {
 
   const handleRetry = () => {
     if (!profile.isPremium && profile.hearts <= 0) {
-      router.push('/paywall?reason=hearts');
-      return;
+      if (PAYWALL_ENABLED) {
+        router.push('/paywall?reason=hearts');
+        return;
+      }
+      refillHeartsNow();
     }
     setCurrentIndex(0);
     setSelectedIndex(null);
@@ -410,18 +415,32 @@ export default function PlayScreen() {
           </View>
           <Text style={styles.summaryTitle}>Te quedaste sin vidas</Text>
           <Text style={styles.summarySub}>
-            Tus vidas gratuitas se recargan solas cada 30 minutos, o podés pasar al plan Pro para
-            jugar con vidas infinitas.
+            {PAYWALL_ENABLED
+              ? 'Tus vidas gratuitas se recargan solas cada 30 minutos, o podés pasar al plan Pro para jugar con vidas infinitas.'
+              : 'Podés recuperar tus 3 vidas gratis ahora mismo para seguir aprendiendo sin pausas.'}
           </Text>
 
           <View style={styles.summaryActions}>
-            <Pressable
-              onPress={() => router.replace('/paywall?reason=hearts')}
-              style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
-              accessibilityRole="button"
-            >
-              <Text style={styles.primaryBtnText}>Ver vidas infinitas (Pro)</Text>
-            </Pressable>
+            {PAYWALL_ENABLED ? (
+              <Pressable
+                onPress={() => router.replace('/paywall?reason=hearts')}
+                style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.primaryBtnText}>Ver vidas infinitas (Pro)</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => {
+                  refillHeartsNow();
+                  setOutOfHearts(false);
+                }}
+                style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.primaryBtnText}>Recuperar 3 vidas y seguir</Text>
+              </Pressable>
+            )}
 
             <Pressable
               onPress={() => router.back()}

@@ -8,6 +8,7 @@ import { BannerCarousel } from '@/components/BannerCarousel';
 import { CategoryCard } from '@/components/CategoryCard';
 import { DailyChallengeCard } from '@/components/DailyChallengeCard';
 import { VaticanNewsSection } from '@/components/VaticanNewsSection';
+import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
 import { DAILY_CHALLENGE, MAX_HEARTS } from '@/data/localSeed';
 import { useGameStore } from '@/store/useGameStore';
@@ -38,6 +39,7 @@ export default function HomeScreen() {
   const answeredCorrectByTopic = useGameStore((s) => s.answeredCorrectByTopic);
   const dailyCompletedDate = useGameStore((s) => s.dailyCompletedDate);
   const refreshHearts = useGameStore((s) => s.refreshHearts);
+  const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
 
   useEffect(() => {
     refreshHearts();
@@ -51,8 +53,11 @@ export default function HomeScreen() {
     refreshHearts();
     const current = useGameStore.getState().profile;
     if (!current.isPremium && current.hearts <= 0) {
-      router.push('/paywall?reason=hearts');
-      return;
+      if (PAYWALL_ENABLED) {
+        router.push('/paywall?reason=hearts');
+        return;
+      }
+      refillHeartsNow();
     }
     router.push('/play/desafio-del-dia');
   };
@@ -61,8 +66,11 @@ export default function HomeScreen() {
     refreshHearts();
     const current = useGameStore.getState().profile;
     if (!current.isPremium && current.hearts <= 0) {
-      router.push('/paywall?reason=hearts');
-      return;
+      if (PAYWALL_ENABLED) {
+        router.push('/paywall?reason=hearts');
+        return;
+      }
+      refillHeartsNow();
     }
     router.push({
       pathname: '/play/[levelId]',
@@ -98,7 +106,13 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/paywall?reason=hearts')}
+              onPress={() => {
+                if (PAYWALL_ENABLED) {
+                  router.push('/paywall?reason=hearts');
+                } else if (profile.hearts < MAX_HEARTS) {
+                  refillHeartsNow();
+                }
+              }}
               accessibilityRole="button"
               accessibilityLabel={
                 profile.isPremium

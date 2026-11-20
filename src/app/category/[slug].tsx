@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { LevelNode } from '@/components/LevelNode';
 import { ScreenFrame } from '@/components/ScreenFrame';
+import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO, getCategoryTheme } from '@/constants/theme';
 import { MAX_HEARTS } from '@/data/localSeed';
 import { useGameStore } from '@/store/useGameStore';
@@ -23,6 +24,7 @@ export default function CategoryDetailScreen() {
   const profile = useGameStore((s) => s.profile);
   const hasDismissedSoftAuth = useGameStore((s) => s.hasDismissedSoftAuth);
   const refreshHearts = useGameStore((s) => s.refreshHearts);
+  const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
 
   const topic = useMemo(
     () => topics.find((t) => t.slug === slug) ?? topics[0],
@@ -53,14 +55,14 @@ export default function CategoryDetailScreen() {
   const nextRecommendedId =
     topicLevels.find((lvl) => {
       const done = Boolean(levelProgress[lvl.id]?.stars);
-      return !done && (!lvl.isPremium || profile.isPremium);
+      return !done && (!PAYWALL_ENABLED || !lvl.isPremium || profile.isPremium);
     })?.id ?? topicLevels[0]?.id;
 
   const handleOpenLevel = (level: Level, isLockedByOrder: boolean) => {
     refreshHearts();
     const currentProfile = useGameStore.getState().profile;
 
-    if (level.isPremium && !currentProfile.isPremium) {
+    if (PAYWALL_ENABLED && level.isPremium && !currentProfile.isPremium) {
       router.push('/paywall?reason=level');
       return;
     }
@@ -83,8 +85,11 @@ export default function CategoryDetailScreen() {
     }
 
     if (!currentProfile.isPremium && currentProfile.hearts <= 0) {
-      router.push('/paywall?reason=hearts');
-      return;
+      if (PAYWALL_ENABLED) {
+        router.push('/paywall?reason=hearts');
+        return;
+      }
+      refillHeartsNow();
     }
 
     router.push({
@@ -111,7 +116,13 @@ export default function CategoryDetailScreen() {
         </Text>
 
         <Pressable
-          onPress={() => router.push('/paywall?reason=hearts')}
+          onPress={() => {
+            if (PAYWALL_ENABLED) {
+              router.push('/paywall?reason=hearts');
+            } else if (profile.hearts < MAX_HEARTS) {
+              refillHeartsNow();
+            }
+          }}
           style={styles.heartsPill}
           accessibilityRole="button"
           accessibilityLabel={
@@ -168,7 +179,8 @@ export default function CategoryDetailScreen() {
             const prevCompleted = prevLevel
               ? Boolean(levelProgress[prevLevel.id]?.stars)
               : true;
-            const isLockedByPremium = level.isPremium && !profile.isPremium;
+            const isLockedByPremium =
+              PAYWALL_ENABLED && level.isPremium && !profile.isPremium;
             const isLockedByOrder = index > 0 && !prevCompleted && !isLockedByPremium;
 
             return (
