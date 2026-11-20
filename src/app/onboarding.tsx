@@ -22,6 +22,7 @@ import {
 import { ScreenFrame } from '@/components/ScreenFrame';
 import { LIENZO } from '@/constants/theme';
 import { playGameCue } from '@/lib/gameFeedback';
+import { checkUsernameAvailability } from '@/services/quizService';
 import { sanitizeUsername, useGameStore } from '@/store/useGameStore';
 
 export default function OnboardingScreen() {
@@ -35,6 +36,8 @@ export default function OnboardingScreen() {
     profile.displayName === 'Peregrino' ? '' : profile.displayName
   );
   const [usernameInput, setUsernameInput] = useState(profile.username || '');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
@@ -56,7 +59,17 @@ export default function OnboardingScreen() {
     setStep(1);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async (skipUsernameCheck = false) => {
+    if (checkingUsername) return;
+    if (!skipUsernameCheck && cleanUsername && cleanUsername !== profile.username) {
+      setCheckingUsername(true);
+      const availability = await checkUsernameAvailability(cleanUsername);
+      setCheckingUsername(false);
+      if (availability === 'taken') {
+        setUsernameError(`@${cleanUsername} ya lo eligió otra persona. Probá con otro.`);
+        return;
+      }
+    }
     playGameCue('celebrate', soundEnabled);
     completeOnboarding(displayName.trim() || 'Peregrino', cleanUsername);
     if (nextLevelId) {
@@ -178,17 +191,24 @@ export default function OnboardingScreen() {
                       <AtIcon size={20} color={LIENZO.color.primary} weight="regular" />
                       <TextInput
                         value={usernameInput}
-                        onChangeText={(txt) => setUsernameInput(sanitizeUsername(txt))}
+                        onChangeText={(txt) => {
+                          setUsernameInput(sanitizeUsername(txt));
+                          setUsernameError(null);
+                        }}
                         placeholder="ej. marta_fe"
                         placeholderTextColor={LIENZO.color.ink2}
                         autoCapitalize="none"
                         autoCorrect={false}
                         style={styles.usernameInput}
                         returnKeyType="done"
-                        onSubmitEditing={handleFinish}
+                        onSubmitEditing={() => void handleFinish()}
                       />
                     </View>
-                    {cleanUsername ? (
+                    {usernameError ? (
+                      <Text style={styles.errorText} accessibilityLiveRegion="polite">
+                        {usernameError}
+                      </Text>
+                    ) : cleanUsername ? (
                       <Text style={styles.previewText}>
                         Tu perfil aparecerá como @{cleanUsername}
                       </Text>
@@ -201,15 +221,18 @@ export default function OnboardingScreen() {
                 </View>
 
                 <Pressable
-                  onPress={handleFinish}
+                  onPress={() => void handleFinish()}
+                  disabled={checkingUsername}
                   style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.primaryBtnText}>Empezar a jugar</Text>
+                  <Text style={styles.primaryBtnText}>
+                    {checkingUsername ? 'Revisando usuario…' : 'Empezar a jugar'}
+                  </Text>
                 </Pressable>
 
                 <Pressable
-                  onPress={handleFinish}
+                  onPress={() => void handleFinish(true)}
                   style={styles.skipBtn}
                   accessibilityRole="button"
                 >
@@ -341,6 +364,10 @@ const styles = StyleSheet.create({
   helperText: {
     ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
+  },
+  errorText: {
+    ...LIENZO.type.captionBold,
+    color: LIENZO.color.danger,
   },
   primaryBtn: {
     width: '100%',

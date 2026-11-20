@@ -160,29 +160,101 @@ export function selectQuestionsForDailyChallenge(
   return ordered.slice(0, Math.min(count, ordered.length));
 }
 
-export async function syncProfileToSupabase(profile: UserProfile): Promise<void> {
-  if (!isSupabaseConfigured || !supabase) return;
+export type UsernameAvailability = 'available' | 'taken' | 'unknown';
+
+/**
+ * Consulta en Supabase si el @usuario está libre (función `is_username_available`).
+ * Devuelve 'unknown' sin conexión o sin Supabase: en ese caso no se bloquea al usuario
+ * y, si choca al sincronizar, `syncProfileToSupabase` lo informa.
+ */
+export async function checkUsernameAvailability(username: string): Promise<UsernameAvailability> {
+  if (!username) return 'unknown';
+  if (!isSupabaseConfigured || !supabase) return 'unknown';
   try {
-    await supabase
-      .from('profiles')
-      .update({
-        display_name: profile.displayName,
-        username: profile.username || null,
-        is_anonymous: profile.isAnonymous,
-        xp: profile.xp,
-        streak_count: profile.streakCount,
-        longest_streak: profile.longestStreak,
-        last_played_date: profile.lastPlayedDate,
-        hearts: profile.hearts,
-        hearts_updated_at: profile.heartsUpdatedAt,
-        games_played_guest: profile.gamesPlayedGuest,
-        is_premium: profile.isPremium,
-        timer_enabled: profile.timerEnabled,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profile.id);
+    const { data, error } = await supabase.rpc('is_username_available', {
+      p_username: username,
+    });
+    if (error || typeof data !== 'boolean') return 'unknown';
+    return data ? 'available' : 'taken';
   } catch {
-    // Persiste localmente de todos modos
+    return 'unknown';
+  }
+}
+
+export type ProfileSyncResult = 'ok' | 'username_taken' | 'skipped' | 'error';
+
+const UNIQUE_VIOLATION = '23505';
+
+export async function syncProfileToSupabase(profile: UserProfile): Promise<ProfileSyncResult> {
+  if (!isSupabaseConfigured || !supabase) return 'skipped';
+  const payload = {
+    display_name: profile.displayName,
+    username: profile.username || null,
+    is_anonymous: profile.isAnonymous,
+    xp: profile.xp,
+    streak_count: profile.streakCount,
+    longest_streak: profile.longestStreak,
+    last_played_date: profile.lastPlayedDate,
+    hearts: profile.hearts,
+    hearts_updated_at: profile.heartsUpdatedAt,
+    games_played_guest: profile.gamesPlayedGuest,
+    is_premium: profile.isPremium,
+    timer_enabled: profile.timerEnabled,
+    updated_at: new Date().toISOString(),
+  };
+  try {
+    const { error } = await supabase.from('profiles').update(payload).eq('id', profile.id);
+    if (!error) return 'ok';
+    if (error.code !== UNIQUE_VIOLATION) return 'error';
+
+    // El @usuario ya lo tiene otra persona: guardar igual XP, racha y el resto sin el usuario.
+    const { username: _taken, ...withoutUsername } = payload;
+    const retry = await supabase.from('profiles').update(withoutUsername).eq('id', profile.id);
+    return retry.error ? 'error' : 'username_taken';
+  } catch {
+    return 'error';
+  }
+}
+
+export interface RemoteAccountData {
+  profile: Partial<UserProfile>;
+  levelProgress: LevelProgress[];
+}
+
+/**
+ * Trae el perfil y el progreso guardados en la cuenta, para no pisarlos con el estado
+ * local al iniciar sesión en otro teléfono o después de cerrar sesión.
+ */
+export async function fetchRemoteAccountData(userId: string): Promise<RemoteAccountData | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
+  try {
+    const [profileRes, progressRes] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
+      supabase.from('user_level_progress').select('*').eq('user_id', userId),
+    ]);
+    if (profileRes.error) return null;
+    const row = profileRes.data;
+    const profile: Partial<UserProfile> = row
+      ? {
+          displayName: row.display_name ?? undefined,
+          username: row.username ?? '',
+          xp: row.xp ?? 0,
+          streakCount: row.streak_count ?? 0,
+          longestStreak: row.longest_streak ?? 0,
+          lastPlayedDate: row.last_played_date ?? null,
+          timerEnabled: Boolean(row.timer_enabled),
+        }
+      : {};
+    const levelProgress: LevelProgress[] = (progressRes.data ?? []).map((p) => ({
+      levelId: p.level_id,
+      bestScore: p.best_score ?? 0,
+      totalQuestions: 0,
+      stars: Math.max(0, Math.min(3, p.stars ?? 0)) as LevelProgress['stars'],
+      completedAt: p.completed_at,
+    }));
+    return { profile, levelProgress };
+  } catch {
+    return null;
   }
 }
 

@@ -13,7 +13,8 @@ export type CategorySlug =
   | 'nuevo-testamento'
   | 'santos'
   | 'sacramentos'
-  | 'liturgia';
+  | 'liturgia'
+  | 'virgen-maria';
 
 export type BannerType = 'oracion' | 'iniciativa' | 'novedad';
 
@@ -22,7 +23,8 @@ export type CategoryIconName =
   | 'book-open-text'
   | 'hands-praying'
   | 'drop'
-  | 'church';
+  | 'church'
+  | 'flower';
 
 export type BannerIconName = 'hands-praying' | 'hand-heart' | 'megaphone';
 
@@ -79,6 +81,11 @@ export const LIENZO = {
       color: '#6A52C2',
       soft: '#F1EEFB',
       icon: 'church' as CategoryIconName,
+    },
+    'virgen-maria': {
+      color: '#1F7A8C',
+      soft: '#E6F3F5',
+      icon: 'flower' as CategoryIconName,
     },
   },
 

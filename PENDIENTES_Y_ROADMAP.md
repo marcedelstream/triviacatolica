@@ -4,6 +4,20 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 
 ---
 
+## 0. Bloqueantes antes de publicar v1.0 (revisión 2026-11-20)
+
+- [ ] **Links compartidos dan 404:** el resultado comparte `https://triviacatolica.com/play/<slug>`, pero la landing no tiene `/play`. Agregar en Vercel una página de respaldo para `/play/*` y `/category/*` (abrir en la app + botones de tienda).
+- [ ] **Deep links sin verificar:** `app.json` declara `associatedDomains` (iOS) e `intentFilters` con `autoVerify` (Android), pero faltan `/.well-known/apple-app-site-association` y `/.well-known/assetlinks.json`. Hacen falta el **Apple Team ID** y el **SHA-256 del certificado de firma** (Play Console → Integridad de la app). Además `www` redirige al apex y la verificación no sigue redirecciones: excluir `/.well-known` del redirect o sacar `www` de `app.json`.
+- [x] **Eliminar cuenta desde la app (Apple 5.1.1(v)):** Perfil → *Cuenta y ayuda* tiene Soporte, Privacidad, Términos, **Cerrar sesión** (solo cuentas vinculadas) y **Eliminar cuenta y datos** con confirmación (borra el usuario real vía `delete_own_account`).
+- [x] **Usuario repetido rompe la sincronización:** onboarding y Perfil consultan `is_username_available` antes de guardar; si igual choca, se guarda XP y racha sin el usuario y se avisa en Perfil. Al iniciar sesión con correo se trae el progreso de la cuenta y se combina con el local en vez de pisarlo.
+- [ ] **Migración 005 (usuario libre + eliminar cuenta):** correr `supabase/migrations/005_username_check_y_borrar_cuenta.sql` en el SQL Editor. **Sin ella el botón de eliminar cuenta da error.**
+- [ ] **Correos de Supabase:** pegar las plantillas de `supabase/email-templates/` en **Confirm signup** y **Magic Link** (sin la primera, los usuarios nuevos no reciben el código), configurar SMTP propio (Purelymail) y OTP de 6 dígitos. Ver `supabase/email-templates/README.md`.
+- [ ] **Migración 004 (categoría Virgen María):** correr `supabase/migrations/004_categoria_virgen_maria.sql` en el SQL Editor; la app lee las categorías desde Supabase.
+- [ ] **Lint:** `npx expo lint` da 34 errores de reglas del React Compiler (31 `react-hooks/refs` por `useRef(new Animated.Value())`, 3 `set-state-in-effect`) en onboarding, play, FeedbackSheet, ReferenceModal y ranking. No rompen el build, pero el compilador saltea esos componentes. `tsc` pasa sin errores.
+- [ ] Fichas de tiendas: capturas, Feature Graphic, Data Safety, IARC y App Privacy (ver sección A).
+
+---
+
 ## 1. Pendientes a revisar (Próximas iteraciones)
 
 ### A. Tiendas (Google Play Store y App Store) + Dominio `triviacatolica.com`
@@ -14,29 +28,29 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
   - Configurar ruta web en `triviacatolica.com/play/<slug>` (sin 404): si el usuario **no** tiene la app instalada, mostrar vista previa del cuestionario (o jugarlo en web) con botón **Abrir en Trivia Católica** (`triviacatolica://play/<slug>`) y enlaces de descarga a App Store / Google Play + metadatos Open Graph para WhatsApp/redes.
 
 ### B. Monetización real (Apple Pay / Google Play vía RevenueCat)
-- [ ] Eliminar todo rastro de "modo prueba" / demo en la app (paywall, recargas de prueba, textos internos).
+- [x] Eliminar todo rastro de "modo prueba" / demo en la app (paywall, recargas de prueba, textos internos). *(v1.0 sale gratis con `PAYWALL_ENABLED = false`: el paywall demo sigue en el código pero no se puede abrir. Al activar pagos, quitar `setPremiumDemo` y agregar el botón **Restaurar compras**, obligatorio en iOS)*
 - [ ] Conectar pasarelas reales de **Apple App Store** y **Google Play** con **RevenueCat**.
 - [ ] Cargar `EXPO_PUBLIC_REVENUECAT_ANDROID_KEY` (`goog_...`) y `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_...`) en `.env` y en EAS Environments, y activar `PAYWALL_ENABLED = true` en `src/constants/features.ts`.
   - *Dónde obtenerlas en RevenueCat:* Dashboard → tu proyecto → **Project Settings → API keys → Public app-specific API keys** (una clave para Apple App Store y otra para Google Play).
 
 ### C. Creación de cuenta y onboarding
-- [ ] Diseñar un onboarding / abordaje sencillo con animaciones suaves (fiel a *Lienzo*).
-- [ ] Permitir elegir un **nombre de usuario (`@username`)** único pensado para futuros desafíos contra otros usuarios y el ranking.
+- [x] Diseñar un onboarding / abordaje sencillo con animaciones suaves (fiel a *Lienzo*).
+- [x] Permitir elegir un **nombre de usuario (`@username`)** único pensado para futuros desafíos contra otros usuarios y el ranking.
 
 ### D. Rediseño visual de Inicio (más aire y mejor jerarquía)
-- [ ] Dar más aire general a toda la interfaz: **tipografías más grandes**, **cuadros más anchos** y **más espacio alrededor de los títulos**.
-- [ ] **Unificar el Desafío del día + Banners de novedades** en un único carrusel superior más ancho con más contenido e interacción deslizable de izquierda a derecha.
-- [ ] Cambiar las **Categorías** a una **grilla de cuadros** (tarjetas) para aprovechar mejor el espacio y mejorar la estética.
-- [ ] **Sección "Nuevas noticias" multimedios:** renombrar la sección (ya no solo *Vatican News*) e integrar feeds de **Vatican News**, **ACI Prensa** y otro medio católico reconocido (ej. *Aleteia* o *Alfa y Omega*), manteniendo el carrusel horizontal y el mini-quiz por noticia.
+- [x] Dar más aire general a toda la interfaz: **tipografías más grandes**, **cuadros más anchos** y **más espacio alrededor de los títulos**.
+- [x] **Unificar el Desafío del día + Banners de novedades** en un único carrusel superior más ancho con más contenido e interacción deslizable de izquierda a derecha.
+- [x] Cambiar las **Categorías** a una **grilla de cuadros** (tarjetas) para aprovechar mejor el espacio y mejorar la estética.
+- [x] **Sección "Nuevas noticias" multimedios:** renombrar la sección (ya no solo *Vatican News*) e integrar feeds de **Vatican News**, **ACI Prensa** y otro medio católico reconocido (ej. *Aleteia* o *Alfa y Omega*), manteniendo el carrusel horizontal y el mini-quiz por noticia.
 
 ### E. Pantalla de Quiz, Citas completas y Felicitaciones
-- [ ] **Centrar la pantalla de preguntas** (enunciado, opciones y explicación) para que no queden pegados al borde superior del teléfono, dando más aire y espacio entre opciones.
-- [ ] **Popup de Biblia Católica y Catecismo (CIC):** cargar los textos de la Biblia y los numerales del CIC en la base de datos para que al tocar cualquier referencia (ej. `Gn 6,14` o `CIC 1219`) se abra un popup con el pasaje o artículo completo.
-- [ ] **Pantalla de felicitaciones / resultado:** centrar toda la composición y destacar el botón de **compartir resultado con enlace** a `https://triviacatolica.com/play/<slug>`.
+- [x] **Centrar la pantalla de preguntas** (enunciado, opciones y explicación) para que no queden pegados al borde superior del teléfono, dando más aire y espacio entre opciones.
+- [~] **Popup de Biblia Católica y Catecismo (CIC):** *(hecho con un banco local de citas en `src/data/scriptureCicBank.ts`; falta cargar la Biblia y el CIC completos en la base)* cargar los textos de la Biblia y los numerales del CIC en la base de datos para que al tocar cualquier referencia (ej. `Gn 6,14` o `CIC 1219`) se abra un popup con el pasaje o artículo completo.
+- [x] **Pantalla de felicitaciones / resultado:** centrar toda la composición y destacar el botón de **compartir resultado con enlace** a `https://triviacatolica.com/play/<slug>`.
 
 ### F. Experiencia de usuario y limpieza de Ajustes
-- [ ] **Popup en niveles bloqueados:** al tocar un nivel bloqueado, mostrar siempre un popup claro indicando que hay que completar el nivel anterior para desbloquearlo.
-- [ ] **Limpiar Ajustes / Perfil:** quitar textos y controles técnicos/internos (*Origen de datos: Supabase*, *Actualizaciones OTA · canal...*, *Reiniciar progreso local* visible para usuarios comunes).
+- [x] **Popup en niveles bloqueados:** al tocar un nivel bloqueado, mostrar siempre un popup claro indicando que hay que completar el nivel anterior para desbloquearlo.
+- [x] **Limpiar Ajustes / Perfil:** quitar textos y controles técnicos/internos (*Origen de datos: Supabase*, *Actualizaciones OTA · canal...*, *Reiniciar progreso local* visible para usuarios comunes).
 
 ---
 
@@ -53,3 +67,10 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 
 ### C. Comunidad, verificación y desafíos
 - **Perfil especial de Sacerdote:** insignia / sello verificado de sacerdote visible en su perfil y en el **Ranking**, con opción de **desafiar a un sacerdote en un quiz** (modo 1 vs 1).
+
+### D. Perfil social, nacionalidad y logros (pedido 2026-11-20)
+- **Nacionalidad:** elegir país en onboarding o Perfil (`profiles.country`, código ISO de 2 letras) y mostrar la **banderita** junto al nombre en el Ranking.
+- **Ranking nacional e internacional:** filtro *Mi país / Mundial* en Ranking (la vista `leaderboard_top` necesita la columna `country`).
+- **Perfil público individual:** pantalla `/u/<username>` con bandera, nivel, racha, estadísticas y sellos, punto de entrada para **desafiar en versus**.
+- **Panel de logros (sellos):** sellos por hitos (rachas, categorías completas, niveles perfectos, primer versus), con tablas `achievements` y `user_achievements`.
+- **Versus 1 vs 1** contra otros jugadores (se conecta con el desafío al Sacerdote de la sección C).

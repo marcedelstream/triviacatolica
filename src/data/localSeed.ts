@@ -50,6 +50,15 @@ export const LOCAL_TOPICS: Topic[] = [
     sortOrder: 5,
     isPremium: false,
   },
+  {
+    id: '11111111-1111-4111-8111-111111111106',
+    slug: 'virgen-maria',
+    title: 'Virgen María',
+    description: 'La vida de la Madre de Dios, sus dogmas y advocaciones.',
+    icon: 'flower',
+    sortOrder: 6,
+    isPremium: false,
+  },
 ];
 
 export const LOCAL_LEVELS: Level[] = [
@@ -253,6 +262,47 @@ export const LOCAL_LEVELS: Level[] = [
     globalOrder: 15,
     title: 'Liturgia de las Horas y signos',
     subtitle: 'El altar, el leccionario y las fiestas solemnes',
+    difficulty: 3,
+    questionsPerRound: 5,
+    isPremium: true,
+  },
+
+  // Virgen María
+  {
+    id: '22222222-2222-4222-8222-222222222601',
+    slug: 'virgen-maria-vida-de-maria',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    levelNumber: 1,
+    globalOrder: 16,
+    title: 'La vida de María',
+    subtitle: 'Anunciación, Visitación y Caná',
+    difficulty: 1,
+    questionsPerRound: 5,
+    isPremium: false,
+  },
+  {
+    id: '22222222-2222-4222-8222-222222222602',
+    slug: 'virgen-maria-dogmas-marianos',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    levelNumber: 2,
+    globalOrder: 17,
+    title: 'Dogmas marianos',
+    subtitle: 'Inmaculada Concepción y Asunción',
+    difficulty: 2,
+    questionsPerRound: 5,
+    isPremium: false,
+  },
+  {
+    id: '22222222-2222-4222-8222-222222222603',
+    slug: 'virgen-maria-madre-de-dios',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    levelNumber: 3,
+    globalOrder: 18,
+    title: 'Madre de Dios',
+    subtitle: 'Éfeso, la Theotokos y la Madre de la Iglesia',
     difficulty: 3,
     questionsPerRound: 5,
     isPremium: true,
@@ -673,6 +723,90 @@ export const LOCAL_QUESTIONS: Question[] = [
     explanation:
       'La Liturgia de las Horas (Oficio Divino) santifica el curso del día y de la noche uniendo a los fieles en la oración de Cristo.',
     sourceRef: 'CIC 1174-1175',
+  },
+
+  // VIRGEN MARÍA (6)
+  {
+    id: 'q-vm-1',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 1,
+    prompt: '¿Qué ángel le anunció a María que sería la Madre del Salvador?',
+    options: ['Miguel', 'Rafael', 'Gabriel', 'Uriel'],
+    correctIndex: 2,
+    explanation:
+      'El ángel Gabriel fue enviado a Nazaret, y María respondió con fe: "Hágase en mí según tu palabra".',
+    sourceRef: 'Lc 1,26-38 · CIC 494',
+  },
+  {
+    id: 'q-vm-2',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 1,
+    prompt: '¿A qué pariente visitó María después de la Anunciación?',
+    options: ['A Ana, su madre', 'A su prima Isabel', 'A Marta de Betania', 'A María Magdalena'],
+    correctIndex: 1,
+    explanation:
+      'En la Visitación, Isabel la saludó: "¡Bendita tú entre las mujeres y bendito el fruto de tu vientre!", palabras que rezamos en el Avemaría.',
+    sourceRef: 'Lc 1,39-45 · CIC 2676',
+  },
+  {
+    id: 'q-vm-3',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 1,
+    prompt: '¿En qué celebración Jesús hizo su primer milagro a pedido de María?',
+    options: [
+      'En la Pascua en Jerusalén',
+      'En la presentación en el Templo',
+      'En las bodas de Caná',
+      'En la multiplicación de los panes',
+    ],
+    correctIndex: 2,
+    explanation:
+      'En Caná, María dijo a los sirvientes "Hagan todo lo que él les diga", y Jesús convirtió el agua en vino.',
+    sourceRef: 'Jn 2,1-11 · CIC 2618',
+  },
+  {
+    id: 'q-vm-4',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 2,
+    prompt: '¿Qué afirma el dogma de la Inmaculada Concepción?',
+    options: [
+      'Que Jesús fue concebido sin intervención de varón',
+      'Que María fue preservada del pecado original desde su concepción',
+      'Que María fue llevada al cielo en cuerpo y alma',
+      'Que María permaneció virgen toda su vida',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Pío IX lo proclamó en 1854: por singular gracia de Dios y en previsión de los méritos de Cristo, María fue preservada de toda mancha de pecado original.',
+    sourceRef: 'CIC 491',
+  },
+  {
+    id: 'q-vm-5',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 2,
+    prompt: '¿Qué dogma mariano proclamó el papa Pío XII en 1950?',
+    options: ['La Asunción', 'La Inmaculada Concepción', 'La Maternidad divina', 'La Virginidad perpetua'],
+    correctIndex: 0,
+    explanation:
+      'La Virgen, terminado el curso de su vida terrena, fue asunta en cuerpo y alma a la gloria del cielo.',
+    sourceRef: 'CIC 966',
+  },
+  {
+    id: 'q-vm-6',
+    topicId: '11111111-1111-4111-8111-111111111106',
+    topicSlug: 'virgen-maria',
+    difficulty: 3,
+    prompt: '¿Qué concilio proclamó a María "Theotokos", Madre de Dios, en el año 431?',
+    options: ['Concilio de Nicea', 'Concilio de Éfeso', 'Concilio de Trento', 'Concilio Vaticano II'],
+    correctIndex: 1,
+    explanation:
+      'Éfeso confirmó que María es verdaderamente Madre de Dios porque el Hijo que concibió es el Hijo eterno del Padre hecho hombre.',
+    sourceRef: 'CIC 495',
   },
 ];
 

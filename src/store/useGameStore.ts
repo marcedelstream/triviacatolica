@@ -15,9 +15,16 @@ import {
 } from '@/data/localSeed';
 import { LOCAL_VATICAN_NEWS } from '@/data/vaticanNewsSeed';
 import { initRevenueCat } from '@/lib/revenuecat';
-import { ensureAnonymousSession, linkIdentityProvider, verifyEmailOtp } from '@/services/authService';
+import {
+  deleteOwnAccount,
+  ensureAnonymousSession,
+  linkIdentityProvider,
+  signOutUser,
+  verifyEmailOtp,
+} from '@/services/authService';
 import { loadVaticanNewsQuizzes } from '@/services/newsService';
 import {
+  fetchRemoteAccountData,
   loadCatalogData,
   sendQuestionReport,
   syncLevelProgressToSupabase,
@@ -137,6 +144,8 @@ interface GameState {
   dailyCompletedDate: string | null;
   reports: QuestionReport[];
   hasDismissedSoftAuth: boolean;
+  /** @usuario que se quiso guardar pero ya lo tenía otra persona (se avisa en Perfil). */
+  usernameConflict: string | null;
 
   bootstrap: () => Promise<void>;
   refreshHearts: () => void;
@@ -161,6 +170,9 @@ interface GameState {
   setPremiumDemo: (enabled: boolean) => void;
   submitQuestionReport: (questionId: string, reason: string) => Promise<void>;
   resetLocalProgress: () => void;
+  clearUsernameConflict: () => void;
+  signOut: () => Promise<void>;
+  deleteAccount: () => Promise<{ ok: boolean; message: string }>;
 }
 
 const storage = createJSONStorage(() =>
@@ -177,6 +189,36 @@ const storage = createJSONStorage(() =>
       }
     : AsyncStorage
 );
+
+/**
+ * Sincroniza el perfil con Supabase. Si el @usuario ya está tomado, el resto del perfil
+ * (XP, racha) se guarda igual y se le pide a la persona que elija otro.
+ */
+function syncProfile(profile: UserProfile): void {
+  void syncProfileToSupabase(profile).then((result) => {
+    if (result !== 'username_taken') return;
+    const state = useGameStore.getState();
+    if (state.profile.id !== profile.id || state.profile.username !== profile.username) return;
+    useGameStore.setState({
+      profile: { ...state.profile, username: '' },
+      usernameConflict: profile.username,
+    });
+  });
+}
+
+/** Estado limpio de invitado para después de cerrar sesión o eliminar la cuenta. */
+function freshGuestState() {
+  return {
+    profile: createInitialProfile(),
+    levelProgress: {},
+    answeredCorrectByTopic: {},
+    completedNewsIds: [],
+    dailyCompletedDate: null,
+    reports: [],
+    hasDismissedSoftAuth: false,
+    usernameConflict: null,
+  };
+}
 
 export const useGameStore = create<GameState>()(
   persist(
@@ -198,6 +240,7 @@ export const useGameStore = create<GameState>()(
       dailyCompletedDate: null,
       reports: [],
       hasDismissedSoftAuth: false,
+      usernameConflict: null,
 
       bootstrap: async () => {
         if (get().isBootstrapping) return;
@@ -264,7 +307,7 @@ export const useGameStore = create<GameState>()(
             recharged.hearts === MAX_HEARTS ? new Date().toISOString() : recharged.heartsUpdatedAt,
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
         return nextHearts;
       },
 
@@ -275,7 +318,7 @@ export const useGameStore = create<GameState>()(
           heartsUpdatedAt: new Date().toISOString(),
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       completeRound: (input) => {
@@ -349,7 +392,7 @@ export const useGameStore = create<GameState>()(
             input.levelId === 'daily' ? today : state.dailyCompletedDate,
         });
 
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
 
         const shouldPromptAuth =
           updatedProfile.isAnonymous &&
@@ -374,7 +417,7 @@ export const useGameStore = create<GameState>()(
             displayName: displayName?.trim() || get().profile.displayName || 'Peregrino',
           };
           set({ profile: updatedProfile, hasDismissedSoftAuth: true });
-          void syncProfileToSupabase(updatedProfile);
+          syncProfile(updatedProfile);
         }
         return { ok: res.ok, message: res.message };
       },
@@ -391,9 +434,48 @@ export const useGameStore = create<GameState>()(
             authProvider: 'email',
             displayName: displayName?.trim() || current.profile.displayName || 'Peregrino',
           };
-          set({ profile: updatedProfile, hasDismissedSoftAuth: true });
-          void syncProfileToSupabase(updatedProfile);
-          // Sincronizar también niveles ya completados como invitado hacia la cuenta autenticada
+
+          // Si la cuenta ya existía (otro teléfono, o después de cerrar sesión), conservar
+          // lo mejor de cada lado en vez de pisar el progreso guardado con el local.
+          let mergedProfile = updatedProfile;
+          const mergedProgress: Record<string, LevelProgress> = { ...current.levelProgress };
+          const remote = await fetchRemoteAccountData(finalUserId);
+          if (remote) {
+            const r = remote.profile;
+            const localDate = updatedProfile.lastPlayedDate ?? '';
+            const remoteDate = r.lastPlayedDate ?? '';
+            const remoteName =
+              r.displayName && r.displayName !== 'Peregrino' ? r.displayName : undefined;
+            mergedProfile = {
+              ...updatedProfile,
+              displayName: displayName?.trim() || remoteName || updatedProfile.displayName,
+              username: r.username || updatedProfile.username,
+              xp: Math.max(updatedProfile.xp, r.xp ?? 0),
+              longestStreak: Math.max(updatedProfile.longestStreak, r.longestStreak ?? 0),
+              streakCount:
+                remoteDate > localDate
+                  ? (r.streakCount ?? 0)
+                  : Math.max(updatedProfile.streakCount, remoteDate === localDate ? (r.streakCount ?? 0) : 0),
+              lastPlayedDate: (remoteDate > localDate ? remoteDate : localDate) || null,
+            };
+            for (const prog of remote.levelProgress) {
+              const existing = mergedProgress[prog.levelId];
+              if (!existing || prog.stars > existing.stars) {
+                mergedProgress[prog.levelId] = {
+                  ...prog,
+                  totalQuestions: existing?.totalQuestions || 5,
+                };
+              }
+            }
+          }
+
+          set({
+            profile: mergedProfile,
+            levelProgress: mergedProgress,
+            hasDismissedSoftAuth: true,
+          });
+          syncProfile(mergedProfile);
+          // Subir también los niveles completados como invitado a la cuenta
           for (const prog of Object.values(current.levelProgress)) {
             void syncLevelProgressToSupabase(finalUserId, prog);
           }
@@ -413,7 +495,7 @@ export const useGameStore = create<GameState>()(
           hasCompletedOnboarding: true,
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       updateDisplayName: (name) => {
@@ -424,7 +506,7 @@ export const useGameStore = create<GameState>()(
           displayName: clean,
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       updateUsername: (username) => {
@@ -435,7 +517,7 @@ export const useGameStore = create<GameState>()(
           username: clean,
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       toggleTimer: () => {
@@ -444,7 +526,7 @@ export const useGameStore = create<GameState>()(
           timerEnabled: !get().profile.timerEnabled,
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       toggleSound: () => {
@@ -465,7 +547,7 @@ export const useGameStore = create<GameState>()(
           heartsUpdatedAt: new Date().toISOString(),
         };
         set({ profile: updatedProfile });
-        void syncProfileToSupabase(updatedProfile);
+        syncProfile(updatedProfile);
       },
 
       submitQuestionReport: async (questionId, reason) => {
@@ -492,6 +574,23 @@ export const useGameStore = create<GameState>()(
           dailyCompletedDate: null,
           hasDismissedSoftAuth: false,
         });
+      },
+
+      clearUsernameConflict: () => set({ usernameConflict: null }),
+
+      signOut: async () => {
+        await signOutUser();
+        set(freshGuestState());
+        await get().bootstrap();
+      },
+
+      deleteAccount: async () => {
+        const res = await deleteOwnAccount();
+        if (res.ok) {
+          set(freshGuestState());
+          await get().bootstrap();
+        }
+        return res;
       },
     }),
     {

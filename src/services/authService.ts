@@ -338,3 +338,43 @@ export async function verifyEmailOtp(
     };
   }
 }
+
+/**
+ * Cierra la sesión de la cuenta. Después el store crea una sesión invitada nueva.
+ */
+export async function signOutUser(): Promise<void> {
+  if (!isSupabaseConfigured || !supabase) return;
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    // Si falla la red, igual limpiamos la sesión local
+  }
+}
+
+/**
+ * Elimina la cuenta del usuario y todos sus datos (perfil, progreso) con la función
+ * `delete_own_account` de Supabase, y cierra la sesión.
+ */
+export async function deleteOwnAccount(): Promise<{ ok: boolean; message: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { ok: true, message: 'Tus datos locales fueron eliminados.' };
+  }
+  try {
+    const { error } = await supabase.rpc('delete_own_account');
+    if (error) {
+      return {
+        ok: false,
+        message:
+          'No pudimos eliminar la cuenta en este momento. Revisá tu conexión o escribinos a hola@triviacatolica.com.',
+      };
+    }
+    await supabase.auth.signOut().catch(() => undefined);
+    return { ok: true, message: 'Tu cuenta y tus datos fueron eliminados.' };
+  } catch {
+    return {
+      ok: false,
+      message:
+        'No pudimos eliminar la cuenta en este momento. Revisá tu conexión o escribinos a hola@triviacatolica.com.',
+    };
+  }
+}
