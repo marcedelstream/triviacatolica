@@ -1,0 +1,428 @@
+  <div class="lang-banner" id="langBanner" hidden></div>
+
+
+  <!-- ========================================================================
+       Header: solo el logo (listo para reemplazar por versión sobre fondo blanco)
+       ======================================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#inicio" class="brand-logo" aria-label="{{brand_home}}">
+        <!-- Reemplazá este SVG por <img src="./logo-fondo-blanco.png" alt="{{brand}}" height="44"> cuando tengas la versión para fondos blancos -->
+        <svg class="brand-mark" viewBox="191 190 640 640" width="44" height="44" aria-hidden="true"><g fill="#2F5BD3"><g><path d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/><path d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/></g><g><path d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/><path d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/></g></g><g fill="#2F5BD3"><rect x="489" y="259" width="45" height="506" rx="12"/><rect x="403" y="349" width="218" height="39" rx="12"/></g><path fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/></svg><span class="brand-name">{{brand}}</span>
+      </a>
+
+      <nav class="nav-links" aria-label="{{nav_main}}">
+        <a href="#sobre-el-juego">{{nav_game}}</a>
+        <a href="#que-incluye">{{nav_features}}</a>
+        <a href="#categorias">{{nav_topics}}</a>
+        <a href="#planes">{{nav_plans}}</a>
+      </nav>
+
+      <div class="header-actions">
+{{lang_menu}}
+        <a href="#descargar" class="btn-header">
+          <i class="ph-duotone ph-device-mobile" aria-hidden="true"></i>
+          <span>{{btn_download}}</span>
+        </a>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileDrawer" aria-label="{{menu_open}}">
+          <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-drawer" id="mobileDrawer">
+      <nav class="mobile-drawer-links" aria-label="{{nav_mobile}}">
+        <a href="#sobre-el-juego"><span>{{nav_game}}</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#que-incluye"><span>{{nav_features}}</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#categorias"><span>{{drawer_topics}}</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#planes"><span>{{drawer_plans}}</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#descargar"><span>{{drawer_download}}</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+      </nav>
+      <nav class="drawer-langs" aria-label="{{lang_label}}">
+{{lang_pills}}
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <!-- ======================================================================
+         SLIDE 1: Solo título + botones de descarga + celular de costado
+         ====================================================================== -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="status-chip" id="heroStatusChip">
+            <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+            <span id="heroStatusText">{{hero_status}}</span>
+          </span>
+
+          <h1 class="hero-title">{{hero_title}}</h1>
+
+          <div class="store-group" aria-label="{{stores_label}}">
+            <a href="#descargar" class="store-btn" data-store="ios">
+              <span class="store-btn-icon" aria-hidden="true">
+                <i class="ph-duotone ph-apple-logo"></i>
+              </span>
+              <span class="store-btn-body">
+                <span class="store-btn-eyebrow" data-store-eyebrow>{{soon_in}}</span>
+                <span class="store-btn-name">App Store</span>
+              </span>
+              <span class="store-pill" data-store-pill>{{soon_pill}}</span>
+            </a>
+
+            <a href="#descargar" class="store-btn" data-store="android">
+              <span class="store-btn-icon" aria-hidden="true">
+                <i class="ph-duotone ph-google-play-logo"></i>
+              </span>
+              <span class="store-btn-body">
+                <span class="store-btn-eyebrow" data-store-eyebrow>{{soon_in}}</span>
+                <span class="store-btn-name">Google Play</span>
+              </span>
+              <span class="store-pill" data-store-pill>{{soon_pill}}</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Jesús animado sosteniendo el teléfono (fondo transparente) -->
+        <div class="hero-visual">
+          <img
+            src="/jesus-app.jpg"
+            fetchpriority="high"
+            alt="{{hero_alt}}"
+            class="hero-mascot"
+            width="853"
+            height="1093"
+            decoding="async"
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 2: Descripción del juego
+         ====================================================================== -->
+    <section class="section section-muted" id="sobre-el-juego">
+      <div class="container">
+        <div class="about-card">
+          <div>
+            <span class="section-eyebrow">
+              <i class="ph-duotone ph-book-open-text" aria-hidden="true"></i>
+              <span>{{about_eyebrow}}</span>
+            </span>
+            <h2 class="section-title">{{about_title}}</h2>
+            <p class="about-text">
+              {{about_text}}
+            </p>
+          </div>
+
+          <div class="about-highlights">
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--gold); --a-soft: var(--gold-soft);">
+                <i class="ph-duotone ph-flame" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>{{about1_t}}</strong>
+                <span>{{about1_d}}</span>
+              </div>
+            </div>
+
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--success); --a-soft: var(--success-soft);">
+                <i class="ph-duotone ph-book-bookmark" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>{{about2_t}}</strong>
+                <span>{{about2_d}}</span>
+              </div>
+            </div>
+
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--cat-li); --a-soft: var(--cat-li-soft);">
+                <i class="ph-duotone ph-hands-praying" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>{{about3_t}}</strong>
+                <span>{{about3_d}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 3: Qué tiene la app (solo 4 opciones)
+         ====================================================================== -->
+    <section class="section" id="que-incluye">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-squares-four" aria-hidden="true"></i>
+            <span>{{nav_features}}</span>
+          </span>
+          <h2 class="section-title">{{feat_title}}</h2>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--primary); --f-soft: var(--primary-soft);">
+              <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+            </span>
+            <h3>{{f1_t}}</h3>
+            <p>{{f1_d}}</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--gold-ink); --f-soft: var(--gold-soft);">
+              <i class="ph-duotone ph-trophy" aria-hidden="true"></i>
+            </span>
+            <h3>{{f2_t}}</h3>
+            <p>{{f2_d}}</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--success); --f-soft: var(--success-soft);">
+              <i class="ph-duotone ph-book-bookmark" aria-hidden="true"></i>
+            </span>
+            <h3>{{f3_t}}</h3>
+            <p>{{f3_d}}</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--cat-li); --f-soft: var(--cat-li-soft);">
+              <i class="ph-duotone ph-newspaper" aria-hidden="true"></i>
+            </span>
+            <h3>{{f4_t}}</h3>
+            <p>{{f4_d}}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 4: Elegí un tema (5 categorías + Y más)
+         ====================================================================== -->
+    <section class="section section-muted" id="categorias">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-path" aria-hidden="true"></i>
+            <span>{{cats_eyebrow}}</span>
+          </span>
+          <h2 class="section-title">{{cats_title}}</h2>
+          <p class="section-desc">
+            {{cats_desc}}
+          </p>
+        </div>
+
+        <div class="cats-explorer">
+          <div class="cats-list" role="tablist" aria-label="{{cats_label}}" id="categoryButtons">
+            <!-- Generado desde JS con las 5 categorías + "Y más" -->
+          </div>
+
+          <div class="levels-panel" id="levelsPanel" aria-live="polite">
+            <!-- Panel dinámico del camino de niveles -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 5: Contenido que siempre se carga + Tarifas y beneficios
+         ====================================================================== -->
+    <section class="section" id="planes">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-arrows-clockwise" aria-hidden="true"></i>
+            <span>{{plans_eyebrow}}</span>
+          </span>
+          <h2 class="section-title">{{plans_title}}</h2>
+          <p class="section-desc">
+            {{plans_desc}}
+          </p>
+        </div>
+
+        <div class="live-content-banner">
+          <span class="live-content-icon">
+            <i class="ph-duotone ph-cloud-arrow-down" aria-hidden="true"></i>
+          </span>
+          <div class="live-content-body">
+            <h3>{{live_t}}</h3>
+            <p>{{live_d}}</p>
+          </div>
+        </div>
+
+        <div class="plans-grid">
+          <article class="plan-card">
+            <div class="plan-top">
+              <h3 class="plan-name">{{free_name}}</h3>
+              <span class="plan-chip free">{{free_chip}}</span>
+            </div>
+
+            <div class="plan-price-row">
+              <div class="price-box">
+                <div class="price-label"><span>{{free_label}}</span></div>
+                <p class="price-amount">{{free_price}}</p>
+                <p class="price-note">{{free_note}}</p>
+              </div>
+            </div>
+
+            <p class="plan-sub">{{free_sub}}</p>
+            <ul class="plan-list">
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>{{free_l1}}</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>{{free_l2}}</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>{{free_l3}}</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>{{free_l4}}</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>{{free_l5}}</span></li>
+            </ul>
+            <p class="plan-foot">{{free_foot}}</p>
+          </article>
+
+          <article class="plan-card pro">
+            <div class="plan-top">
+              <h3 class="plan-name">{{pro_name}}</h3>
+              <span class="plan-chip pro"><i class="ph-duotone ph-crown" aria-hidden="true"></i>{{pro_chip}}</span>
+            </div>
+
+            <div class="plan-price-row">
+              <div class="price-box highlight">
+                <div class="price-label">
+                  <span>{{annual}}</span>
+                  <span class="price-save">{{save}}</span>
+                </div>
+                <p class="price-amount">{{annual_price}}</p>
+                <p class="price-note">{{annual_note}}</p>
+              </div>
+              <div class="price-box">
+                <div class="price-label"><span>{{monthly}}</span></div>
+                <p class="price-amount">{{monthly_price}}</p>
+                <p class="price-note">{{monthly_note}}</p>
+              </div>
+            </div>
+
+            <p class="plan-sub">{{pro_sub}}</p>
+            <ul class="plan-list">
+              <li><i class="ph-duotone ph-infinity" aria-hidden="true"></i><span>{{pro_l1}}</span></li>
+              <li><i class="ph-duotone ph-crown" aria-hidden="true"></i><span>{{pro_l2}}</span></li>
+              <li><i class="ph-duotone ph-shield-check" aria-hidden="true"></i><span>{{pro_l3}}</span></li>
+              <li><i class="ph-duotone ph-heart" aria-hidden="true"></i><span>{{pro_l4}}</span></li>
+            </ul>
+            <p class="plan-foot">{{pro_foot}}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         Bloque final de descarga + Aviso de lanzamiento
+         ====================================================================== -->
+    <section class="download-section" id="descargar">
+      <div class="container">
+        <div class="download-block">
+          <div>
+            <span class="dl-tag">
+              <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+              <span id="dlTagText">{{dl_tag}}</span>
+            </span>
+            <h2 class="dl-title" id="dlTitle">{{dl_title}}</h2>
+            <p class="dl-desc" id="dlDesc">
+              {{dl_desc}}
+            </p>
+
+            <div class="dl-stores">
+              <a href="#descargar" class="dl-store-btn" data-store="ios">
+                <i class="ph-duotone ph-apple-logo" aria-hidden="true"></i>
+                <span>
+                  <span class="dl-store-eyebrow" data-store-eyebrow>{{soon_in}}</span>
+                  <span class="dl-store-name">App Store</span>
+                </span>
+              </a>
+
+              <a href="#descargar" class="dl-store-btn" data-store="android">
+                <i class="ph-duotone ph-google-play-logo" aria-hidden="true"></i>
+                <span>
+                  <span class="dl-store-eyebrow" data-store-eyebrow>{{soon_in}}</span>
+                  <span class="dl-store-name">Google Play</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div class="waitlist-card">
+            <h3>{{wl_title}}</h3>
+            <p>{{wl_desc}}</p>
+
+            <form class="waitlist-form" id="waitlistForm" novalidate>
+              <label for="waitlistEmail" class="sr-only">{{email_label}}</label>
+              <input type="email" id="waitlistEmail" class="waitlist-input" placeholder="{{email_ph}}" autocomplete="email" required>
+              <button type="submit" class="waitlist-submit">
+                <i class="ph-duotone ph-bell-ringing" aria-hidden="true"></i>
+                <span>{{wl_btn}}</span>
+              </button>
+            </form>
+
+            <div class="waitlist-status" id="waitlistStatus" role="status" aria-live="polite"></div>
+            <p class="waitlist-note">{{wl_note}}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       Footer
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <a href="#inicio" class="brand-logo" aria-label="{{brand_home}}">
+          <svg class="brand-mark" viewBox="191 190 640 640" width="38" height="38" aria-hidden="true"><g fill="#2F5BD3"><g><path d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/><path d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/></g><g><path d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/><path d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/></g></g><g fill="#2F5BD3"><rect x="489" y="259" width="45" height="506" rx="12"/><rect x="403" y="349" width="218" height="39" rx="12"/></g><path fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/></svg><span class="brand-name">{{brand}}</span>
+        </a>
+
+        <div class="footer-links">
+          <a href="#sobre-el-juego">{{nav_game}}</a>
+          <a href="#que-incluye">{{nav_features}}</a>
+          <a href="#categorias">{{nav_topics}}</a>
+          <a href="#planes">{{nav_plans}}</a>
+          <a href="mailto:hola@triviacatolica.com">{{footer_contact}}</a>
+{{legal_links}}
+        </div>
+      </div>
+
+      <div class="footer-copy">
+        <span>{{footer_copy}}</span>
+        <nav class="footer-langs" aria-label="{{lang_label}}">
+{{lang_footer}}
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       Modal de aviso cuando la app aún no está publicada en tiendas
+       ======================================================================== -->
+  <div class="modal-backdrop" id="launchModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-icon" id="modalStoreIcon"><i class="ph-duotone ph-clock" aria-hidden="true"></i></span>
+        <button type="button" class="modal-close" id="modalCloseBtn" aria-label="{{modal_close}}">
+          <i class="ph ph-x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <h3 class="modal-title" id="modalTitle">{{modal_title}}</h3>
+      <p class="modal-text" id="modalText">
+        {{modal_text}}
+      </p>
+
+      <form class="waitlist-form" id="modalWaitlistForm" novalidate>
+        <label for="modalEmail" class="sr-only">{{email_label}}</label>
+        <input type="email" id="modalEmail" class="waitlist-input" placeholder="{{email_ph}}" autocomplete="email" required>
+        <button type="submit" class="waitlist-submit">
+          <i class="ph-duotone ph-bell-ringing" aria-hidden="true"></i>
+          <span>{{modal_btn}}</span>
+        </button>
+      </form>
+      <div class="waitlist-status" id="modalStatus" role="status" aria-live="polite"></div>
+    </div>
+  </div>

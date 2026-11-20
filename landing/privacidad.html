@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de privacidad · Trivia Católica</title>
+  <meta name="description" content="Qué datos recoge la app Trivia Católica, para qué los usamos, con quién se comparten y cómo podés eliminarlos.">
+  <meta name="theme-color" content="#2F5BD3">
+  <link rel="canonical" href="https://triviacatolica.com/privacidad">
+  <link rel="alternate" hreflang="es" href="https://triviacatolica.com/privacidad">
+  <link rel="alternate" hreflang="en" href="https://triviacatolica.com/en/privacy">
+  <link rel="alternate" hreflang="x-default" href="https://triviacatolica.com/privacidad">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Trivia Católica">
+  <meta property="og:title" content="Política de privacidad · Trivia Católica">
+  <meta property="og:description" content="Qué datos recoge la app Trivia Católica, para qué los usamos, con quién se comparten y cómo podés eliminarlos.">
+  <meta property="og:url" content="https://triviacatolica.com/privacidad">
+  <meta property="og:image" content="https://triviacatolica.com/og.jpg">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-app: #F2F3F6;
+      --ink: #14161C;
+      --ink-2: #5B6170;
+      --line: #E6E8EE;
+      --primary: #2F5BD3;
+      --primary-ink: #1E3F9E;
+      --primary-soft: #EEF2FD;
+      --gold-soft: #FDF3E1;
+      --gold-ink: #8A5A0B;
+      --font: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+      --border: 1.5px solid var(--line);
+      --t: 180ms ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-family: var(--font); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--bg); }
+    a { color: var(--primary); }
+    .container { width: 100%; max-width: 780px; margin: 0 auto; padding: 0 20px; }
+
+    .legal-header { border-bottom: 1px solid var(--line); }
+    .legal-header .container { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; }
+    .legal-brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 18px; }
+    .legal-brand svg { width: 40px; height: 40px; flex-shrink: 0; }
+    .legal-langs { display: flex; gap: 6px; }
+    .legal-langs a {
+      display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px;
+      border-radius: 999px; border: var(--border); font-size: 14px; font-weight: 600;
+      color: var(--ink-2); text-decoration: none; transition: border-color var(--t), color var(--t);
+    }
+    .legal-langs a:hover { border-color: var(--primary); color: var(--primary); }
+    .legal-langs a[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-ink); }
+
+    main { padding: 48px 0 64px; }
+    .legal-eyebrow { display: inline-block; font-size: 14px; font-weight: 700; color: var(--primary-ink); background: var(--primary-soft); padding: 4px 12px; border-radius: 999px; margin-bottom: 14px; }
+    h1 { font-size: clamp(30px, 5vw, 40px); line-height: 1.15; margin-bottom: 8px; }
+    .legal-updated { color: var(--ink-2); font-size: 15px; margin-bottom: 32px; }
+    article h2 { font-size: 22px; line-height: 1.25; margin: 36px 0 10px; }
+    article h3 { font-size: 18px; margin: 22px 0 6px; }
+    article p, article ul, article ol { margin-bottom: 14px; }
+    article ul, article ol { padding-left: 22px; }
+    article li { margin-bottom: 6px; }
+    article strong { font-weight: 700; }
+    .callout { border: var(--border); border-radius: 16px; padding: 18px 20px; background: var(--bg-app); margin: 20px 0; }
+    .callout.gold { background: var(--gold-soft); border-color: #F3DDB5; color: var(--gold-ink); }
+    .table-wrap { overflow-x: auto; margin: 14px 0 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--bg-app); font-weight: 700; }
+    details.faq { border: var(--border); border-radius: 14px; padding: 4px 16px; margin-bottom: 10px; }
+    details.faq summary { cursor: pointer; font-weight: 700; padding: 12px 0; }
+    details.faq p { margin: 0 0 14px; }
+
+    .legal-footer { border-top: 1px solid var(--line); padding: 28px 0 40px; font-size: 15px; color: var(--ink-2); }
+    .legal-footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 14px; }
+    .legal-footer nav a { color: var(--ink-2); font-weight: 600; text-decoration: none; }
+    .legal-footer nav a:hover, .legal-footer nav a[aria-current="page"] { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <header class="legal-header">
+    <div class="container">
+      <a class="legal-brand" href="/" aria-label="Volver al inicio"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="191 190 640 640" width="40" height="40"><g fill="#2F5BD3"><g><path d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/><path d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/></g><g><path d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/><path d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/></g></g><g fill="#2F5BD3"><rect x="489" y="259" width="45" height="506" rx="12"/><rect x="403" y="349" width="218" height="39" rx="12"/></g><path fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/></svg><span>Trivia Católica</span></a>
+      <nav class="legal-langs" aria-label="Idioma"><a href="/privacidad" hreflang="es" lang="es" aria-current="true">ES</a><a href="/en/privacy" hreflang="en" lang="en">EN</a></nav>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <span class="legal-eyebrow">Información legal</span>
+      <h1>Política de privacidad</h1>
+      <p class="legal-updated">Última actualización: 19 de noviembre de 2026</p>
+      <article>
+        <p>Esta política explica qué datos personales trata la aplicación <strong>Trivia Católica</strong> (iOS y Android) y el sitio <a href="https://triviacatolica.com">triviacatolica.com</a>, para qué los usamos y qué derechos tenés. La escribimos en lenguaje claro: si algo no se entiende, escribinos a <a href="mailto:hola@triviacatolica.com">hola@triviacatolica.com</a>.</p>
+
+        <div class="callout">
+          <strong>En resumen:</strong> podés jugar sin registrarte. Solo guardamos lo necesario para que funcione el juego (tu progreso, racha y ranking). No vendemos tus datos, no mostramos publicidad y no usamos herramientas de rastreo publicitario.
+        </div>
+
+        <h2>1. Quién es responsable de tus datos</h2>
+        <p>El responsable del tratamiento es el equipo de Trivia Católica. Para cualquier consulta sobre privacidad o para ejercer tus derechos, el canal de contacto es <a href="mailto:hola@triviacatolica.com">hola@triviacatolica.com</a>.</p>
+
+        <h2>2. Qué datos recogemos</h2>
+        <h3>a) Cuenta de invitado (sin registro)</h3>
+        <p>Al abrir la app por primera vez se crea automáticamente una cuenta anónima con un identificador aleatorio. No te pedimos nombre, correo ni teléfono para empezar a jugar.</p>
+
+        <h3>b) Si iniciás sesión con Google o Apple</h3>
+        <p>Si decidís guardar tu progreso con Google o con Apple, recibimos de ese proveedor un identificador de cuenta y, según lo que autorices, tu dirección de correo electrónico y tu nombre. Con «Iniciar sesión con Apple» podés ocultar tu correo real. Nunca recibimos ni guardamos tu contraseña.</p>
+
+        <h3>c) Datos de juego</h3>
+        <ul>
+          <li>Nombre visible en el ranking (si no elegís uno, aparecés como «Peregrino»).</li>
+          <li>Puntos de experiencia (XP), racha actual y racha más larga, fecha de la última partida.</li>
+          <li>Niveles completados, puntaje y estrellas obtenidas en cada nivel.</li>
+          <li>Vidas disponibles y preferencias del juego (por ejemplo, si activaste el temporizador).</li>
+          <li>Reportes que envíes sobre una pregunta (el motivo que escribas), para revisar la calidad doctrinal del contenido.</li>
+        </ul>
+
+        <h3>d) Suscripción Trivia Católica Pro</h3>
+        <p>Los pagos los procesan exclusivamente Google Play o App Store. <strong>No vemos ni guardamos los datos de tu tarjeta.</strong> Recibimos el estado de tu suscripción (activa, vencida, plan) a través de RevenueCat, un servicio que verifica las compras, vinculado al identificador de tu cuenta.</p>
+
+        <h3>e) Datos técnicos</h3>
+        <p>Como cualquier servicio en internet, nuestros proveedores de infraestructura registran datos técnicos básicos (dirección IP, tipo de dispositivo, versión del sistema y de la app) para entregar el contenido, aplicar actualizaciones y mantener la seguridad. Si activás las notificaciones, se genera un token de notificaciones de tu dispositivo para poder enviarte avisos (por ejemplo, el recordatorio del desafío diario). Podés desactivarlas cuando quieras desde los ajustes del teléfono.</p>
+
+        <h3>f) Sitio web y lista de espera</h3>
+        <p>Si dejás tu correo en la lista de espera de triviacatolica.com, lo usamos únicamente para avisarte cuando la app esté disponible. El sitio no usa cookies publicitarias ni de seguimiento.</p>
+
+        <h2>3. Para qué usamos tus datos</h2>
+        <ul>
+          <li>Hacer funcionar el juego: guardar tu progreso, tus rachas y sincronizarlo entre dispositivos.</li>
+          <li>Mostrar el ranking semanal de la comunidad (solo con tu nombre visible y tus puntos).</li>
+          <li>Gestionar la suscripción Pro y los beneficios asociados.</li>
+          <li>Revisar y corregir preguntas reportadas.</li>
+          <li>Enviarte notificaciones, solo si las activaste.</li>
+          <li>Mantener la seguridad del servicio y prevenir abusos.</li>
+        </ul>
+        <p>La base legal es la ejecución del servicio que nos pedís al usar la app, tu consentimiento (inicio de sesión, notificaciones, lista de espera) y nuestro interés legítimo en mantener el servicio seguro.</p>
+
+        <h2>4. Con quién compartimos datos</h2>
+        <p>No vendemos ni alquilamos tus datos. Solo los compartimos con proveedores que necesitamos para operar la app, que los tratan por cuenta nuestra:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Proveedor</th><th>Para qué</th></tr></thead>
+            <tbody>
+              <tr><td>Supabase</td><td>Base de datos, autenticación y almacenamiento de tu cuenta y progreso.</td></tr>
+              <tr><td>Google / Apple</td><td>Inicio de sesión (si lo elegís) y procesamiento de pagos en sus tiendas.</td></tr>
+              <tr><td>RevenueCat</td><td>Verificación y gestión de la suscripción Pro.</td></tr>
+              <tr><td>Expo (EAS)</td><td>Entrega de actualizaciones de la app y envío de notificaciones.</td></tr>
+              <tr><td>Vercel</td><td>Alojamiento del sitio web triviacatolica.com.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Estos proveedores pueden almacenar datos en servidores ubicados fuera de tu país. Trabajamos con empresas que aplican medidas de seguridad reconocidas. También podríamos revelar datos si una ley o una autoridad competente lo exige.</p>
+        <p>Las noticias de la app enlazan a medios externos (como Vatican News). Al abrir esos enlaces, se aplican las políticas de privacidad de cada sitio.</p>
+
+        <h2>5. Cuánto tiempo guardamos tus datos</h2>
+        <ul>
+          <li>Los datos de tu cuenta y progreso se guardan mientras tengas la cuenta activa.</li>
+          <li>Si pedís eliminar tu cuenta, borramos tus datos en un plazo máximo de 30 días.</li>
+          <li>Los reportes de preguntas pueden conservarse sin vínculo con tu cuenta, para mantener la calidad del contenido.</li>
+          <li>Los registros de compras los conservan Google, Apple y RevenueCat según sus obligaciones legales y fiscales.</li>
+        </ul>
+
+        <h2>6. Tus derechos</h2>
+        <p>Podés pedirnos acceder a tus datos, corregirlos, exportarlos, eliminarlos u oponerte a algún tratamiento, y retirar tu consentimiento en cualquier momento. Escribinos a <a href="mailto:hola@triviacatolica.com">hola@triviacatolica.com</a> y te respondemos en un plazo máximo de 30 días. Para borrar tu cuenta seguí los pasos de <a href="/eliminar-cuenta">Eliminar tu cuenta y tus datos</a>. También podés presentar un reclamo ante la autoridad de protección de datos de tu país.</p>
+
+        <h2>7. Seguridad</h2>
+        <p>Las comunicaciones entre la app y nuestros servidores viajan cifradas (HTTPS) y el acceso a los datos está restringido por reglas de seguridad a nivel de base de datos. Ningún sistema es infalible, pero trabajamos para proteger tu información.</p>
+
+        <h2>8. Menores de edad</h2>
+        <p>Trivia Católica es apta para todo público y puede jugarse en familia. No pedimos datos personales para jugar como invitado. Si sos menor de edad, pedile a tu madre, padre o tutor que te acompañe antes de iniciar sesión o suscribirte. Si sabés que un menor nos dio datos sin autorización, escribinos y los eliminamos.</p>
+
+        <h2>9. Cambios en esta política</h2>
+        <p>Si actualizamos esta política, cambiaremos la fecha de «Última actualización» y, si el cambio es importante, te avisaremos dentro de la app.</p>
+
+      </article>
+    </div>
+  </main>
+  <footer class="legal-footer">
+    <div class="container">
+      <nav aria-label="Información legal">
+        <a href="/privacidad" aria-current="page">Política de privacidad</a>
+        <a href="/eliminar-cuenta">Eliminar tu cuenta y tus datos</a>
+        <a href="/terminos">Términos y condiciones</a>
+        <a href="/soporte">Ayuda y soporte</a>
+      </nav>
+      <p>© 2026 Trivia Católica · Todos los derechos reservados. · <a href="mailto:hola@triviacatolica.com">hola@triviacatolica.com</a></p>
+    </div>
+  </footer>
+</body>
+</html>

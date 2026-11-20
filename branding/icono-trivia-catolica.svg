@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+  <title>Trivia Católica</title>
+  <rect width="520" height="520" rx="0" fill="#2F5BD3"/>
+  <path d="M168 352 L138 444 L262 374 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
+  <rect x="112" y="82" width="296" height="300" rx="78" fill="#FFFFFF"/>
+  <rect x="234" y="116" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="174" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="176" width="52" height="52" rx="13" fill="#E8A33D"/>
+  <rect x="294" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="236" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="296" width="52" height="52" rx="13" fill="#2F5BD3"/>
+</svg>

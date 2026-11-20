@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ícono Trivia Católica · variantes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#14161C; --ink-2:#5B6170; --line:#E6E8EE; --bg-app:#F2F3F6; --primary:#2F5BD3; }
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: 'Source Sans 3', system-ui, sans-serif; color: var(--ink); background: #fff; padding: 40px 20px 60px; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    h1 { font-size: 32px; margin-bottom: 6px; }
+    p.lead { color: var(--ink-2); margin-bottom: 32px; font-size: 17px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+    figure { border: 1.5px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .stage { aspect-ratio: 1; display: grid; place-items: center; padding: 28px; }
+    .stage img { width: 100%; height: 100%; object-fit: contain; }
+    .stage.claro { background: var(--bg-app); }
+    .stage.oscuro { background: #14161C; }
+    .stage.azul { background: var(--primary); }
+    figcaption { padding: 12px 14px; border-top: 1.5px solid var(--line); font-size: 15px; }
+    figcaption b { display: block; }
+    figcaption span { color: var(--ink-2); font-size: 14px; }
+    h2 { font-size: 22px; margin: 40px 0 14px; }
+    .sizes { display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; padding: 24px; border: 1.5px solid var(--line); border-radius: 16px; }
+    .sizes div { text-align: center; color: var(--ink-2); font-size: 13px; }
+    .sizes img { display: block; margin: 0 auto 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Ícono Trivia Católica</h1>
+    <p class="lead">Redibujado en vectores a partir del PNG original. Cada pieza (tapas, páginas, cruz, destello) está en su propio grupo dentro del SVG, así se puede editar en Figma o Illustrator.</p>
+
+    <div class="grid">
+      <figure><div class="stage claro"><img src="icono-app.svg" alt=""></div><figcaption><b>icono-app.svg</b><span>App Store y Google Play (cuadrado, la tienda redondea)</span></figcaption></figure>
+      <figure><div class="stage claro"><img src="icono-app-redondeado.svg" alt=""></div><figcaption><b>icono-app-redondeado.svg</b><span>Web, redes y presentaciones</span></figcaption></figure>
+      <figure><div class="stage claro"><img src="icono-fondo-blanco-redondeado.svg" alt=""></div><figcaption><b>icono-fondo-blanco-redondeado.svg</b><span>Versión fondo blanco con borde fino</span></figcaption></figure>
+      <figure><div class="stage claro"><img src="icono-fondo-blanco.svg" alt=""></div><figcaption><b>icono-fondo-blanco.svg</b><span>Fondo blanco, cuadrado completo</span></figcaption></figure>
+      <figure><div class="stage" style="background:#fff"><img src="marca-azul.svg" alt=""></div><figcaption><b>marca-azul.svg</b><span>Sin fondo, para usar sobre blanco</span></figcaption></figure>
+      <figure><div class="stage azul"><img src="marca-blanca.svg" alt=""></div><figcaption><b>marca-blanca.svg</b><span>Sin fondo, para fondos azules u oscuros</span></figcaption></figure>
+      <figure><div class="stage" style="background:#fff"><img src="marca-monocromo.svg" alt=""></div><figcaption><b>marca-monocromo.svg</b><span>Un solo color: sellos, grabados, ícono temático Android</span></figcaption></figure>
+      <figure><div class="stage oscuro"><img src="marca-blanca.svg" alt=""></div><figcaption><b>marca-blanca.svg</b><span>Sobre fondo oscuro</span></figcaption></figure>
+    </div>
+
+    <h2>Legibilidad en tamaños chicos</h2>
+    <div class="sizes">
+      <div><img src="icono-app-redondeado.svg" width="128" alt="">128</div>
+      <div><img src="icono-app-redondeado.svg" width="64" alt="">64</div>
+      <div><img src="icono-app-redondeado.svg" width="32" alt="">32</div>
+      <div><img src="icono-app-redondeado.svg" width="16" alt="">16</div>
+      <div><img src="icono-fondo-blanco-redondeado.svg" width="128" alt="">128</div>
+      <div><img src="icono-fondo-blanco-redondeado.svg" width="64" alt="">64</div>
+      <div><img src="icono-fondo-blanco-redondeado.svg" width="32" alt="">32</div>
+      <div><img src="icono-fondo-blanco-redondeado.svg" width="16" alt="">16</div>
+    </div>
+  </div>
+</body>
+</html>

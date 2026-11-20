@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trivia Católica · Boceto EN + PT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+  :root {
+    /* Base Lienzo */
+    --bg: #FFFFFF;
+    --ink: #14161C;
+    --ink-2: #5B6170;
+    --line: #E6E8EE;
+    --track: #EEF0F4;
+    /* Acento principal */
+    --primary: #2F5BD3;
+    --primary-ink: #1E3F9E;
+    --primary-soft: #EEF2FD;
+    /* Logros */
+    --gold: #E8A33D;
+    --gold-ink: #8A5A0B;
+    --gold-soft: #FDF3E1;
+    /* Categorías */
+    --at: #A94C25;  --at-soft: #FBEFE6;   /* Antiguo Testamento */
+    --nt: #2F5BD3;  --nt-soft: #EEF2FD;   /* Nuevo Testamento */
+    --sa: #A83E5A;  --sa-soft: #FBECEF;   /* Santos */
+    --sc: #2B754D;  --sc-soft: #E7F4EC;   /* Sacramentos */
+    --li: #6A52C2;  --li-soft: #F1EEFB;   /* Liturgia */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#F2F3F6; font-family:'Source Sans 3',system-ui,sans-serif; color:var(--ink); padding:24px 16px; min-height:100vh; }
+  .phone {
+    width: 390px; max-width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .content { padding: 24px 20px 12px; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .hello { font-size: 16px; color: var(--ink-2); }
+  .title { font-size: 28px; font-weight: 700; line-height: 1.15; }
+  .streak {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--gold-soft); color: var(--gold-ink);
+    border-radius: 999px; padding: 6px 12px;
+    font-size: 15px; font-weight: 700; white-space: nowrap;
+  }
+  .streak i { font-size: 20px; color: var(--gold); }
+
+  /* Banner de novedades: el tipo define el color (oración, iniciativa, novedad) */
+  .banner {
+    margin-top: 20px;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--b-soft);
+    border-radius: 18px; padding: 14px 14px 14px 16px;
+    text-decoration: none; color: var(--ink);
+  }
+  .banner-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 14px; background: #fff; color: var(--b);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .banner-body { flex: 1; min-width: 0; }
+  .banner-tag {
+    display: inline-block; font-size: 13px; font-weight: 700;
+    color: var(--b); letter-spacing: .02em;
+  }
+  .banner-title { font-size: 17px; font-weight: 700; line-height: 1.25; margin-top: 1px; }
+  .banner-text { font-size: 15px; color: var(--ink-2); line-height: 1.35; margin-top: 2px; }
+  .banner-go { font-size: 22px; color: var(--b); flex-shrink: 0; }
+  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--line); }
+  .dots span.on { width: 18px; background: var(--li); }
+
+  .daily {
+    margin-top: 18px;
+    background: var(--primary); color: #fff;
+    border-radius: 20px; padding: 18px;
+  }
+  .daily-head { display: flex; justify-content: space-between; align-items: center; }
+  .daily-tag { font-size: 14px; color: #DCE4FA; }
+  .daily-head i { font-size: 24px; color: #FFD27A; }
+  .daily-name { font-size: 22px; font-weight: 600; line-height: 1.25; margin: 4px 0 16px; }
+  .btn-start {
+    display: block; width: 100%;
+    background: #fff; color: var(--primary-ink);
+    border: 0; border-radius: 14px; padding: 14px;
+    font: 700 18px 'Source Sans 3', sans-serif;
+    cursor: pointer;
+  }
+
+  .section { display: flex; justify-content: space-between; align-items: baseline; margin: 26px 0 4px; }
+  .section h2 { font-size: 20px; font-weight: 600; }
+  .section a { font-size: 15px; font-weight: 600; color: var(--primary); text-decoration: none; }
+
+  .cat {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px; margin-top: 8px;
+    border: 1.5px solid var(--line); border-radius: 16px;
+  }
+  .cat-icon {
+    width: 46px; height: 46px; flex-shrink: 0;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    background: var(--soft); color: var(--c);
+  }
+  .cat-body { flex: 1; min-width: 0; }
+  .cat-name { font-size: 17px; font-weight: 600; }
+  .bar { height: 6px; background: var(--track); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+  .cat-count { font-size: 14px; color: var(--ink-2); }
+  .cat-new { font-size: 14px; font-weight: 700; color: var(--c); }
+
+  .nav {
+    display: flex; justify-content: space-around;
+    border-top: 1px solid var(--line);
+    padding: 10px 0 16px; margin-top: 8px;
+  }
+  .nav a {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 13px; color: var(--ink-2); text-decoration: none;
+  }
+  .nav i { font-size: 26px; }
+  .nav a.active { color: var(--primary); font-weight: 700; }
+
+  .lang-col { display:flex; flex-direction:column; gap:16px; align-items:center; }
+  .lang-head { width:390px; max-width:100%; display:flex; flex-direction:column; gap:6px; }
+  .lang-head .tag { font-size:14px; font-weight:700; color:var(--ink-2); }
+  .lang-head .logo svg { width:300px; max-width:100%; height:auto; display:block; }
+  .grid { display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
+  .screens { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
+  .page-title { text-align:center; font-size:22px; font-weight:700; margin-bottom:4px; }
+  .page-sub { text-align:center; font-size:15px; color:var(--ink-2); margin-bottom:28px; }
+  /* Pregunta */
+  .q-top { display:flex; align-items:center; gap:12px; }
+  .q-top i { font-size:24px; color:var(--ink-2); }
+  .q-top .bar { flex:1; margin:0; }
+  .q-count { font-size:14px; color:var(--ink-2); margin-top:10px; }
+  .chip { display:inline-block; margin-top:18px; background:var(--soft); color:var(--c); font-size:15px; font-weight:600; border-radius:999px; padding:5px 12px; }
+  .question { font-size:22px; font-weight:600; line-height:1.3; margin-top:12px; }
+  .ref { font-size:16px; color:var(--ink-2); margin-top:6px; }
+  .answers { display:flex; flex-direction:column; gap:10px; margin-top:22px; }
+  .ans { min-height:56px; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px; border:1.5px solid var(--line); border-radius:16px; font-size:18px; font-weight:600; color:var(--ink-2); }
+  .ans i { font-size:24px; }
+  .ans.ok { background:#E7F4EC; border:2px solid #2B754D; color:#1E5A3A; }
+  .ans.bad { background:#FDECEA; border:2px solid #B42318; color:#B42318; }
+  .ans.reveal { background:#fff; border:2px solid #2B754D; color:var(--ink); }
+  .ans.reveal i { color:#2B754D; }
+  .feedback { display:flex; align-items:center; gap:8px; margin-top:20px; font-size:18px; font-weight:700; }
+  .feedback.ok { color:#1E5A3A; } .feedback.bad { color:#B42318; }
+  .feedback i { font-size:26px; }
+  .btn-main { display:block; width:100%; margin:16px 0 8px; background:var(--primary); color:#fff; border:0; border-radius:14px; padding:15px; font:700 18px 'Source Sans 3',sans-serif; }
+  .q-screen { padding-bottom:24px; }
+</style>
+</head>
+<body>
+<p class="page-title">Boceto: versión en inglés y portugués</p>
+<p class="page-sub">Misma línea gráfica "Lienzo", textos traducidos. Inicio + pantalla de pregunta.</p>
+<div class="grid">
+<div class="lang-col">
+  <div class="lang-head"><span class="tag">English (EN)</span><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" width="655" height="150" viewBox="0 0 655 150">
+  <g transform="translate(0 9) scale(0.25384615384615383)"><rect width="520" height="520" rx="116" fill="#2F5BD3"/>
+  <path d="M168 352 L138 444 L262 374 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
+  <rect x="112" y="82" width="296" height="300" rx="78" fill="#FFFFFF"/>
+  <rect x="234" y="116" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="174" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="176" width="52" height="52" rx="13" fill="#E8A33D"/>
+  <rect x="294" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="236" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="296" width="52" height="52" rx="13" fill="#2F5BD3"/></g>
+  <g transform="translate(166 100.08)">
+  <path d="M26.83 0.91L26.83 0.91Q20.44 0.91 15.16-1.94Q9.88-4.79 6.69-10.49Q3.50-16.19 3.50-24.47L3.50-24.47Q3.50-30.63 5.36-35.45Q7.22-40.28 10.49-43.62Q13.76-46.97 17.97-48.72Q22.19-50.46 26.90-50.46L26.90-50.46Q31.69-50.46 35.49-48.56Q39.29-46.66 41.80-44.00L41.80-44.00L35.87-37.24Q34.05-38.99 31.92-39.86Q29.79-40.74 27.13-40.74L27.13-40.74Q23.86-40.74 21.09-38.80Q18.32-36.86 16.64-33.29Q14.97-29.72 14.97-24.85L14.97-24.85Q14.97-19.76 16.57-16.15Q18.16-12.54 21.01-10.64Q23.86-8.74 27.59-8.74L27.59-8.74Q30.48-8.74 32.76-9.96Q35.04-11.17 36.78-12.84L36.78-12.84L42.41-6.23Q39.22-2.66 35.34-0.87Q31.46 0.91 26.83 0.91ZM57.91 0.91L57.91 0.91Q54.49 0.91 51.95-0.61Q49.40-2.13 48.03-4.71Q46.66-7.30 46.66-10.49L46.66-10.49Q46.66-16.57 51.68-19.87Q56.70-23.18 67.87-24.32L67.87-24.32Q67.79-25.99 67.15-27.17Q66.50-28.35 65.21-28.99Q63.92-29.64 61.94-29.64L61.94-29.64Q59.58-29.64 57.15-28.80Q54.72-27.97 51.91-26.37L51.91-26.37L47.96-33.67Q50.39-35.19 52.97-36.29Q55.56-37.39 58.33-38Q61.10-38.61 64.07-38.61L64.07-38.61Q68.93-38.61 72.24-36.75Q75.54-34.88 77.29-31.12Q79.04-27.36 79.04-21.51L79.04-21.51L79.04 0L69.92 0L69.16-3.88L68.86-3.88Q66.42-1.75 63.76-0.42Q61.10 0.91 57.91 0.91ZM61.64-7.83L61.64-7.83Q63.54-7.83 64.98-8.66Q66.42-9.50 67.87-10.94L67.87-10.94L67.87-17.33Q63.92-16.80 61.60-15.96Q59.28-15.12 58.33-13.95Q57.38-12.77 57.38-11.32L57.38-11.32Q57.38-9.58 58.56-8.70Q59.74-7.83 61.64-7.83ZM102.22 0.84L102.22 0.84Q95.23 0.84 92.19-3.23Q89.15-7.30 89.15-13.76L89.15-13.76L89.15-28.96L84.06-28.96L84.06-37.24L89.83-37.70L91.12-49.25L100.40-49.25L100.40-37.70L109.44-37.70L109.44-28.96L100.40-28.96L100.40-13.91Q100.40-10.72 101.73-9.31Q103.06-7.90 105.26-7.90L105.26-7.90Q106.17-7.90 107.08-8.06Q108.00-8.21 108.83-8.51L108.83-8.51L110.66-0.68Q109.21-0.08 107.05 0.38Q104.88 0.84 102.22 0.84ZM127.22 0L116.05 0L116.05-53.28L127.22-53.28L127.22-40.20L126.69-33.44Q128.82-35.34 131.67-36.97Q134.52-38.61 138.32-38.61L138.32-38.61Q144.55-38.61 147.29-34.54Q150.02-30.48 150.02-23.41L150.02-23.41L150.02 0L138.85 0L138.85-21.96Q138.85-26.07 137.75-27.59Q136.65-29.11 134.22-29.11L134.22-29.11Q132.09-29.11 130.57-28.16Q129.05-27.21 127.22-25.46L127.22-25.46L127.22 0ZM174.88 0.91L174.88 0.91Q170.09 0.91 165.91-1.41Q161.73-3.72 159.11-8.17Q156.48-12.62 156.48-18.85L156.48-18.85Q156.48-25.08 159.11-29.53Q161.73-33.97 165.91-36.29Q170.09-38.61 174.88-38.61L174.88-38.61Q179.59-38.61 183.77-36.29Q187.95-33.97 190.57-29.53Q193.19-25.08 193.19-18.85L193.19-18.85Q193.19-12.62 190.57-8.17Q187.95-3.72 183.77-1.41Q179.59 0.91 174.88 0.91ZM174.88-8.13L174.88-8.13Q177.16-8.13 178.71-9.42Q180.27-10.72 181.03-13.15Q181.79-15.58 181.79-18.85L181.79-18.85Q181.79-22.12 181.03-24.55Q180.27-26.98 178.71-28.27Q177.16-29.56 174.88-29.56L174.88-29.56Q172.52-29.56 171.00-28.27Q169.48-26.98 168.72-24.55Q167.96-22.12 167.96-18.85L167.96-18.85Q167.96-15.58 168.72-13.15Q169.48-10.72 171.00-9.42Q172.52-8.13 174.88-8.13ZM210.37 0.84L210.37 0.84Q206.57 0.84 204.33-0.72Q202.08-2.28 201.10-5.13Q200.11-7.98 200.11-11.78L200.11-11.78L200.11-53.20L211.28-53.20L211.28-11.32Q211.28-9.50 211.93-8.85Q212.57-8.21 213.33-8.21L213.33-8.21Q213.64-8.21 213.90-8.25Q214.17-8.28 214.62-8.36L214.62-8.36L215.99-0.08Q215.08 0.30 213.67 0.57Q212.27 0.84 210.37 0.84ZM232.26 0L221.08 0L221.08-37.70L232.26-37.70L232.26 0ZM226.63-43.24L226.63-43.24Q223.82-43.24 222.07-44.84Q220.32-46.44 220.32-49.10L220.32-49.10Q220.32-51.76 222.07-53.35Q223.82-54.95 226.63-54.95L226.63-54.95Q229.44-54.95 231.19-53.35Q232.94-51.76 232.94-49.10L232.94-49.10Q232.94-46.44 231.19-44.84Q229.44-43.24 226.63-43.24ZM257.94 0.91L257.94 0.91Q252.62 0.91 248.33-1.44Q244.04-3.80 241.57-8.21Q239.10-12.62 239.10-18.85L239.10-18.85Q239.10-25.08 241.83-29.49Q244.57-33.90 249.05-36.25Q253.54-38.61 258.70-38.61L258.70-38.61Q262.20-38.61 264.97-37.51Q267.75-36.40 269.72-34.58L269.72-34.58L264.48-27.66Q263.49-28.50 262.24-29.03Q260.98-29.56 259.39-29.56L259.39-29.56Q256.73-29.56 254.75-28.27Q252.78-26.98 251.64-24.55Q250.50-22.12 250.50-18.85L250.50-18.85Q250.50-15.58 251.64-13.15Q252.78-10.72 254.71-9.42Q256.65-8.13 259.08-8.13L259.08-8.13Q260.98-8.13 262.66-8.82Q264.33-9.50 265.77-10.56L265.77-10.56L270.18-3.72Q267.82-1.60 264.63-0.34Q261.44 0.91 257.94 0.91Z" fill="#2F5BD3"/>
+  <path d="M314.64 0L303.39 0L303.39-40.13L289.79-40.13L289.79-49.55L328.24-49.55L328.24-40.13L314.64-40.13L314.64 0ZM345.50 0L334.32 0L334.32-37.70L343.44-37.70L344.20-31.08L344.51-31.08Q346.56-34.88 349.41-36.75Q352.26-38.61 355.22-38.61L355.22-38.61Q356.82-38.61 357.88-38.42Q358.95-38.23 359.71-37.85L359.71-37.85L357.58-28.35Q356.67-28.58 355.83-28.69Q355.00-28.80 353.78-28.80L353.78-28.80Q351.65-28.80 349.33-27.28Q347.02-25.76 345.50-21.89L345.50-21.89L345.50 0ZM374.98 0L363.81 0L363.81-37.70L374.98-37.70L374.98 0ZM369.36-43.24L369.36-43.24Q366.55-43.24 364.80-44.84Q363.05-46.44 363.05-49.10L363.05-49.10Q363.05-51.76 364.80-53.35Q366.55-54.95 369.36-54.95L369.36-54.95Q372.17-54.95 373.92-53.35Q375.67-51.76 375.67-49.10L375.67-49.10Q375.67-46.44 373.92-44.84Q372.17-43.24 369.36-43.24ZM405.61 0L392.69 0L380-37.70L391.25-37.70L396.11-19.91Q396.87-17.10 397.59-14.21Q398.32-11.32 399.08-8.28L399.08-8.28L399.38-8.28Q400.06-11.32 400.82-14.21Q401.58-17.10 402.27-19.91L402.27-19.91L407.21-37.70L417.92-37.70L405.61 0ZM434.19 0L423.02 0L423.02-37.70L434.19-37.70L434.19 0ZM452.81 0.91L452.81 0.91Q449.39 0.91 446.84-0.61Q444.30-2.13 442.93-4.71Q441.56-7.30 441.56-10.49L441.56-10.49Q441.56-16.57 446.58-19.87Q451.59-23.18 462.76-24.32L462.76-24.32Q462.69-25.99 462.04-27.17Q461.40-28.35 460.10-28.99Q458.81-29.64 456.84-29.64L456.84-29.64Q454.48-29.64 452.05-28.80Q449.62-27.97 446.80-26.37L446.80-26.37L442.85-33.67Q445.28-35.19 447.87-36.29Q450.45-37.39 453.23-38Q456-38.61 458.96-38.61L458.96-38.61Q463.83-38.61 467.13-36.75Q470.44-34.88 472.19-31.12Q473.94-27.36 473.94-21.51L473.94-21.51L473.94 0L464.82 0L464.06-3.88L463.75-3.88Q461.32-1.75 458.66-0.42Q456 0.91 452.81 0.91ZM456.53-7.83L456.53-7.83Q458.43-7.83 459.88-8.66Q461.32-9.50 462.76-10.94L462.76-10.94L462.76-17.33Q458.81-16.80 456.49-15.96Q454.18-15.12 453.23-13.95Q452.28-12.77 452.28-11.32L452.28-11.32Q452.28-9.58 453.45-8.70Q454.63-7.83 456.53-7.83Z" fill="#14161C"/>
+  <rect x="422.90" y="-55.18" width="11.40" height="11.40" rx="2.96" fill="#E8A33D"/>
+  </g>
+</svg>
+</div></div>
+  <div class="screens"><main class="phone" lang="en"><div class="content">
+  <header class="top"><div><p class="hello">Good morning, Martha</p><h1 class="title">Ready to play?</h1></div>
+  <span class="streak"><i class="ph-duotone ph-flame"></i>5 days</span></header>
+  <a href="#" class="banner" style="--b: var(--li); --b-soft: var(--li-soft)">
+    <div class="banner-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+    <div class="banner-body"><span class="banner-tag">Prayer</span><p class="banner-title">Rosary for peace</p><p class="banner-text">Join us today at 8 PM from home.</p></div>
+    <i class="ph ph-caret-right banner-go"></i></a>
+  <div class="dots"><span class="on"></span><span></span><span></span></div>
+  <section class="daily"><div class="daily-head"><span class="daily-tag">Daily challenge · 10 questions</span><i class="ph-duotone ph-sparkle"></i></div>
+  <p class="daily-name">The miracles of Jesus</p><button class="btn-start">Start</button></section>
+  <div class="section"><h2>Categories</h2><a href="#">See all</a></div>
+  <div class="cat" style="--c: var(--at); --soft: var(--at-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-scroll"></i></div>
+    <div class="cat-body"><p class="cat-name">Old Testament</p><div class="bar"><span style="width:60%"></span></div></div>
+    <span class="cat-count">12/20</span></div>
+  <div class="cat" style="--c: var(--nt); --soft: var(--nt-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-book-open-text"></i></div>
+    <div class="cat-body"><p class="cat-name">New Testament</p><div class="bar"><span style="width:35%"></span></div></div>
+    <span class="cat-count">7/20</span></div>
+  <div class="cat" style="--c: var(--sa); --soft: var(--sa-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+    <div class="cat-body"><p class="cat-name">Saints</p><div class="bar"><span style="width:10%"></span></div></div>
+    <span class="cat-count">2/20</span></div>
+  <div class="cat" style="--c: var(--sc); --soft: var(--sc-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-drop"></i></div>
+    <div class="cat-body"><p class="cat-name">Sacraments</p><div class="bar"><span style="width:25%"></span></div></div>
+    <span class="cat-count">5/20</span></div>
+  <div class="cat" style="--c: var(--li); --soft: var(--li-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-church"></i></div>
+    <div class="cat-body"><p class="cat-name">Liturgy</p><div class="bar"><span style="width:0%"></span></div></div>
+    <span class="cat-new">New</span></div>
+  </div>
+  <nav class="nav"><a href="#" class="active"><i class="ph-duotone ph-house"></i>Home</a><a href="#"><i class="ph ph-trophy"></i>Leaderboard</a><a href="#"><i class="ph ph-user-circle"></i>Profile</a></nav>
+</main><main class="phone" lang="en"><div class="content q-screen" style="--c: var(--at); --soft: var(--at-soft)">
+  <div class="q-top"><i class="ph ph-x"></i><div class="bar"><span style="width:40%"></span></div></div>
+  <p class="q-count">Question 4 of 10</p>
+  <span class="chip">Old Testament</span>
+  <p class="question">Who built the ark to survive the flood?</p><p class="ref">Gen 6:14</p>
+  <div class="answers"><div class="ans ">Moses</div><div class="ans ok">Noah<i class="ph-duotone ph-check-circle"></i></div><div class="ans ">Abraham</div><div class="ans ">David</div></div>
+  <p class="feedback ok"><i class="ph-duotone ph-check-circle"></i>Correct!</p>
+  <button class="btn-main">Next</button>
+  </div></main></div>
+</div>
+<div class="lang-col">
+  <div class="lang-head"><span class="tag">Português (PT-BR)</span><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" width="651" height="150" viewBox="0 0 651 150">
+  <g transform="translate(0 9) scale(0.25384615384615383)"><rect width="520" height="520" rx="116" fill="#2F5BD3"/>
+  <path d="M168 352 L138 444 L262 374 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
+  <rect x="112" y="82" width="296" height="300" rx="78" fill="#FFFFFF"/>
+  <rect x="234" y="116" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="174" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="176" width="52" height="52" rx="13" fill="#E8A33D"/>
+  <rect x="294" y="176" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="236" width="52" height="52" rx="13" fill="#2F5BD3"/>
+  <rect x="234" y="296" width="52" height="52" rx="13" fill="#2F5BD3"/></g>
+  <g transform="translate(166 100.08)">
+  <path d="M26.75 0L15.50 0L15.50-40.13L1.90-40.13L1.90-49.55L40.36-49.55L40.36-40.13L26.75-40.13L26.75 0ZM57.61 0L46.44 0L46.44-37.70L55.56-37.70L56.32-31.08L56.62-31.08Q58.67-34.88 61.52-36.75Q64.37-38.61 67.34-38.61L67.34-38.61Q68.93-38.61 70.00-38.42Q71.06-38.23 71.82-37.85L71.82-37.85L69.69-28.35Q68.78-28.58 67.94-28.69Q67.11-28.80 65.89-28.80L65.89-28.80Q63.76-28.80 61.45-27.28Q59.13-25.76 57.61-21.89L57.61-21.89L57.61 0ZM87.10 0L75.92 0L75.92-37.70L87.10-37.70L87.10 0ZM83.45-43.32L74.94-43.32L83.68-57.23L95.46-57.23L96.06-56.01L83.45-43.32ZM117.72 0L104.80 0L92.11-37.70L103.36-37.70L108.22-19.91Q108.98-17.10 109.71-14.21Q110.43-11.32 111.19-8.28L111.19-8.28L111.49-8.28Q112.18-11.32 112.94-14.21Q113.70-17.10 114.38-19.91L114.38-19.91L119.32-37.70L130.04-37.70L117.72 0ZM146.30 0L135.13 0L135.13-37.70L146.30-37.70L146.30 0ZM140.68-43.24L140.68-43.24Q137.86-43.24 136.12-44.84Q134.37-46.44 134.37-49.10L134.37-49.10Q134.37-51.76 136.12-53.35Q137.86-54.95 140.68-54.95L140.68-54.95Q143.49-54.95 145.24-53.35Q146.98-51.76 146.98-49.10L146.98-49.10Q146.98-46.44 145.24-44.84Q143.49-43.24 140.68-43.24ZM164.84 0.91L164.84 0.91Q161.42 0.91 158.88-0.61Q156.33-2.13 154.96-4.71Q153.60-7.30 153.60-10.49L153.60-10.49Q153.60-16.57 158.61-19.87Q163.63-23.18 174.80-24.32L174.80-24.32Q174.72-25.99 174.08-27.17Q173.43-28.35 172.14-28.99Q170.85-29.64 168.87-29.64L168.87-29.64Q166.52-29.64 164.08-28.80Q161.65-27.97 158.84-26.37L158.84-26.37L154.89-33.67Q157.32-35.19 159.90-36.29Q162.49-37.39 165.26-38Q168.04-38.61 171-38.61L171-38.61Q175.86-38.61 179.17-36.75Q182.48-34.88 184.22-31.12Q185.97-27.36 185.97-21.51L185.97-21.51L185.97 0L176.85 0L176.09-3.88L175.79-3.88Q173.36-1.75 170.70-0.42Q168.04 0.91 164.84 0.91ZM168.57-7.83L168.57-7.83Q170.47-7.83 171.91-8.66Q173.36-9.50 174.80-10.94L174.80-10.94L174.80-17.33Q170.85-16.80 168.53-15.96Q166.21-15.12 165.26-13.95Q164.31-12.77 164.31-11.32L164.31-11.32Q164.31-9.58 165.49-8.70Q166.67-7.83 168.57-7.83Z" fill="#14161C"/>
+  <path d="M233.24 0.91L233.24 0.91Q226.86 0.91 221.58-1.94Q216.30-4.79 213.10-10.49Q209.91-16.19 209.91-24.47L209.91-24.47Q209.91-30.63 211.77-35.45Q213.64-40.28 216.90-43.62Q220.17-46.97 224.39-48.72Q228.61-50.46 233.32-50.46L233.32-50.46Q238.11-50.46 241.91-48.56Q245.71-46.66 248.22-44.00L248.22-44.00L242.29-37.24Q240.46-38.99 238.34-39.86Q236.21-40.74 233.55-40.74L233.55-40.74Q230.28-40.74 227.51-38.80Q224.73-36.86 223.06-33.29Q221.39-29.72 221.39-24.85L221.39-24.85Q221.39-19.76 222.98-16.15Q224.58-12.54 227.43-10.64Q230.28-8.74 234.00-8.74L234.00-8.74Q236.89-8.74 239.17-9.96Q241.45-11.17 243.20-12.84L243.20-12.84L248.82-6.23Q245.63-2.66 241.76-0.87Q237.88 0.91 233.24 0.91ZM264.33 0.91L264.33 0.91Q260.91 0.91 258.36-0.61Q255.82-2.13 254.45-4.71Q253.08-7.30 253.08-10.49L253.08-10.49Q253.08-16.57 258.10-19.87Q263.11-23.18 274.28-24.32L274.28-24.32Q274.21-25.99 273.56-27.17Q272.92-28.35 271.62-28.99Q270.33-29.64 268.36-29.64L268.36-29.64Q266-29.64 263.57-28.80Q261.14-27.97 258.32-26.37L258.32-26.37L254.37-33.67Q256.80-35.19 259.39-36.29Q261.97-37.39 264.75-38Q267.52-38.61 270.48-38.61L270.48-38.61Q275.35-38.61 278.65-36.75Q281.96-34.88 283.71-31.12Q285.46-27.36 285.46-21.51L285.46-21.51L285.46 0L276.34 0L275.58-3.88L275.27-3.88Q272.84-1.75 270.18-0.42Q267.52 0.91 264.33 0.91ZM268.05-7.83L268.05-7.83Q269.95-7.83 271.40-8.66Q272.84-9.50 274.28-10.94L274.28-10.94L274.28-17.33Q270.33-16.80 268.01-15.96Q265.70-15.12 264.75-13.95Q263.80-12.77 263.80-11.32L263.80-11.32Q263.80-9.58 264.97-8.70Q266.15-7.83 268.05-7.83ZM308.64 0.84L308.64 0.84Q301.64 0.84 298.60-3.23Q295.56-7.30 295.56-13.76L295.56-13.76L295.56-28.96L290.47-28.96L290.47-37.24L296.25-37.70L297.54-49.25L306.81-49.25L306.81-37.70L315.86-37.70L315.86-28.96L306.81-28.96L306.81-13.91Q306.81-10.72 308.14-9.31Q309.47-7.90 311.68-7.90L311.68-7.90Q312.59-7.90 313.50-8.06Q314.41-8.21 315.25-8.51L315.25-8.51L317.07-0.68Q315.63-0.08 313.46 0.38Q311.30 0.84 308.64 0.84ZM338.66 0.91L338.66 0.91Q333.87 0.91 329.69-1.41Q325.51-3.72 322.89-8.17Q320.26-12.62 320.26-18.85L320.26-18.85Q320.26-25.08 322.89-29.53Q325.51-33.97 329.69-36.29Q333.87-38.61 338.66-38.61L338.66-38.61Q343.37-38.61 347.55-36.29Q351.73-33.97 354.35-29.53Q356.97-25.08 356.97-18.85L356.97-18.85Q356.97-12.62 354.35-8.17Q351.73-3.72 347.55-1.41Q343.37 0.91 338.66 0.91ZM338.66-8.13L338.66-8.13Q340.94-8.13 342.49-9.42Q344.05-10.72 344.81-13.15Q345.57-15.58 345.57-18.85L345.57-18.85Q345.57-22.12 344.81-24.55Q344.05-26.98 342.49-28.27Q340.94-29.56 338.66-29.56L338.66-29.56Q336.30-29.56 334.78-28.27Q333.26-26.98 332.50-24.55Q331.74-22.12 331.74-18.85L331.74-18.85Q331.74-15.58 332.50-13.15Q333.26-10.72 334.78-9.42Q336.30-8.13 338.66-8.13ZM374.15 0.84L374.15 0.84Q370.35 0.84 368.11-0.72Q365.86-2.28 364.88-5.13Q363.89-7.98 363.89-11.78L363.89-11.78L363.89-53.20L375.06-53.20L375.06-11.32Q375.06-9.50 375.71-8.85Q376.35-8.21 377.11-8.21L377.11-8.21Q377.42-8.21 377.68-8.25Q377.95-8.28 378.40-8.36L378.40-8.36L379.77-0.08Q378.86 0.30 377.45 0.57Q376.05 0.84 374.15 0.84ZM396.04 0L384.86 0L384.86-37.70L396.04-37.70L396.04 0ZM390.41-43.24L390.41-43.24Q387.60-43.24 385.85-44.84Q384.10-46.44 384.10-49.10L384.10-49.10Q384.10-51.76 385.85-53.35Q387.60-54.95 390.41-54.95L390.41-54.95Q393.22-54.95 394.97-53.35Q396.72-51.76 396.72-49.10L396.72-49.10Q396.72-46.44 394.97-44.84Q393.22-43.24 390.41-43.24ZM421.72 0.91L421.72 0.91Q416.40 0.91 412.11-1.44Q407.82-3.80 405.35-8.21Q402.88-12.62 402.88-18.85L402.88-18.85Q402.88-25.08 405.61-29.49Q408.35-33.90 412.83-36.25Q417.32-38.61 422.48-38.61L422.48-38.61Q425.98-38.61 428.75-37.51Q431.53-36.40 433.50-34.58L433.50-34.58L428.26-27.66Q427.27-28.50 426.02-29.03Q424.76-29.56 423.17-29.56L423.17-29.56Q420.51-29.56 418.53-28.27Q416.56-26.98 415.42-24.55Q414.28-22.12 414.28-18.85L414.28-18.85Q414.28-15.58 415.42-13.15Q416.56-10.72 418.49-9.42Q420.43-8.13 422.86-8.13L422.86-8.13Q424.76-8.13 426.44-8.82Q428.11-9.50 429.55-10.56L429.55-10.56L433.96-3.72Q431.60-1.60 428.41-0.34Q425.22 0.91 421.72 0.91ZM449.39 0.91L449.39 0.91Q445.97 0.91 443.42-0.61Q440.88-2.13 439.51-4.71Q438.14-7.30 438.14-10.49L438.14-10.49Q438.14-16.57 443.16-19.87Q448.17-23.18 459.34-24.32L459.34-24.32Q459.27-25.99 458.62-27.17Q457.98-28.35 456.68-28.99Q455.39-29.64 453.42-29.64L453.42-29.64Q451.06-29.64 448.63-28.80Q446.20-27.97 443.38-26.37L443.38-26.37L439.43-33.67Q441.86-35.19 444.45-36.29Q447.03-37.39 449.81-38Q452.58-38.61 455.54-38.61L455.54-38.61Q460.41-38.61 463.71-36.75Q467.02-34.88 468.77-31.12Q470.52-27.36 470.52-21.51L470.52-21.51L470.52 0L461.40 0L460.64-3.88L460.33-3.88Q457.90-1.75 455.24-0.42Q452.58 0.91 449.39 0.91ZM453.11-7.83L453.11-7.83Q455.01-7.83 456.46-8.66Q457.90-9.50 459.34-10.94L459.34-10.94L459.34-17.33Q455.39-16.80 453.07-15.96Q450.76-15.12 449.81-13.95Q448.86-12.77 448.86-11.32L448.86-11.32Q448.86-9.58 450.03-8.70Q451.21-7.83 453.11-7.83Z" fill="#2F5BD3"/>
+  <rect x="333.68" y="-60.50" width="12.92" height="12.92" rx="3.36" fill="#E8A33D" transform="rotate(-18 338.62 -54.04)"/>
+  </g>
+</svg>
+</div></div>
+  <div class="screens"><main class="phone" lang="pt-BR"><div class="content">
+  <header class="top"><div><p class="hello">Bom dia, Marta</p><h1 class="title">Vamos jogar hoje?</h1></div>
+  <span class="streak"><i class="ph-duotone ph-flame"></i>5 dias</span></header>
+  <a href="#" class="banner" style="--b: var(--li); --b-soft: var(--li-soft)">
+    <div class="banner-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+    <div class="banner-body"><span class="banner-tag">Oração</span><p class="banner-title">Terço pela paz</p><p class="banner-text">Participe hoje às 20h, de casa.</p></div>
+    <i class="ph ph-caret-right banner-go"></i></a>
+  <div class="dots"><span class="on"></span><span></span><span></span></div>
+  <section class="daily"><div class="daily-head"><span class="daily-tag">Desafio do dia · 10 perguntas</span><i class="ph-duotone ph-sparkle"></i></div>
+  <p class="daily-name">Os milagres de Jesus</p><button class="btn-start">Começar</button></section>
+  <div class="section"><h2>Categorias</h2><a href="#">Ver todas</a></div>
+  <div class="cat" style="--c: var(--at); --soft: var(--at-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-scroll"></i></div>
+    <div class="cat-body"><p class="cat-name">Antigo Testamento</p><div class="bar"><span style="width:60%"></span></div></div>
+    <span class="cat-count">12/20</span></div>
+  <div class="cat" style="--c: var(--nt); --soft: var(--nt-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-book-open-text"></i></div>
+    <div class="cat-body"><p class="cat-name">Novo Testamento</p><div class="bar"><span style="width:35%"></span></div></div>
+    <span class="cat-count">7/20</span></div>
+  <div class="cat" style="--c: var(--sa); --soft: var(--sa-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-hands-praying"></i></div>
+    <div class="cat-body"><p class="cat-name">Santos</p><div class="bar"><span style="width:10%"></span></div></div>
+    <span class="cat-count">2/20</span></div>
+  <div class="cat" style="--c: var(--sc); --soft: var(--sc-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-drop"></i></div>
+    <div class="cat-body"><p class="cat-name">Sacramentos</p><div class="bar"><span style="width:25%"></span></div></div>
+    <span class="cat-count">5/20</span></div>
+  <div class="cat" style="--c: var(--li); --soft: var(--li-soft)">
+    <div class="cat-icon"><i class="ph-duotone ph-church"></i></div>
+    <div class="cat-body"><p class="cat-name">Liturgia</p><div class="bar"><span style="width:0%"></span></div></div>
+    <span class="cat-new">Novo</span></div>
+  </div>
+  <nav class="nav"><a href="#" class="active"><i class="ph-duotone ph-house"></i>Início</a><a href="#"><i class="ph ph-trophy"></i>Ranking</a><a href="#"><i class="ph ph-user-circle"></i>Perfil</a></nav>
+</main><main class="phone" lang="pt-BR"><div class="content q-screen" style="--c: var(--at); --soft: var(--at-soft)">
+  <div class="q-top"><i class="ph ph-x"></i><div class="bar"><span style="width:40%"></span></div></div>
+  <p class="q-count">Pergunta 4 de 10</p>
+  <span class="chip">Antigo Testamento</span>
+  <p class="question">Quem construiu a arca para sobreviver ao dilúvio?</p><p class="ref">Gn 6,14</p>
+  <div class="answers"><div class="ans bad">Moisés<i class="ph-duotone ph-x-circle"></i></div><div class="ans reveal">Noé<i class="ph-duotone ph-check-circle"></i></div><div class="ans ">Abraão</div><div class="ans ">Davi</div></div>
+  <p class="feedback bad"><i class="ph-duotone ph-x-circle"></i>A resposta era: Noé</p>
+  <button class="btn-main">Próxima</button>
+  </div></main></div>
+</div>
+</div>
+</body>
+</html>

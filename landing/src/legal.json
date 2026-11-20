@@ -1,0 +1,38 @@
+[
+  {
+    "id": "privacy",
+    "paths": { "es": "/privacidad", "en": "/en/privacy" },
+    "titles": { "es": "Política de privacidad", "en": "Privacy policy" },
+    "descriptions": {
+      "es": "Qué datos recoge la app Trivia Católica, para qué los usamos, con quién se comparten y cómo podés eliminarlos.",
+      "en": "What data the Catholic Trivia app collects, how we use it, who it is shared with and how you can delete it."
+    }
+  },
+  {
+    "id": "delete",
+    "paths": { "es": "/eliminar-cuenta", "en": "/en/delete-account" },
+    "titles": { "es": "Eliminar tu cuenta y tus datos", "en": "Delete your account and data" },
+    "descriptions": {
+      "es": "Cómo solicitar la eliminación de tu cuenta de Trivia Católica y de los datos asociados.",
+      "en": "How to request deletion of your Catholic Trivia account and its associated data."
+    }
+  },
+  {
+    "id": "terms",
+    "paths": { "es": "/terminos", "en": "/en/terms" },
+    "titles": { "es": "Términos y condiciones", "en": "Terms of use" },
+    "descriptions": {
+      "es": "Condiciones de uso de la app Trivia Católica y de la suscripción Trivia Católica Pro.",
+      "en": "Terms of use for the Catholic Trivia app and the Catholic Trivia Pro subscription."
+    }
+  },
+  {
+    "id": "support",
+    "paths": { "es": "/soporte", "en": "/en/support" },
+    "titles": { "es": "Ayuda y soporte", "en": "Help and support" },
+    "descriptions": {
+      "es": "Preguntas frecuentes y contacto de soporte de Trivia Católica.",
+      "en": "Frequently asked questions and support contact for Catholic Trivia."
+    }
+  }
+]

@@ -1,0 +1,11 @@
+# Originales pesados (se sirven las versiones optimizadas)
+jesus-app.png
+icon.png
+
+# Locales
+.env*
+.gitignore
+
+# Fuentes del build (se generan las páginas con: node build.mjs)
+src/
+build.mjs

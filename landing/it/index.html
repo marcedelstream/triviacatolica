@@ -1,0 +1,2445 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trivia Cattolica · Il quiz per imparare la tua fede</title>
+  <meta name="description" content="Quiz cattolico e biblico per il tuo smartphone: sfide quotidiane, classifica, spiegazioni con citazioni della Bibbia e del Catechismo, santi, sacramenti e liturgia. Presto su iOS e Android.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#2F5BD3">
+  <meta name="application-name" content="Trivia Cattolica">
+  <meta name="apple-mobile-web-app-title" content="Trivia Cattolica">
+  <link rel="canonical" href="https://triviacatolica.com/it">
+  <link rel="alternate" hreflang="es" href="https://triviacatolica.com/">
+  <link rel="alternate" hreflang="en" href="https://triviacatolica.com/en">
+  <link rel="alternate" hreflang="pt" href="https://triviacatolica.com/pt">
+  <link rel="alternate" hreflang="it" href="https://triviacatolica.com/it">
+  <link rel="alternate" hreflang="x-default" href="https://triviacatolica.com/">
+
+  <!-- Open Graph / Compartir (WhatsApp, Facebook, LinkedIn, Telegram) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Trivia Cattolica">
+  <meta property="og:url" content="https://triviacatolica.com/it">
+  <meta property="og:title" content="Trivia Cattolica · Conosci e vivi la tua fede, una domanda alla volta">
+  <meta property="og:description" content="Sfide quotidiane, classifica e spiegazioni con citazioni della Bibbia e del Catechismo. Presto su iOS e Android.">
+  <meta property="og:image" content="https://triviacatolica.com/og-it.jpg">
+  <meta property="og:image:secure_url" content="https://triviacatolica.com/og-it.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Trivia Cattolica: Gesù animato che mostra l'app su uno smartphone">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:locale:alternate" content="es_AR">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="pt_BR">
+
+  <!-- X / Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Trivia Cattolica · Conosci e vivi la tua fede, una domanda alla volta">
+  <meta name="twitter:description" content="Sfide quotidiane, classifica e spiegazioni con citazioni della Bibbia e del Catechismo. Presto su iOS e Android.">
+  <meta name="twitter:image" content="https://triviacatolica.com/og-it.jpg">
+  <meta name="twitter:image:alt" content="Trivia Cattolica: Gesù animato che mostra l'app su uno smartphone">
+
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" as="image" href="/jesus-app.jpg" fetchpriority="high">
+
+  <!-- Datos estructurados para Google -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://triviacatolica.com/#org","name":"Trivia Cattolica","url":"https://triviacatolica.com/","logo":"https://triviacatolica.com/icon-512.png","email":"hola@triviacatolica.com"},{"@type":"WebSite","@id":"https://triviacatolica.com/it#website","url":"https://triviacatolica.com/it","name":"Trivia Cattolica","inLanguage":"it","publisher":{"@id":"https://triviacatolica.com/#org"}},{"@type":"MobileApplication","name":"Trivia Cattolica","operatingSystem":"iOS, Android","applicationCategory":"GameApplication","applicationSubCategory":"Trivia","inLanguage":"it","description":"Un quiz per imparare la fede cattolica: sfide quotidiane, classifica, spiegazioni con citazioni della Bibbia e del Catechismo e notizie dal mondo cattolico.","image":"https://triviacatolica.com/og-it.jpg","publisher":{"@id":"https://triviacatolica.com/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}]}</script>
+
+  <!-- Tipografía única Lienzo: Source Sans 3 (400, 600, 700, sin itálicas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Biblioteca única de íconos Lienzo: Phosphor Icons (duotone + regular) -->
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+
+  <style>
+    /* ==========================================================================
+       Trivia Católica · Sistema de diseño "Lienzo"
+       - Fondo blanco, bordes finos (1.5px), cero sombras, cero degradados, cero blur.
+       - Familia única: Source Sans 3 (400, 600, 700). Nada menor a 13 px.
+       - Sentence case siempre. Todo estado comunica color + ícono + texto.
+       ========================================================================== */
+    :root {
+      --bg: #FFFFFF;
+      --bg-app: #F2F3F6;
+      --ink: #14161C;
+      --ink-2: #5B6170;
+      --line: #E6E8EE;
+      --track: #EEF0F4;
+
+      --primary: #2F5BD3;
+      --primary-ink: #1E3F9E;
+      --primary-soft: #EEF2FD;
+      --on-primary: #FFFFFF;
+      --on-primary-2: #DCE4FA;
+
+      --gold: #E8A33D;
+      --gold-sparkle: #FFD27A;
+      --gold-ink: #8A5A0B;
+      --gold-soft: #FDF3E1;
+
+      --success: #2B754D;
+      --success-ink: #1E5A3A;
+      --success-soft: #E7F4EC;
+
+      --danger: #B42318;
+      --danger-soft: #FDECEA;
+
+      --cat-at: #A94C25; --cat-at-soft: #FBEFE6;
+      --cat-nt: #2F5BD3; --cat-nt-soft: #EEF2FD;
+      --cat-sa: #A83E5A; --cat-sa-soft: #FBECEF;
+      --cat-sc: #2B754D; --cat-sc-soft: #E7F4EC;
+      --cat-li: #6A52C2; --cat-li-soft: #F1EEFB;
+
+      --font: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+      --r-chip: 999px;
+      --r-icon: 14px;
+      --r-card: 16px;
+      --r-banner: 18px;
+      --r-block: 20px;
+      --r-panel: 24px;
+      --r-phone: 30px;
+      --border: 1.5px solid var(--line);
+      --t: 180ms ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--ink);
+      background: var(--bg);
+      font-style: normal;
+      overflow-x: hidden;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    .ph,
+    .ph-duotone {
+      display: inline-block;
+      line-height: 1;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .btn-header i,
+    .waitlist-submit i,
+    .waitlist-status i {
+      font-size: 20px;
+    }
+
+    .plan-chip i {
+      font-size: 16px;
+    }
+
+    button, input, a {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ==========================================================================
+       Header minimalista (solo logo listo para versión sobre fondo blanco)
+       ========================================================================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      height: 72px;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 380px) {
+      .brand-name { font-size: 17px; }
+      .brand-mark { width: 34px; height: 34px; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink-2);
+      padding: 10px 14px;
+      border-radius: 12px;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      transition: background var(--t), color var(--t);
+    }
+
+    .nav-links a:hover {
+      background: var(--bg-app);
+      color: var(--ink);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-header {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: var(--r-icon);
+      border: 1.5px solid var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-ink);
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background var(--t), color var(--t);
+    }
+
+    .btn-header:hover {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--r-icon);
+      border: var(--border);
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--ink);
+    }
+
+    .mobile-drawer {
+      display: none;
+      border-top: 1px solid var(--line);
+      background: var(--bg);
+      padding: 12px 20px 20px;
+    }
+
+    .mobile-drawer.open {
+      display: block;
+    }
+
+    .mobile-drawer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mobile-drawer-links a {
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 12px 14px;
+      border-radius: var(--r-icon);
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-drawer-links a:hover {
+      background: var(--bg-app);
+    }
+
+    /* ==========================================================================
+       SLIDE 1: Hero en una sola pantalla (solo título + descarga + celular de costado)
+       ========================================================================== */
+    .hero {
+      min-height: calc(100svh - 72px);
+      display: flex;
+      align-items: center;
+      padding: 28px 0 36px;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      gap: 40px;
+      align-items: center;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+      border-radius: var(--r-chip);
+      padding: 7px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .status-chip i {
+      font-size: 20px;
+      color: var(--gold);
+    }
+
+    .status-chip.is-live {
+      background: var(--success-soft);
+      color: var(--success-ink);
+    }
+
+    .status-chip.is-live i {
+      color: var(--success);
+    }
+
+    .hero-title {
+      font-size: clamp(36px, 4.6vw, 56px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      max-width: 14ch;
+    }
+
+    .store-group {
+      margin-top: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .store-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 66px;
+      padding: 10px 18px 10px 12px;
+      border-radius: var(--r-card);
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+      text-decoration: none;
+      text-align: left;
+      transition: border-color var(--t), background var(--t);
+      min-width: 225px;
+      flex: 1 1 220px;
+      max-width: 274px;
+    }
+
+    .store-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .store-btn-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      transition: background var(--t), color var(--t);
+    }
+
+    .store-btn:hover .store-btn-icon {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .store-btn-body {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .store-btn-eyebrow {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ink-2);
+      line-height: 1.2;
+    }
+
+    .store-btn-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-top: 1px;
+    }
+
+    .store-pill {
+      display: inline-flex;
+      align-items: center;
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+      border-radius: var(--r-chip);
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .store-pill.live {
+      background: var(--success-soft);
+      color: var(--success-ink);
+    }
+
+    /* Ilustración de Jesús animado sosteniendo el teléfono (PNG transparente) */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .hero-mascot {
+      width: auto;
+      max-width: min(100%, 460px);
+      max-height: min(74svh, 580px);
+      height: auto;
+      object-fit: contain;
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       Secciones generales
+       ========================================================================== */
+    .section {
+      padding: 72px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-muted {
+      background: var(--bg-app);
+    }
+
+    .section-head {
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--r-chip);
+      background: var(--primary-soft);
+      color: var(--primary-ink);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .section-eyebrow i {
+      font-size: 17px;
+      color: var(--primary);
+    }
+
+    .section-title {
+      font-size: clamp(26px, 3vw, 36px);
+      font-weight: 700;
+      line-height: 1.16;
+      color: var(--ink);
+    }
+
+    .section-desc {
+      margin-top: 12px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       SLIDE 2: Descripción del juego
+       ========================================================================== */
+    .about-card {
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-panel);
+      padding: 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .about-text {
+      font-size: 19px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      margin-top: 14px;
+    }
+
+    .about-highlights {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .about-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border: var(--border);
+      border-radius: var(--r-card);
+      background: var(--bg);
+    }
+
+    .about-item-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--r-icon);
+      background: var(--a-soft);
+      color: var(--a-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .about-item strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .about-item > div span {
+      display: block;
+      font-size: 15px;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       SLIDE 3: Qué tiene la app (solo 4 opciones)
+       ========================================================================== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-block);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--r-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      background: var(--f-soft);
+      color: var(--f-color);
+    }
+
+    .feature-card h3 {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+
+    .feature-card p {
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       SLIDE 4: Elegí un tema (5 categorías + Y más)
+       ========================================================================== */
+    .cats-explorer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .cats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cat-selector {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: var(--r-card);
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+      text-align: left;
+      transition: border-color var(--t), background var(--t);
+    }
+
+    .cat-selector:hover {
+      border-color: var(--c);
+    }
+
+    .cat-selector.active {
+      border: 2px solid var(--c);
+      background: var(--soft);
+    }
+
+    .cat-sel-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--r-icon);
+      background: var(--soft);
+      color: var(--c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .cat-selector.active .cat-sel-icon {
+      background: var(--bg);
+    }
+
+    .cat-sel-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cat-sel-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .cat-sel-desc {
+      font-size: 15px;
+      color: var(--ink-2);
+      margin-top: 2px;
+    }
+
+    .cat-sel-caret {
+      font-size: 20px;
+      color: var(--ink-2);
+      flex-shrink: 0;
+    }
+
+    .cat-selector.active .cat-sel-caret {
+      color: var(--c);
+    }
+
+    .levels-panel {
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-panel);
+      padding: 24px;
+    }
+
+    .levels-hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      border-radius: var(--r-block);
+      background: var(--soft);
+      margin-bottom: 22px;
+    }
+
+    .levels-hero-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--r-icon);
+      background: var(--bg);
+      color: var(--c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .levels-hero h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .levels-hero p {
+      font-size: 15px;
+      color: var(--ink-2);
+      margin-top: 2px;
+    }
+
+    .path-heading {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .level-path {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .level-connector {
+      width: 2px;
+      height: 16px;
+      background: var(--line);
+      margin-left: 34px;
+    }
+
+    .level-connector.done {
+      background: var(--c);
+    }
+
+    .level-node {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: var(--r-card);
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+    }
+
+    .level-node.recommended {
+      border: 2px solid var(--c);
+    }
+
+    .level-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--soft);
+      color: var(--c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .level-num.pro {
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+    }
+
+    .level-num i {
+      font-size: 20px;
+    }
+
+    .level-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .level-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .level-sub {
+      font-size: 14px;
+      color: var(--ink-2);
+      margin-top: 2px;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: var(--r-chip);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .level-badge i {
+      font-size: 15px;
+    }
+
+    .level-badge.free {
+      background: var(--success-soft);
+      color: var(--success-ink);
+    }
+
+    .level-badge.pro {
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+    }
+
+    .level-badge.soon {
+      background: var(--primary-soft);
+      color: var(--primary-ink);
+    }
+
+    .path-note {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--ink-2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .path-note i {
+      font-size: 18px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       SLIDE 5: Contenido siempre actualizado + Tarifa y beneficios
+       ========================================================================== */
+    .live-content-banner {
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-block);
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .live-content-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--r-icon);
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .live-content-body h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .live-content-body p {
+      margin-top: 4px;
+      font-size: 16px;
+      color: var(--ink-2);
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .plan-card {
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-panel);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan-card.pro {
+      border: 2px solid var(--primary);
+    }
+
+    .plan-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .plan-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .plan-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: var(--r-chip);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .plan-chip.free {
+      background: var(--track);
+      color: var(--ink);
+    }
+
+    .plan-chip.pro {
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+    }
+
+    .plan-price-row {
+      margin: 6px 0 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .price-box {
+      flex: 1 1 160px;
+      border: var(--border);
+      border-radius: var(--r-card);
+      padding: 12px 14px;
+      background: var(--bg);
+    }
+
+    .price-box.highlight {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .price-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-2);
+    }
+
+    .price-save {
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+      border-radius: var(--r-chip);
+      padding: 2px 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .price-amount {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .price-box.highlight .price-amount {
+      color: var(--primary-ink);
+    }
+
+    .price-note {
+      font-size: 14px;
+      color: var(--ink-2);
+      margin-top: 2px;
+    }
+
+    .plan-sub {
+      font-size: 16px;
+      color: var(--ink-2);
+      margin-bottom: 18px;
+    }
+
+    .plan-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .plan-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    .plan-list i {
+      font-size: 22px;
+      color: var(--success);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .plan-card.pro .plan-list i {
+      color: var(--primary);
+    }
+
+    .plan-foot {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 15px;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       Bloque final de descarga + Aviso de lanzamiento
+       ========================================================================== */
+    .download-section {
+      padding: 72px 0;
+    }
+
+    .download-block {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-radius: var(--r-panel);
+      padding: 44px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .dl-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--on-primary-2);
+      margin-bottom: 12px;
+    }
+
+    .dl-tag i {
+      font-size: 22px;
+      color: var(--gold-sparkle);
+    }
+
+    .dl-title {
+      font-size: clamp(28px, 3.2vw, 38px);
+      font-weight: 700;
+      line-height: 1.14;
+      color: var(--on-primary);
+    }
+
+    .dl-desc {
+      margin-top: 12px;
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--on-primary-2);
+      max-width: 48ch;
+    }
+
+    .dl-stores {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .dl-store-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 60px;
+      padding: 10px 18px 10px 14px;
+      border-radius: var(--r-card);
+      background: var(--bg);
+      color: var(--ink);
+      text-decoration: none;
+      text-align: left;
+      transition: background var(--t);
+      min-width: 215px;
+    }
+
+    .dl-store-btn:hover {
+      background: var(--primary-soft);
+    }
+
+    .dl-store-btn i {
+      font-size: 28px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .dl-store-eyebrow {
+      display: block;
+      font-size: 13px;
+      color: var(--ink-2);
+      line-height: 1.2;
+    }
+
+    .dl-store-name {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-ink);
+      line-height: 1.2;
+    }
+
+    .waitlist-card {
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: var(--r-block);
+      padding: 24px;
+    }
+
+    .waitlist-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .waitlist-card p {
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--ink-2);
+    }
+
+    .waitlist-form {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .waitlist-input {
+      width: 100%;
+      min-height: 50px;
+      padding: 0 14px;
+      border-radius: var(--r-icon);
+      border: 1.5px solid var(--line);
+      font-size: 16px;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .waitlist-input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .waitlist-submit {
+      width: 100%;
+      min-height: 50px;
+      border-radius: var(--r-icon);
+      background: var(--primary);
+      color: var(--on-primary);
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background var(--t);
+    }
+
+    .waitlist-submit:hover {
+      background: var(--primary-ink);
+    }
+
+    .waitlist-status {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: var(--r-icon);
+      font-size: 15px;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .waitlist-status.ok {
+      display: flex;
+      background: var(--success-soft);
+      color: var(--success-ink);
+    }
+
+    .waitlist-status.err {
+      display: flex;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .waitlist-note {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    .site-footer {
+      border-top: 1px solid var(--line);
+      background: var(--bg);
+      padding: 36px 0 44px;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .footer-links a {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink-2);
+      text-decoration: none;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      width: 100%;
+      padding-top: 20px;
+      margin-top: 4px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       Modal "Próximamente" al tocar App Store / Google Play
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(20, 22, 28, 0.52);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-panel);
+      padding: 28px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--r-icon);
+      background: var(--gold-soft);
+      color: var(--gold-ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .modal-close {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--r-icon);
+      border: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--ink);
+    }
+
+    .modal-title {
+      margin-top: 16px;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .modal-text {
+      margin-top: 8px;
+      font-size: 16px;
+      line-height: 1.48;
+      color: var(--ink-2);
+    }
+
+    /* ==========================================================================
+       Responsive
+       ========================================================================== */
+    @media (max-width: 980px) {
+      .hero {
+        min-height: auto;
+        padding: 40px 0 56px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .hero-title {
+        max-width: 18ch;
+      }
+
+      .about-card,
+      .cats-explorer,
+      .download-block {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 740px) {
+      .nav-links,
+      .btn-header {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: inline-flex;
+      }
+
+      .section,
+      .download-section {
+        padding: 52px 0;
+      }
+
+      .about-card {
+        padding: 24px 20px;
+      }
+
+      .features-grid,
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .store-btn {
+        max-width: none;
+      }
+
+      .hero-mascot {
+        max-width: min(100%, 340px);
+        max-height: 440px;
+      }
+
+      .live-content-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+      }
+
+      .download-block {
+        padding: 28px 20px;
+      }
+    }
+
+    /* ==========================================================================
+       Idiomas: selector en header, menú móvil, footer y cartel de sugerencia
+       ========================================================================== */
+    .lang-menu { position: relative; }
+    .lang-menu summary {
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 48px;
+      padding: 0 12px;
+      border-radius: var(--r-icon);
+      border: var(--border);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--t), border-color var(--t);
+    }
+    .lang-menu summary::-webkit-details-marker { display: none; }
+    .lang-menu summary:hover, .lang-menu[open] summary { background: var(--bg-app); }
+    .lang-menu summary i { font-size: 20px; color: var(--primary); }
+    .lang-menu summary .caret { font-size: 14px; color: var(--ink-2); transition: transform var(--t); }
+    .lang-menu[open] summary .caret { transform: rotate(180deg); }
+    .lang-menu-list {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 180px;
+      background: var(--bg);
+      border: var(--border);
+      border-radius: var(--r-card);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 60;
+      animation: rise .18s ease-out both;
+    }
+    .lang-menu-list a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .lang-menu-list a:hover { background: var(--bg-app); }
+    .lang-menu-list a[aria-current="true"] { background: var(--primary-soft); color: var(--primary-ink); }
+    .lang-menu-list a span { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+
+    .drawer-langs, .footer-langs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .drawer-langs { margin-top: 12px; padding: 12px 14px 0; border-top: 1px solid var(--line); }
+    .drawer-langs a, .footer-langs a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: var(--r-chip);
+      border: var(--border);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink-2);
+      text-decoration: none;
+      transition: border-color var(--t), color var(--t), background var(--t);
+    }
+    .footer-langs a { min-height: 34px; padding: 0 12px; font-size: 14px; }
+    .drawer-langs a:hover, .footer-langs a:hover { border-color: var(--primary); color: var(--primary); }
+    .drawer-langs a[aria-current="true"], .footer-langs a[aria-current="true"] {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-ink);
+    }
+
+    .lang-banner {
+      background: var(--primary-soft);
+      border-bottom: 1.5px solid var(--line);
+      color: var(--primary-ink);
+      font-size: 15px;
+      animation: rise .4s ease-out both;
+    }
+    .lang-banner[hidden] { display: none; }
+    .lang-banner-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .lang-banner-inner > i { font-size: 20px; }
+    .lang-banner-inner p { flex: 1; font-weight: 600; }
+    .lang-banner-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: var(--r-icon);
+      background: var(--primary);
+      color: var(--on-primary);
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .lang-banner-close {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-icon);
+      border: 0;
+      background: transparent;
+      color: var(--primary-ink);
+      font-size: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lang-banner-close:hover { background: var(--bg); }
+
+    /* ==========================================================================
+       Animaciones (sin sombras ni blur: solo movimiento y opacidad)
+       ========================================================================== */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes mascot-in {
+      from { opacity: 0; transform: translateY(40px) scale(.96); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1) rotate(0); }
+      50%      { transform: scale(1.25) rotate(20deg); }
+    }
+
+    .hero .status-chip   { animation: rise .6s ease-out both; }
+    .hero .hero-title    { animation: rise .7s ease-out .1s both; }
+    .hero .store-group   { animation: rise .7s ease-out .22s both; }
+    .hero-visual         { animation: mascot-in .9s cubic-bezier(.2,.8,.2,1) .15s both; }
+    .hero-mascot         { animation: float 6s ease-in-out 1.2s infinite; }
+    .status-chip .ph-sparkle { animation: sparkle 2.4s ease-in-out infinite; }
+
+    .store-btn, .dl-store-btn, .feature-card, .plan-card, .about-item, .btn-header, .waitlist-submit {
+      transition: transform var(--t), border-color var(--t), background var(--t), color var(--t);
+    }
+    .store-btn:hover, .dl-store-btn:hover, .btn-header:hover, .waitlist-submit:hover { transform: translateY(-2px); }
+    .feature-card:hover, .plan-card:hover { transform: translateY(-4px); }
+    .feature-card:hover .feature-icon i, .about-item:hover .about-item-icon i { animation: sparkle .6s ease-in-out; }
+
+    /* Aparición al hacer scroll (la clase .js-reveal se agrega por JS: sin JS todo queda visible) */
+    .js-reveal .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .7s ease-out, transform .7s cubic-bezier(.2,.8,.2,1);
+      transition-delay: var(--d, 0ms);
+    }
+    .js-reveal .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
+      .js-reveal .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-banner" id="langBanner" hidden></div>
+
+
+  <!-- ========================================================================
+       Header: solo el logo (listo para reemplazar por versión sobre fondo blanco)
+       ======================================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#inicio" class="brand-logo" aria-label="Trivia Cattolica, home">
+        <!-- Reemplazá este SVG por <img src="./logo-fondo-blanco.png" alt="Trivia Cattolica" height="44"> cuando tengas la versión para fondos blancos -->
+        <svg class="brand-mark" viewBox="191 190 640 640" width="44" height="44" aria-hidden="true"><g fill="#2F5BD3"><g><path d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/><path d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/></g><g><path d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/><path d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/></g></g><g fill="#2F5BD3"><rect x="489" y="259" width="45" height="506" rx="12"/><rect x="403" y="349" width="218" height="39" rx="12"/></g><path fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/></svg><span class="brand-name">Trivia Cattolica</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Navigazione principale">
+        <a href="#sobre-el-juego">Il gioco</a>
+        <a href="#que-incluye">Cosa offre l'app</a>
+        <a href="#categorias">Temi</a>
+        <a href="#planes">Piani</a>
+      </nav>
+
+      <div class="header-actions">
+        <details class="lang-menu">
+          <summary aria-label="Lingua: Italiano">
+            <i class="ph-duotone ph-globe-hemisphere-west" aria-hidden="true"></i>
+            <span>IT</span>
+            <i class="ph ph-caret-down caret" aria-hidden="true"></i>
+          </summary>
+          <div class="lang-menu-list">
+          <a href="/" hreflang="es" lang="es" data-lang-choice="es">Español<span>ES</span></a>
+          <a href="/en" hreflang="en" lang="en" data-lang-choice="en">English<span>EN</span></a>
+          <a href="/pt" hreflang="pt" lang="pt" data-lang-choice="pt">Português<span>PT</span></a>
+          <a href="/it" hreflang="it" lang="it" data-lang-choice="it" aria-current="true">Italiano<span>IT</span></a>
+          </div>
+        </details>
+        <a href="#descargar" class="btn-header">
+          <i class="ph-duotone ph-device-mobile" aria-hidden="true"></i>
+          <span>Scarica</span>
+        </a>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileDrawer" aria-label="Apri menu">
+          <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-drawer" id="mobileDrawer">
+      <nav class="mobile-drawer-links" aria-label="Navigazione mobile">
+        <a href="#sobre-el-juego"><span>Il gioco</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#que-incluye"><span>Cosa offre l'app</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#categorias"><span>Temi e livelli</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#planes"><span>Prezzi e vantaggi</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+        <a href="#descargar"><span>Scarica l'app</span><i class="ph ph-caret-right" aria-hidden="true"></i></a>
+      </nav>
+      <nav class="drawer-langs" aria-label="Lingua">
+        <a href="/" hreflang="es" lang="es" data-lang-choice="es">Español</a>
+        <a href="/en" hreflang="en" lang="en" data-lang-choice="en">English</a>
+        <a href="/pt" hreflang="pt" lang="pt" data-lang-choice="pt">Português</a>
+        <a href="/it" hreflang="it" lang="it" data-lang-choice="it" aria-current="true">Italiano</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <!-- ======================================================================
+         SLIDE 1: Solo título + botones de descarga + celular de costado
+         ====================================================================== -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="status-chip" id="heroStatusChip">
+            <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+            <span id="heroStatusText">Presto su App Store e Google Play</span>
+          </span>
+
+          <h1 class="hero-title">Conosci e vivi la tua fede, una domanda alla volta.</h1>
+
+          <div class="store-group" aria-label="Scarica dagli store">
+            <a href="#descargar" class="store-btn" data-store="ios">
+              <span class="store-btn-icon" aria-hidden="true">
+                <i class="ph-duotone ph-apple-logo"></i>
+              </span>
+              <span class="store-btn-body">
+                <span class="store-btn-eyebrow" data-store-eyebrow>Presto su</span>
+                <span class="store-btn-name">App Store</span>
+              </span>
+              <span class="store-pill" data-store-pill>Presto</span>
+            </a>
+
+            <a href="#descargar" class="store-btn" data-store="android">
+              <span class="store-btn-icon" aria-hidden="true">
+                <i class="ph-duotone ph-google-play-logo"></i>
+              </span>
+              <span class="store-btn-body">
+                <span class="store-btn-eyebrow" data-store-eyebrow>Presto su</span>
+                <span class="store-btn-name">Google Play</span>
+              </span>
+              <span class="store-pill" data-store-pill>Presto</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Jesús animado sosteniendo el teléfono (fondo transparente) -->
+        <div class="hero-visual">
+          <img
+            src="/jesus-app.jpg"
+            fetchpriority="high"
+            alt="Gesù animato che tiene in mano lo smartphone con Trivia Cattolica"
+            class="hero-mascot"
+            width="853"
+            height="1093"
+            decoding="async"
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 2: Descripción del juego
+         ====================================================================== -->
+    <section class="section section-muted" id="sobre-el-juego">
+      <div class="container">
+        <div class="about-card">
+          <div>
+            <span class="section-eyebrow">
+              <i class="ph-duotone ph-book-open-text" aria-hidden="true"></i>
+              <span>Su Trivia Cattolica</span>
+            </span>
+            <h2 class="section-title">Un gioco pensato per imparare la fede ogni giorno dal tuo smartphone</h2>
+            <p class="about-text">
+              Trivia Cattolica raccoglie domande sulla Sacra Scrittura, i santi, i sacramenti, la liturgia e l'attualità della Chiesa in partite chiare e serene. Ogni risposta ti lascia un breve insegnamento fondato sulla Bibbia e sul Catechismo, per giocare qualche minuto al giorno, da solo o in famiglia.
+            </p>
+          </div>
+
+          <div class="about-highlights">
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--gold); --a-soft: var(--gold-soft);">
+                <i class="ph-duotone ph-flame" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>Partite brevi ogni giorno</strong>
+                <span>Avanza livello dopo livello, guadagna stelle e mantieni la tua serie.</span>
+              </div>
+            </div>
+
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--success); --a-soft: var(--success-soft);">
+                <i class="ph-duotone ph-book-bookmark" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>Fondamento dottrinale affidabile</strong>
+                <span>Ogni risposta include una spiegazione e una citazione biblica o del CCC.</span>
+              </div>
+            </div>
+
+            <div class="about-item">
+              <span class="about-item-icon" style="--a-color: var(--cat-li); --a-soft: var(--cat-li-soft);">
+                <i class="ph-duotone ph-hands-praying" aria-hidden="true"></i>
+              </span>
+              <div>
+                <strong>Una comunità viva</strong>
+                <span>Banner di preghiera, iniziative parrocchiali e notizie dal mondo cattolico.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 3: Qué tiene la app (solo 4 opciones)
+         ====================================================================== -->
+    <section class="section" id="que-incluye">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-squares-four" aria-hidden="true"></i>
+            <span>Cosa offre l'app</span>
+          </span>
+          <h2 class="section-title">Quattro pilastri per imparare e divertirti in ogni partita</h2>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--primary); --f-soft: var(--primary-soft);">
+              <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+            </span>
+            <h3>Sfide</h3>
+            <p>Una sfida quotidiana di 10 domande varie e percorsi a livelli per mantenere viva la tua serie, guadagnare stelle e ripassare ogni tema passo dopo passo.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--gold-ink); --f-soft: var(--gold-soft);">
+              <i class="ph-duotone ph-trophy" aria-hidden="true"></i>
+            </span>
+            <h3>Classifica</h3>
+            <p>Classifica settimanale della comunità in cui accumuli punti XP con le risposte corrette e i giorni consecutivi, salvando i tuoi progressi con Google o Apple.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--success); --f-soft: var(--success-soft);">
+              <i class="ph-duotone ph-book-bookmark" aria-hidden="true"></i>
+            </span>
+            <h3>Spiegazioni</h3>
+            <p>Ogni risposta mostra subito un riscontro chiaro con il suo insegnamento dottrinale e il riferimento esatto alla Bibbia o al Catechismo della Chiesa Cattolica.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon" style="--f-color: var(--cat-li); --f-soft: var(--cat-li-soft);">
+              <i class="ph-duotone ph-newspaper" aria-hidden="true"></i>
+            </span>
+            <h3>Notizie dal mondo cattolico</h3>
+            <p>L'attualità della Chiesa da Vatican News e altri portali cattolici, con il link per leggere ogni articolo e un mini-quiz dedicato per giocarci.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 4: Elegí un tema (5 categorías + Y más)
+         ====================================================================== -->
+    <section class="section section-muted" id="categorias">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-path" aria-hidden="true"></i>
+            <span>Temi e percorsi</span>
+          </span>
+          <h2 class="section-title">Scegli un tema, percorri i suoi livelli e scopri molto di più</h2>
+          <p class="section-desc">
+            Inizia dai grandi pilastri della fede e aggiungi nuovi argomenti man mano che la biblioteca del gioco cresce.
+          </p>
+        </div>
+
+        <div class="cats-explorer">
+          <div class="cats-list" role="tablist" aria-label="Temi di Trivia Cattolica" id="categoryButtons">
+            <!-- Generado desde JS con las 5 categorías + "Y más" -->
+          </div>
+
+          <div class="levels-panel" id="levelsPanel" aria-live="polite">
+            <!-- Panel dinámico del camino de niveles -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 5: Contenido que siempre se carga + Tarifas y beneficios
+         ====================================================================== -->
+    <section class="section" id="planes">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-eyebrow">
+            <i class="ph-duotone ph-arrows-clockwise" aria-hidden="true"></i>
+            <span>Sempre in crescita</span>
+          </span>
+          <h2 class="section-title">Domande e notizie aggiunte di continuo</h2>
+          <p class="section-desc">
+            L'app si rinnova continuamente: aggiungiamo nuove domande dottrinali, temi e notizie dal mondo cattolico con i loro quiz, così trovi sempre qualcosa di nuovo da giocare.
+          </p>
+        </div>
+
+        <div class="live-content-banner">
+          <span class="live-content-icon">
+            <i class="ph-duotone ph-cloud-arrow-down" aria-hidden="true"></i>
+          </span>
+          <div class="live-content-body">
+            <h3>Una biblioteca viva dentro l'app</h3>
+            <p>Nuovi round, sfide del giorno e notizie da Vatican News e da altre testate arrivano automaticamente sul tuo smartphone.</p>
+          </div>
+        </div>
+
+        <div class="plans-grid">
+          <article class="plan-card">
+            <div class="plan-top">
+              <h3 class="plan-name">Piano gratuito</h3>
+              <span class="plan-chip free">Incluso con il download</span>
+            </div>
+
+            <div class="plan-price-row">
+              <div class="price-box">
+                <div class="price-label"><span>Accesso libero</span></div>
+                <p class="price-amount">USD 0</p>
+                <p class="price-note">Gratis per iniziare</p>
+              </div>
+            </div>
+
+            <p class="plan-sub">Tutto l'essenziale per giocare ogni giorno e continuare a imparare.</p>
+            <ul class="plan-list">
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>Sfida del giorno con 10 domande e serie quotidiana.</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>Livelli 1 e 2 nelle categorie principali.</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>Notizie dal mondo cattolico con il loro mini-quiz quotidiano.</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>Spiegazioni con citazioni della Bibbia e del Catechismo in ogni domanda.</span></li>
+              <li><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>3 vite con ricarica automatica ogni 30 minuti e classifica settimanale.</span></li>
+            </ul>
+            <p class="plan-foot">Disponibile gratis su App Store e Google Play.</p>
+          </article>
+
+          <article class="plan-card pro">
+            <div class="plan-top">
+              <h3 class="plan-name">Trivia Cattolica Pro</h3>
+              <span class="plan-chip pro"><i class="ph-duotone ph-crown" aria-hidden="true"></i>Facoltativo</span>
+            </div>
+
+            <div class="plan-price-row">
+              <div class="price-box highlight">
+                <div class="price-label">
+                  <span>Piano annuale</span>
+                  <span class="price-save">Risparmi il 40%</span>
+                </div>
+                <p class="price-amount">USD 24,99 / anno</p>
+                <p class="price-note">Pari a USD 2,08 al mese</p>
+              </div>
+              <div class="price-box">
+                <div class="price-label"><span>Piano mensile</span></div>
+                <p class="price-amount">USD 3,49 / mese</p>
+                <p class="price-note">Disdici quando vuoi</p>
+              </div>
+            </div>
+
+            <p class="plan-sub">Sostieni il progetto e accedi a tutta la formazione senza limiti di vite.</p>
+            <ul class="plan-list">
+              <li><i class="ph-duotone ph-infinity" aria-hidden="true"></i><span>Vite infinite per giocare e imparare senza aspettare le ricariche.</span></li>
+              <li><i class="ph-duotone ph-crown" aria-hidden="true"></i><span>Tutti i livelli avanzati e i nuovi argomenti sbloccati.</span></li>
+              <li><i class="ph-duotone ph-shield-check" aria-hidden="true"></i><span>Protezione della serie per conservare i tuoi giorni anche se salti una giornata.</span></li>
+              <li><i class="ph-duotone ph-heart" aria-hidden="true"></i><span>Sostieni l'aggiunta continua di nuove domande, categorie e notizie.</span></li>
+            </ul>
+            <p class="plan-foot">Abbonamento gestito in modo sicuro tramite App Store o Google Play.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         Bloque final de descarga + Aviso de lanzamiento
+         ====================================================================== -->
+    <section class="download-section" id="descargar">
+      <div class="container">
+        <div class="download-block">
+          <div>
+            <span class="dl-tag">
+              <i class="ph-duotone ph-sparkle" aria-hidden="true"></i>
+              <span id="dlTagText">Lancio in arrivo · iOS e Android</span>
+            </span>
+            <h2 class="dl-title" id="dlTitle">Scarica Trivia Cattolica molto presto</h2>
+            <p class="dl-desc" id="dlDesc">
+              Stiamo preparando la pubblicazione ufficiale su App Store e Google Play. Appena sarà disponibile, potrai scaricarla direttamente da questi pulsanti.
+            </p>
+
+            <div class="dl-stores">
+              <a href="#descargar" class="dl-store-btn" data-store="ios">
+                <i class="ph-duotone ph-apple-logo" aria-hidden="true"></i>
+                <span>
+                  <span class="dl-store-eyebrow" data-store-eyebrow>Presto su</span>
+                  <span class="dl-store-name">App Store</span>
+                </span>
+              </a>
+
+              <a href="#descargar" class="dl-store-btn" data-store="android">
+                <i class="ph-duotone ph-google-play-logo" aria-hidden="true"></i>
+                <span>
+                  <span class="dl-store-eyebrow" data-store-eyebrow>Presto su</span>
+                  <span class="dl-store-name">Google Play</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div class="waitlist-card">
+            <h3>Avvisami quando sarà disponibile</h3>
+            <p>Lasciaci la tua email e ti scriveremo una sola volta, il giorno in cui si potrà scaricare su iPhone e Android.</p>
+
+            <form class="waitlist-form" id="waitlistForm" novalidate>
+              <label for="waitlistEmail" class="sr-only">La tua email</label>
+              <input type="email" id="waitlistEmail" class="waitlist-input" placeholder="tu@email.com" autocomplete="email" required>
+              <button type="submit" class="waitlist-submit">
+                <i class="ph-duotone ph-bell-ringing" aria-hidden="true"></i>
+                <span>Voglio essere avvisato</span>
+              </button>
+            </form>
+
+            <div class="waitlist-status" id="waitlistStatus" role="status" aria-live="polite"></div>
+            <p class="waitlist-note">Niente spam. Solo l'annuncio del lancio di Trivia Cattolica.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       Footer
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <a href="#inicio" class="brand-logo" aria-label="Trivia Cattolica, home">
+          <svg class="brand-mark" viewBox="191 190 640 640" width="38" height="38" aria-hidden="true"><g fill="#2F5BD3"><g><path d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/><path d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/></g><g><path d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/><path d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/></g></g><g fill="#2F5BD3"><rect x="489" y="259" width="45" height="506" rx="12"/><rect x="403" y="349" width="218" height="39" rx="12"/></g><path fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/></svg><span class="brand-name">Trivia Cattolica</span>
+        </a>
+
+        <div class="footer-links">
+          <a href="#sobre-el-juego">Il gioco</a>
+          <a href="#que-incluye">Cosa offre l'app</a>
+          <a href="#categorias">Temi</a>
+          <a href="#planes">Piani</a>
+          <a href="mailto:hola@triviacatolica.com">Contatti</a>
+          <a href="/en/privacy" hreflang="en">Privacy</a>
+          <a href="/en/terms" hreflang="en">Termini</a>
+          <a href="/en/support" hreflang="en">Assistenza</a>
+        </div>
+      </div>
+
+      <div class="footer-copy">
+        <span>© 2026 Trivia Cattolica · Tutti i diritti riservati.</span>
+        <nav class="footer-langs" aria-label="Lingua">
+          <a href="/" hreflang="es" lang="es" data-lang-choice="es">Español</a>
+          <a href="/en" hreflang="en" lang="en" data-lang-choice="en">English</a>
+          <a href="/pt" hreflang="pt" lang="pt" data-lang-choice="pt">Português</a>
+          <a href="/it" hreflang="it" lang="it" data-lang-choice="it" aria-current="true">Italiano</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       Modal de aviso cuando la app aún no está publicada en tiendas
+       ======================================================================== -->
+  <div class="modal-backdrop" id="launchModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-icon" id="modalStoreIcon"><i class="ph-duotone ph-clock" aria-hidden="true"></i></span>
+        <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Chiudi avviso">
+          <i class="ph ph-x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <h3 class="modal-title" id="modalTitle">Non è ancora negli store</h3>
+      <p class="modal-text" id="modalText">
+        Stiamo completando gli ultimi passaggi per pubblicare Trivia Cattolica su App Store e Google Play. Lasciaci la tua email e ti avviseremo appena esce.
+      </p>
+
+      <form class="waitlist-form" id="modalWaitlistForm" novalidate>
+        <label for="modalEmail" class="sr-only">La tua email</label>
+        <input type="email" id="modalEmail" class="waitlist-input" placeholder="tu@email.com" autocomplete="email" required>
+        <button type="submit" class="waitlist-submit">
+          <i class="ph-duotone ph-bell-ringing" aria-hidden="true"></i>
+          <span>Avvisami il giorno del lancio</span>
+        </button>
+      </form>
+      <div class="waitlist-status" id="modalStatus" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>window.TC = {"lang":"it","alternates":{"es":"/","en":"/en","pt":"/pt","it":"/it"},"js":{"live_hero":"Disponibile gratis su App Store e Google Play","live_tag":"Già disponibile · iOS e Android","live_title":"Scarica Trivia Cattolica oggi","live_desc":"Installala gratis sul tuo smartphone e inizia a giocare alle sfide quotidiane, alle categorie e ai quiz sulle notizie.","get_on":"Scarica su","available_on":"Disponibile su","free":"Gratis","soon_ios":"Presto su App Store","soon_android":"Presto su Google Play","modal_ios":"Stiamo ultimando la pubblicazione per iPhone e iPad. Lasciaci la tua email e ti avviseremo appena sarà su App Store.","modal_android":"Stiamo ultimando la pubblicazione per smartphone Android. Lasciaci la tua email e ti avviseremo appena sarà su Google Play.","badge_pro":"Piano Pro","badge_soon":"In arrivo","path_more":"Prossime novità","path":"Percorso a livelli","note_more":"Aggiungiamo periodicamente nuovi temi e domande, direttamente nell'app.","note":"Completa ogni livello con almeno 1 stella per sbloccare il successivo.","level":"Livello {n} · {title}","wl_saved":"Abbiamo già registrato {email}. Ti avviseremo il giorno del lancio.","wl_invalid":"Inserisci un indirizzo email valido per poterti avvisare.","wl_ok":"Fatto! Abbiamo registrato {email} e ti avviseremo appena l'app sarà disponibile."},"categories":[{"title":"Antico Testamento","description":"Creazione, patriarchi, esodo, salmi e profeti.","levels":[["Le origini e i patriarchi","Creazione, Noè, Abramo e Mosè"],["Re e profeti","Davide, Elia, Isaia e i Salmi"],["Sapienza e alleanza","Libri sapienziali e deuterocanonici"]]},{"title":"Nuovo Testamento","description":"Vangeli, miracoli di Gesù, parabole e lettere apostoliche.","levels":[["I miracoli di Gesù","Segni del Regno nei Vangeli"],["Parabole e apostoli","Insegnamenti e primi discepoli"],["Lettere apostoliche","San Paolo, Atti e Apocalisse"]]},{"title":"Santi","description":"Testimoni della fede lungo la storia della Chiesa.","levels":[["Santi vicini","Francesco, Teresa, Giuseppe e Maria"],["Dottori della Chiesa","Agostino, Tommaso d'Aquino e Caterina da Siena"],["Santi d'America e del XX secolo","Rosa da Lima, Brochero e Carlo Acutis"]]},{"title":"Sacramenti","description":"I sette segni efficaci della grazia istituiti da Cristo.","levels":[["Iniziazione cristiana","Battesimo, Cresima ed Eucaristia"],["Guarigione e servizio","Riconciliazione, Unzione, Ordine e Matrimonio"],["Grazia e carattere sacramentale","Teologia sacramentale secondo il Catechismo"]]},{"title":"Liturgia","description":"La Santa Messa, i tempi liturgici e la preghiera della Chiesa.","levels":[["La Santa Messa","Le parti essenziali della celebrazione"],["Anno liturgico e colori","Avvento, Quaresima, Pasqua e Tempo Ordinario"],["Liturgia delle Ore e segni","L'altare, il lezionario e le solennità"]]},{"title":"E altri temi in arrivo","description":"Nuove categorie, tempi liturgici speciali e attualità della Chiesa.","levels":[["Storia della Chiesa e Concili","Dai primi cristiani a oggi"],["Mariologia e devozioni","Titoli mariani, il Rosario e i dogmi"],["Speciali di Quaresima, Pasqua e Avvento","Round tematici aggiunti durante l'anno"]]}]};</script>
+  <script>
+/* ==========================================================================
+   Trivia Católica · lógica compartida de la landing (todos los idiomas)
+   Los textos de cada idioma llegan en window.TC (los genera build.mjs).
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------------
+     CONFIGURACIÓN DE TIENDAS
+     Cuando la app esté publicada, cambiá `available: true` y pegá los links
+     reales de App Store y Google Play. Todos los botones (en todos los
+     idiomas) se actualizan solos.
+     ------------------------------------------------------------------------ */
+  const STORE_CONFIG = {
+    available: false,
+    appStoreUrl: 'https://apps.apple.com/app/id0000000000',
+    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.triviacatolica.app',
+    waitlistEndpoint: ''
+  };
+
+  const TC = window.TC;
+  const S = TC.js;
+  const fmt = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? vars[k] : ''));
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* sin storage */ } }
+  };
+
+  /* Categorías: estructura fija + textos del idioma actual */
+  const CATEGORY_BASE = [
+    { slug: 'antiguo-testamento', icon: 'ph-scroll', color: 'var(--cat-at)', soft: 'var(--cat-at-soft)', status: ['free', 'free', 'pro'] },
+    { slug: 'nuevo-testamento', icon: 'ph-book-open-text', color: 'var(--cat-nt)', soft: 'var(--cat-nt-soft)', status: ['free', 'free', 'pro'] },
+    { slug: 'santos', icon: 'ph-hands-praying', color: 'var(--cat-sa)', soft: 'var(--cat-sa-soft)', status: ['free', 'free', 'pro'] },
+    { slug: 'sacramentos', icon: 'ph-drop', color: 'var(--cat-sc)', soft: 'var(--cat-sc-soft)', status: ['free', 'free', 'pro'] },
+    { slug: 'liturgia', icon: 'ph-church', color: 'var(--cat-li)', soft: 'var(--cat-li-soft)', status: ['free', 'free', 'pro'] },
+    { slug: 'y-mas', icon: 'ph-plus-circle', color: 'var(--primary)', soft: 'var(--primary-soft)', status: ['soon', 'soon', 'soon'], isMore: true }
+  ];
+  const CATEGORIES = CATEGORY_BASE.map((base, i) => {
+    const txt = TC.categories[i];
+    return {
+      ...base,
+      title: txt.title,
+      description: txt.description,
+      levels: txt.levels.map(([title, sub], j) => ({
+        num: base.isMore ? '+' : j + 1,
+        title,
+        sub,
+        status: base.status[j]
+      }))
+    };
+  });
+
+  /* 1. Menú móvil ----------------------------------------------------------- */
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileDrawer = document.getElementById('mobileDrawer');
+
+  menuToggle.addEventListener('click', () => {
+    const isOpen = mobileDrawer.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+    menuToggle.innerHTML = isOpen
+      ? '<i class="ph ph-x" aria-hidden="true"></i>'
+      : '<i class="ph ph-list" aria-hidden="true"></i>';
+  });
+
+  mobileDrawer.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileDrawer.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.innerHTML = '<i class="ph ph-list" aria-hidden="true"></i>';
+    });
+  });
+
+  /* Cierra el selector de idioma al hacer clic afuera */
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('details.lang-menu[open]').forEach((d) => {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
+
+  /* 2. Botones de descarga + modal ----------------------------------------- */
+  const launchModal = document.getElementById('launchModal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalText = document.getElementById('modalText');
+  const modalStoreIcon = document.getElementById('modalStoreIcon');
+
+  function initStoreButtons() {
+    const storeButtons = document.querySelectorAll('[data-store]');
+
+    if (STORE_CONFIG.available) {
+      document.getElementById('heroStatusChip').classList.add('is-live');
+      document.getElementById('heroStatusText').textContent = S.live_hero;
+      document.getElementById('dlTagText').textContent = S.live_tag;
+      document.getElementById('dlTitle').textContent = S.live_title;
+      document.getElementById('dlDesc').textContent = S.live_desc;
+
+      storeButtons.forEach((btn) => {
+        const platform = btn.getAttribute('data-store');
+        btn.setAttribute('href', platform === 'ios' ? STORE_CONFIG.appStoreUrl : STORE_CONFIG.googlePlayUrl);
+        btn.setAttribute('target', '_blank');
+        btn.setAttribute('rel', 'noopener noreferrer');
+        const eyebrow = btn.querySelector('[data-store-eyebrow]');
+        if (eyebrow) eyebrow.textContent = platform === 'ios' ? S.get_on : S.available_on;
+        const pill = btn.querySelector('[data-store-pill]');
+        if (pill) {
+          pill.textContent = S.free;
+          pill.classList.add('live');
+        }
+      });
+    } else {
+      storeButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const isIos = btn.getAttribute('data-store') === 'ios';
+          modalStoreIcon.innerHTML = isIos
+            ? '<i class="ph-duotone ph-apple-logo" aria-hidden="true"></i>'
+            : '<i class="ph-duotone ph-google-play-logo" aria-hidden="true"></i>';
+          modalTitle.textContent = isIos ? S.soon_ios : S.soon_android;
+          modalText.textContent = isIos ? S.modal_ios : S.modal_android;
+          openModal();
+        });
+      });
+    }
+  }
+
+  function openModal() {
+    launchModal.classList.add('open');
+    launchModal.setAttribute('aria-hidden', 'false');
+    document.getElementById('modalEmail').focus();
+  }
+
+  function closeModal() {
+    launchModal.classList.remove('open');
+    launchModal.setAttribute('aria-hidden', 'true');
+  }
+
+  modalCloseBtn.addEventListener('click', closeModal);
+  launchModal.addEventListener('click', (e) => {
+    if (e.target === launchModal) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && launchModal.classList.contains('open')) closeModal();
+  });
+
+  /* 3. Explorador de categorías -------------------------------------------- */
+  const categoryButtonsEl = document.getElementById('categoryButtons');
+  const levelsPanelEl = document.getElementById('levelsPanel');
+  let activeCategorySlug = 'nuevo-testamento';
+
+  function renderCategoryButtons() {
+    categoryButtonsEl.innerHTML = CATEGORIES.map((cat) => {
+      const isActive = cat.slug === activeCategorySlug;
+      return `
+        <button type="button" class="cat-selector ${isActive ? 'active' : ''}" role="tab"
+          aria-selected="${isActive}" data-cat-slug="${cat.slug}"
+          style="--c: ${cat.color}; --soft: ${cat.soft};">
+          <span class="cat-sel-icon"><i class="ph-duotone ${cat.icon}" aria-hidden="true"></i></span>
+          <span class="cat-sel-body">
+            <span class="cat-sel-name">${cat.title}</span>
+            <span class="cat-sel-desc">${cat.description}</span>
+          </span>
+          <i class="ph ph-caret-right cat-sel-caret" aria-hidden="true"></i>
+        </button>`;
+    }).join('');
+
+    categoryButtonsEl.querySelectorAll('[data-cat-slug]').forEach((btn) => {
+      btn.addEventListener('click', () => selectCategory(btn.getAttribute('data-cat-slug')));
+    });
+  }
+
+  function badgeMarkup(status) {
+    if (status === 'pro') {
+      return `<span class="level-badge pro"><i class="ph-duotone ph-crown" aria-hidden="true"></i><span>${S.badge_pro}</span></span>`;
+    }
+    if (status === 'soon') {
+      return `<span class="level-badge soon"><i class="ph-duotone ph-sparkle" aria-hidden="true"></i><span>${S.badge_soon}</span></span>`;
+    }
+    return `<span class="level-badge free"><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>${S.free}</span></span>`;
+  }
+
+  function renderLevelsPanel(cat) {
+    const heading = cat.isMore ? S.path_more : S.path;
+    const note = cat.isMore ? S.note_more : S.note;
+
+    levelsPanelEl.innerHTML = `
+      <div class="levels-hero" style="--c: ${cat.color}; --soft: ${cat.soft};">
+        <span class="levels-hero-icon"><i class="ph-duotone ${cat.icon}" aria-hidden="true"></i></span>
+        <div>
+          <h3>${cat.title}</h3>
+          <p>${cat.description}</p>
+        </div>
+      </div>
+      <p class="path-heading">${heading}</p>
+      <div class="level-path" style="--c: ${cat.color}; --soft: ${cat.soft};">
+        ${cat.levels.map((lvl, idx) => `
+          ${idx > 0 ? `<div class="level-connector ${idx === 1 ? 'done' : ''}" aria-hidden="true"></div>` : ''}
+          <div class="level-node ${idx === 0 ? 'recommended' : ''}">
+            <span class="level-num ${lvl.status === 'pro' ? 'pro' : ''}">
+              ${lvl.status === 'pro'
+                ? '<i class="ph-duotone ph-crown" aria-hidden="true"></i>'
+                : lvl.status === 'soon'
+                  ? '<i class="ph-duotone ph-plus" aria-hidden="true"></i>'
+                  : lvl.num}
+            </span>
+            <div class="level-body">
+              <p class="level-title">${cat.isMore ? lvl.title : fmt(S.level, { n: lvl.num, title: lvl.title })}</p>
+              <p class="level-sub">${lvl.sub}</p>
+            </div>
+            ${badgeMarkup(lvl.status)}
+          </div>`).join('')}
+      </div>
+      <p class="path-note">
+        <i class="ph-duotone ${cat.isMore ? 'ph-arrows-clockwise' : 'ph-star'}" aria-hidden="true"></i>
+        <span>${note}</span>
+      </p>`;
+  }
+
+  function selectCategory(slug) {
+    const cat = CATEGORIES.find((c) => c.slug === slug) || CATEGORIES[0];
+    activeCategorySlug = cat.slug;
+    renderCategoryButtons();
+    renderLevelsPanel(cat);
+  }
+
+  /* 4. Formulario "Avisame cuando salga" ----------------------------------- */
+  function wireWaitlistForm(formId, inputId, statusId) {
+    const form = document.getElementById(formId);
+    const input = document.getElementById(inputId);
+    const status = document.getElementById(statusId);
+
+    const savedEmail = store.get('triviacatolica_waitlist_email');
+    if (savedEmail) {
+      status.className = 'waitlist-status ok';
+      status.innerHTML = `<i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>${fmt(S.wl_saved, { email: escapeHtml(savedEmail) })}</span>`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+      if (!isValid) {
+        status.className = 'waitlist-status err';
+        status.innerHTML = `<i class="ph-duotone ph-x-circle" aria-hidden="true"></i><span>${S.wl_invalid}</span>`;
+        input.focus();
+        return;
+      }
+
+      if (STORE_CONFIG.waitlistEndpoint) {
+        try {
+          await fetch(STORE_CONFIG.waitlistEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, lang: TC.lang, source: 'triviacatolica.com' })
+          });
+        } catch (_) {
+          // Respaldo local si el endpoint aún no responde
+        }
+      }
+
+      store.set('triviacatolica_waitlist_email', email);
+      input.value = '';
+      status.className = 'waitlist-status ok';
+      status.innerHTML = `<i class="ph-duotone ph-check-circle" aria-hidden="true"></i><span>${fmt(S.wl_ok, { email: escapeHtml(email) })}</span>`;
+    });
+  }
+
+  /* 5. Cartel de sugerencia de idioma -------------------------------------- */
+  const BANNER = {
+    es: { text: 'Esta página también está disponible en español.', cta: 'Ver en español', close: 'Cerrar' },
+    en: { text: 'This page is also available in English.', cta: 'View in English', close: 'Close' },
+    pt: { text: 'Esta página também está disponível em português.', cta: 'Ver em português', close: 'Fechar' },
+    it: { text: 'Questa pagina è disponibile anche in italiano.', cta: 'Vedi in italiano', close: 'Chiudi' }
+  };
+
+  function initLangBanner() {
+    const banner = document.getElementById('langBanner');
+    if (!banner || store.get('tc_lang_choice')) return;
+    const prefs = (navigator.languages || [navigator.language || '']).map((l) => String(l).slice(0, 2).toLowerCase());
+    const wanted = prefs.find((l) => TC.alternates[l]);
+    if (!wanted || wanted === TC.lang) return;
+    const b = BANNER[wanted];
+    banner.setAttribute('lang', wanted);
+    banner.innerHTML = `
+      <div class="container lang-banner-inner">
+        <i class="ph-duotone ph-globe-hemisphere-west" aria-hidden="true"></i>
+        <p>${b.text}</p>
+        <a class="lang-banner-cta" href="${TC.alternates[wanted]}" data-lang-choice="${wanted}">${b.cta}<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+        <button type="button" class="lang-banner-close" aria-label="${b.close}"><i class="ph ph-x" aria-hidden="true"></i></button>
+      </div>`;
+    banner.hidden = false;
+    banner.querySelector('.lang-banner-close').addEventListener('click', () => {
+      store.set('tc_lang_choice', TC.lang);
+      banner.hidden = true;
+    });
+  }
+
+  /* Recuerda el idioma elegido a mano (selector, menú, footer o cartel) */
+  document.querySelectorAll('[data-lang-choice]').forEach((a) => {
+    a.addEventListener('click', () => store.set('tc_lang_choice', a.getAttribute('data-lang-choice')));
+  });
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('.lang-banner [data-lang-choice]');
+    if (a) store.set('tc_lang_choice', a.getAttribute('data-lang-choice'));
+  });
+
+  /* 6. Animaciones de aparición al hacer scroll ----------------------------- */
+  function initReveal() {
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const groups = [
+      '.section-head', '.about-item', '.feature-card', '.plan-card',
+      '.price-box', '.waitlist-card', '.dl-title', '.dl-store-btn', '#categorias .container > *:not(.section-head)'
+    ].join(',');
+    const els = document.querySelectorAll(groups);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    els.forEach((el) => {
+      const siblings = Array.from(el.parentElement.children).filter((c) => c.matches(groups));
+      el.style.setProperty('--d', Math.min(siblings.indexOf(el), 4) * 90 + 'ms');
+      el.classList.add('reveal');
+      io.observe(el);
+    });
+    document.documentElement.classList.add('js-reveal');
+  }
+
+  // Inicialización
+  initStoreButtons();
+  selectCategory('nuevo-testamento');
+  wireWaitlistForm('waitlistForm', 'waitlistEmail', 'waitlistStatus');
+  wireWaitlistForm('modalWaitlistForm', 'modalEmail', 'modalStatus');
+  initLangBanner();
+  initReveal();
+})();
+  </script>
+</body>
+</html>

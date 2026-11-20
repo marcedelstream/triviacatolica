@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Trivia Católica</title>
+  <g id="libro" fill="#2F5BD3">
+    <g id="tapas">
+      <path id="tapa-izquierda" d="M218,462 Q218,451 229,451 L255,451 L255,668 C360,672 440,700 462,746 L462,757 C440,742 395,727 330,725 L240,726 Q218,727 218,705 Z"/>
+      <path id="tapa-derecha" d="M805,462 Q805,451 794,451 L768,451 L768,668 C663,672 583,700 561,746 L561,757 C583,742 628,727 693,725 L783,726 Q805,727 805,705 Z"/>
+    </g>
+    <g id="paginas">
+      <path id="pagina-izquierda" d="M283,422 Q283,412 293,412 C380,413 462,440 462,490 L462,702 C450,686 395,656 293,649 Q283,648 283,638 Z"/>
+      <path id="pagina-derecha" d="M740,422 Q740,412 730,412 C643,413 561,440 561,490 L561,702 C573,686 628,656 730,649 Q740,648 740,638 Z"/>
+    </g>
+  </g>
+  <g id="cruz" fill="#2F5BD3">
+    <rect id="cruz-vertical" x="489" y="259" width="45" height="506" rx="12"/>
+    <rect id="cruz-horizontal" x="403" y="349" width="218" height="39" rx="12"/>
+  </g>
+  <path id="destello" fill="#E8A33D" d="M685,256 Q690,291 722,296 Q690,301 685,336 Q680,301 648,296 Q680,291 685,256 Z"/>
+</svg>
