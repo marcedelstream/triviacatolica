@@ -11,7 +11,7 @@ WebBrowser.maybeCompleteAuthSession();
 export interface AuthSessionResult {
   userId: string;
   isAnonymous: boolean;
-  provider?: 'google' | 'apple' | null;
+  provider?: 'google' | 'apple' | 'email' | null;
   mode: 'supabase' | 'local';
 }
 
@@ -228,6 +228,113 @@ export async function linkIdentityProvider(
       ok: false,
       mode: 'supabase',
       message: err instanceof Error ? err.message : 'No se pudo vincular la cuenta.',
+    };
+  }
+}
+
+/**
+ * Envía un código OTP de 6 dígitos al correo del usuario mediante Supabase Auth.
+ */
+export async function sendEmailOtp(
+  email: string
+): Promise<{ ok: boolean; mode: 'supabase' | 'local'; message: string }> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return {
+      ok: false,
+      mode: isSupabaseConfigured ? 'supabase' : 'local',
+      message: 'Ingresá un correo electrónico válido.',
+    };
+  }
+
+  if (!isSupabaseConfigured || !supabase) {
+    return {
+      ok: true,
+      mode: 'local',
+      message: 'Te enviamos un código de verificación (modo local: ingresá cualquier 6 dígitos).',
+    };
+  }
+
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: cleanEmail,
+      options: {
+        shouldCreateUser: true,
+      },
+    });
+
+    if (error) {
+      return {
+        ok: false,
+        mode: 'supabase',
+        message: error.message,
+      };
+    }
+
+    return {
+      ok: true,
+      mode: 'supabase',
+      message: `Enviamos un código de 6 dígitos a ${cleanEmail}. Revisá tu bandeja de entrada o spam.`,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      mode: 'supabase',
+      message:
+        err instanceof Error
+          ? err.message
+          : 'No pudimos enviar el código en este momento.',
+    };
+  }
+}
+
+/**
+ * Verifica el código OTP de 6 dígitos enviado por correo y devuelve el userId autenticado.
+ */
+export async function verifyEmailOtp(
+  email: string,
+  token: string,
+  displayName?: string
+): Promise<{ ok: boolean; userId?: string; message: string }> {
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanToken = token.replace(/\s+/g, '').trim();
+
+  if (cleanToken.length < 6) {
+    return { ok: false, message: 'Ingresá el código completo de 6 dígitos.' };
+  }
+
+  if (!isSupabaseConfigured || !supabase) {
+    return {
+      ok: true,
+      message: 'Correo verificado correctamente.',
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: cleanEmail,
+      token: cleanToken,
+      type: 'email',
+    });
+
+    if (error || !data.user) {
+      return {
+        ok: false,
+        message: error?.message || 'El código es incorrecto o venció. Probá pedir uno nuevo.',
+      };
+    }
+
+    await updateProfileAfterAuth(displayName);
+    return {
+      ok: true,
+      userId: data.user.id,
+      message: '¡Correo verificado! Tu progreso quedó guardado.',
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message:
+        err instanceof Error ? err.message : 'No se pudo verificar el código.',
     };
   }
 }

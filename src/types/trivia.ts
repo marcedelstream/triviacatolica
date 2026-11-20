@@ -52,7 +52,7 @@ export interface UserProfile {
   username: string;
   hasCompletedOnboarding: boolean;
   isAnonymous: boolean;
-  authProvider?: 'google' | 'apple' | null;
+  authProvider?: 'google' | 'apple' | 'email' | null;
   xp: number;
   streakCount: number;
   longestStreak: number;

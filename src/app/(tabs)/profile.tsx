@@ -156,9 +156,11 @@ export default function ProfileScreen() {
                 <Text style={styles.accountStatus}>
                   {profile.isAnonymous
                     ? 'Cuenta invitada · vinculala para guardar tu progreso'
-                    : `Cuenta vinculada con ${
-                        profile.authProvider === 'apple' ? 'Apple' : 'Google'
-                      }`}
+                    : profile.authProvider === 'email'
+                      ? 'Cuenta vinculada con correo electrónico'
+                      : `Cuenta vinculada con ${
+                          profile.authProvider === 'apple' ? 'Apple' : 'Google'
+                        }`}
                 </Text>
               </View>
               <Pressable
@@ -183,7 +185,7 @@ export default function ProfileScreen() {
               accessibilityRole="button"
             >
               <ShieldCheckIcon size={22} color={LIENZO.color.onPrimary} weight="duotone" />
-              <Text style={styles.primaryBtnText}>Guardar progreso con Google o Apple</Text>
+              <Text style={styles.primaryBtnText}>Guardar progreso con tu cuenta</Text>
             </Pressable>
           ) : (
             <View style={styles.verifiedRow}>

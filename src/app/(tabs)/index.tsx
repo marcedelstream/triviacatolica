@@ -89,10 +89,17 @@ export default function HomeScreen() {
         {/* Encabezado con buen respiro arriba */}
         <View style={styles.top}>
           <View style={styles.greetingCol}>
-            <Text style={styles.hello}>
+            <Text style={styles.hello} numberOfLines={1}>
               {getGreeting()}, {profile.displayName}
             </Text>
-            <Text style={styles.title}>¿Jugamos hoy?</Text>
+            <Text
+              style={styles.title}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.82}
+            >
+              ¿Jugamos hoy?
+            </Text>
           </View>
 
           <View style={styles.chipsCol}>
@@ -102,7 +109,7 @@ export default function HomeScreen() {
               accessibilityLabel={`Racha actual: ${streakLabel}`}
               style={styles.streakChip}
             >
-              <FlameIcon size={20} color={LIENZO.color.gold} weight="duotone" />
+              <FlameIcon size={18} color={LIENZO.color.gold} weight="duotone" />
               <Text style={styles.streakText}>{streakLabel}</Text>
             </Pressable>
 
@@ -122,9 +129,9 @@ export default function HomeScreen() {
               }
               style={styles.heartsChip}
             >
-              <HeartIcon size={18} color={LIENZO.color.danger} weight="duotone" />
+              <HeartIcon size={17} color={LIENZO.color.danger} weight="duotone" />
               {profile.isPremium ? (
-                <InfinityIcon size={18} color={LIENZO.color.danger} weight="regular" />
+                <InfinityIcon size={17} color={LIENZO.color.danger} weight="regular" />
               ) : (
                 <Text style={styles.heartsText}>
                   {profile.hearts}/{MAX_HEARTS}
@@ -211,54 +218,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: LIENZO.space.md,
-    flexWrap: 'wrap',
+    gap: 8,
   },
   greetingCol: {
-    flexShrink: 1,
-    minWidth: 160,
+    flex: 1,
+    minWidth: 0,
   },
   hello: {
-    ...LIENZO.type.body,
+    ...LIENZO.type.small,
     color: LIENZO.color.ink2,
   },
   title: {
-    ...LIENZO.type.display,
+    fontSize: 25,
+    lineHeight: 30,
+    fontFamily: LIENZO.font.bold,
     color: LIENZO.color.ink,
-    marginTop: 2,
+    marginTop: 1,
   },
   chipsCol: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
+    gap: 6,
+    flexShrink: 0,
   },
   streakChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     backgroundColor: LIENZO.color.goldSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    minHeight: 38,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    minHeight: 34,
   },
   streakText: {
-    ...LIENZO.type.smallBold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.goldInk,
   },
   heartsChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     backgroundColor: LIENZO.color.dangerSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingVertical: 7,
-    paddingHorizontal: 11,
-    minHeight: 38,
+    paddingVertical: 6,
+    paddingHorizontal: 9,
+    minHeight: 34,
   },
   heartsText: {
-    ...LIENZO.type.smallBold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.danger,
   },
   section: {

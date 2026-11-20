@@ -1,15 +1,27 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   AppleLogoIcon,
+  CheckCircleIcon,
+  EnvelopeSimpleIcon,
   GoogleLogoIcon,
   ShieldCheckIcon,
   XIcon,
 } from 'phosphor-react-native';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { ScreenFrame } from '@/components/ScreenFrame';
 import { LIENZO } from '@/constants/theme';
+import { sendEmailOtp } from '@/services/authService';
 import { useGameStore } from '@/store/useGameStore';
 
 export default function AuthModalScreen() {
@@ -17,12 +29,17 @@ export default function AuthModalScreen() {
   const { nextLevelId } = useLocalSearchParams<{ nextLevelId?: string }>();
   const profile = useGameStore((s) => s.profile);
   const linkAccount = useGameStore((s) => s.linkAccount);
+  const completeEmailOtpLogin = useGameStore((s) => s.completeEmailOtpLogin);
   const dismissSoftAuth = useGameStore((s) => s.dismissSoftAuth);
 
   const [name, setName] = useState(
     profile.displayName === 'Peregrino' ? '' : profile.displayName
   );
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpStep, setOtpStep] = useState<'email' | 'code'>('email');
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const proceedAfterClose = () => {
@@ -36,16 +53,45 @@ export default function AuthModalScreen() {
     }
   };
 
-  const handleLink = async (provider: 'google' | 'apple') => {
+  const handleSendCode = async () => {
     if (isLoading) return;
+    setErrorMessage(null);
+    setInfoMessage(null);
     setIsLoading(true);
-    setStatusMessage(null);
+    const res = await sendEmailOtp(email);
+    setIsLoading(false);
+    if (res.ok) {
+      setOtpStep('code');
+      setInfoMessage(res.message);
+    } else {
+      setErrorMessage(res.message);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (isLoading) return;
+    setErrorMessage(null);
+    setIsLoading(true);
+    const res = await completeEmailOtpLogin(email, otpCode, name.trim() || undefined);
+    setIsLoading(false);
+    if (res.ok) {
+      proceedAfterClose();
+    } else {
+      setErrorMessage(res.message);
+    }
+  };
+
+  const handleLinkOAuth = async (provider: 'google' | 'apple') => {
+    if (isLoading) return;
+    setErrorMessage(null);
+    setInfoMessage(null);
+    setIsLoading(true);
     const res = await linkAccount(provider, name.trim() || undefined);
     setIsLoading(false);
     if (res.ok) {
       proceedAfterClose();
     } else {
-      setStatusMessage(res.message);
+      setErrorMessage(res.message);
     }
   };
 
@@ -69,74 +115,198 @@ export default function AuthModalScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}
       >
-        <View style={styles.iconWrap}>
-          <ShieldCheckIcon size={38} color={LIENZO.color.primary} weight="duotone" />
-        </View>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.iconWrap}>
+            {otpStep === 'code' ? (
+              <EnvelopeSimpleIcon size={36} color={LIENZO.color.primary} weight="duotone" />
+            ) : (
+              <ShieldCheckIcon size={36} color={LIENZO.color.primary} weight="duotone" />
+            )}
+          </View>
 
-        <Text style={styles.title}>Conservá tu racha y tus estrellas</Text>
-        <Text style={styles.body}>
-          Al vincular tu cuenta mantenés todo lo que ya jugaste ({profile.xp} XP y tu racha actual)
-          sin empezar de cero si cambiás de teléfono.
-        </Text>
+          <Text style={styles.title}>
+            {otpStep === 'code'
+              ? 'Ingresá el código de 6 dígitos'
+              : 'Conservá tu racha y tus estrellas'}
+          </Text>
+          <Text style={styles.body}>
+            {otpStep === 'code'
+              ? `Revisá tu correo (${email.trim().toLowerCase()}) y escribí el código que te enviamos.`
+              : `Al iniciar sesión mantenés todo lo que ya jugaste (${profile.xp} XP y tu racha actual) sin empezar de cero.`}
+          </Text>
 
-        <View style={styles.field}>
-          <Text style={styles.fieldLabel}>¿Cómo querés que te saludemos? (opcional)</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Ej.: Marta"
-            placeholderTextColor={LIENZO.color.ink2}
-            style={styles.input}
-          />
-        </View>
+          {infoMessage ? (
+            <View style={styles.infoBox}>
+              <CheckCircleIcon size={20} color={LIENZO.color.success} weight="duotone" />
+              <Text style={styles.infoText}>{infoMessage}</Text>
+            </View>
+          ) : null}
 
-        {statusMessage ? <Text style={styles.errorText}>{statusMessage}</Text> : null}
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
 
-        <View style={styles.actions}>
-          <Pressable
-            onPress={() => void handleLink('google')}
-            disabled={isLoading}
-            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
-            accessibilityRole="button"
-          >
-            <GoogleLogoIcon size={22} color={LIENZO.color.onPrimary} weight="duotone" />
-            <Text style={styles.primaryBtnText}>Continuar con Google</Text>
-          </Pressable>
+          {otpStep === 'email' ? (
+            <>
+              <View style={styles.form}>
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>Tu nombre (opcional)</Text>
+                  <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    placeholder="Ej.: Marta"
+                    placeholderTextColor={LIENZO.color.ink2}
+                    style={styles.input}
+                  />
+                </View>
 
-          <Pressable
-            onPress={() => void handleLink('apple')}
-            disabled={isLoading}
-            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
-            accessibilityRole="button"
-          >
-            <AppleLogoIcon size={22} color={LIENZO.color.ink} weight="duotone" />
-            <Text style={styles.secondaryBtnText}>Continuar con Apple</Text>
-          </Pressable>
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>Correo electrónico</Text>
+                  <TextInput
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="tu@correo.com"
+                    placeholderTextColor={LIENZO.color.ink2}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={styles.input}
+                    returnKeyType="send"
+                    onSubmitEditing={() => void handleSendCode()}
+                  />
+                </View>
 
-          <Pressable
-            onPress={handleSkip}
-            style={styles.skipBtn}
-            accessibilityRole="button"
-          >
+                <Pressable
+                  onPress={() => void handleSendCode()}
+                  disabled={isLoading || !email.trim()}
+                  style={({ pressed }) => [
+                    styles.primaryBtn,
+                    (isLoading || !email.trim()) && styles.disabledBtn,
+                    pressed && styles.pressed,
+                  ]}
+                  accessibilityRole="button"
+                >
+                  <EnvelopeSimpleIcon size={22} color={LIENZO.color.onPrimary} weight="duotone" />
+                  <Text style={styles.primaryBtnText}>
+                    {isLoading ? 'Enviando...' : 'Enviar código al correo'}
+                  </Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>o también</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <View style={styles.oauthActions}>
+                <Pressable
+                  onPress={() => void handleLinkOAuth('google')}
+                  disabled={isLoading}
+                  style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                >
+                  <GoogleLogoIcon size={22} color={LIENZO.color.ink} weight="duotone" />
+                  <Text style={styles.secondaryBtnText}>Continuar con Google</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => void handleLinkOAuth('apple')}
+                  disabled={isLoading}
+                  style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                >
+                  <AppleLogoIcon size={22} color={LIENZO.color.ink} weight="duotone" />
+                  <Text style={styles.secondaryBtnText}>Continuar con Apple</Text>
+                </Pressable>
+              </View>
+            </>
+          ) : (
+            <View style={styles.form}>
+              <TextInput
+                value={otpCode}
+                onChangeText={(txt) => setOtpCode(txt.replace(/[^0-9]/g, '').slice(0, 6))}
+                placeholder="000000"
+                placeholderTextColor={LIENZO.color.line}
+                keyboardType="number-pad"
+                maxLength={6}
+                autoFocus
+                style={styles.otpInput}
+                returnKeyType="done"
+                onSubmitEditing={() => void handleVerifyCode()}
+              />
+
+              <Pressable
+                onPress={() => void handleVerifyCode()}
+                disabled={isLoading || otpCode.length < 6}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  (isLoading || otpCode.length < 6) && styles.disabledBtn,
+                  pressed && styles.pressed,
+                ]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.primaryBtnText}>
+                  {isLoading ? 'Verificando...' : 'Verificar e ingresar'}
+                </Text>
+              </Pressable>
+
+              <View style={styles.otpFooterRow}>
+                <Pressable
+                  onPress={() => {
+                    setOtpStep('email');
+                    setOtpCode('');
+                    setErrorMessage(null);
+                    setInfoMessage(null);
+                  }}
+                  style={styles.textLinkBtn}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.textLink}>Cambiar correo</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => void handleSendCode()}
+                  disabled={isLoading}
+                  style={styles.textLinkBtn}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.textLinkPrimary}>Reenviar código</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          <Pressable onPress={handleSkip} style={styles.skipBtn} accessibilityRole="button">
             <Text style={styles.skipText}>Seguir como invitado por ahora</Text>
           </Pressable>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenFrame>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: LIENZO.space.md,
-    paddingVertical: LIENZO.space.sm,
+    paddingTop: 12,
+    paddingBottom: 10,
     borderBottomWidth: LIENZO.borderWidth.hairline,
     borderBottomColor: LIENZO.color.line,
   },
@@ -155,10 +325,12 @@ const styles = StyleSheet.create({
     borderRadius: LIENZO.radius.icon,
   },
   content: {
+    flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: LIENZO.space.xxl,
+    paddingTop: LIENZO.space.xl,
     paddingBottom: LIENZO.space.xxxl,
-    gap: LIENZO.space.lg,
+    gap: LIENZO.space.md,
   },
   iconWrap: {
     width: 68,
@@ -179,6 +351,32 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink2,
     textAlign: 'center',
   },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: LIENZO.color.successSoft,
+    borderRadius: LIENZO.radius.icon,
+    padding: LIENZO.space.md,
+  },
+  infoText: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.successInk,
+    flex: 1,
+  },
+  errorBox: {
+    backgroundColor: LIENZO.color.dangerSoft,
+    borderRadius: LIENZO.radius.icon,
+    padding: LIENZO.space.md,
+  },
+  errorText: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.danger,
+    textAlign: 'center',
+  },
+  form: {
+    gap: LIENZO.space.md,
+  },
   field: {
     gap: 6,
   },
@@ -192,23 +390,64 @@ const styles = StyleSheet.create({
     borderRadius: LIENZO.radius.icon,
     paddingHorizontal: LIENZO.space.md,
     paddingVertical: 12,
-    minHeight: LIENZO.buttonMinHeight,
+    minHeight: 52,
     ...LIENZO.type.body,
     color: LIENZO.color.ink,
     backgroundColor: LIENZO.color.bg,
   },
-  errorText: {
-    ...LIENZO.type.small,
-    color: LIENZO.color.danger,
+  otpInput: {
+    borderWidth: LIENZO.borderWidth.active,
+    borderColor: LIENZO.color.primary,
+    borderRadius: LIENZO.radius.card,
+    backgroundColor: LIENZO.color.primarySoft,
+    minHeight: 64,
     textAlign: 'center',
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: 10,
+    fontFamily: LIENZO.font.bold,
+    color: LIENZO.color.primaryInk,
+    paddingHorizontal: LIENZO.space.lg,
   },
-  actions: {
+  otpFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textLinkBtn: {
+    minHeight: LIENZO.touchMin,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  textLink: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.ink2,
+  },
+  textLinkPrimary: {
+    ...LIENZO.type.smallBold,
+    color: LIENZO.color.primary,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: LIENZO.space.md,
+    marginVertical: 4,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: LIENZO.color.line,
+  },
+  dividerText: {
+    ...LIENZO.type.caption,
+    color: LIENZO.color.ink2,
+  },
+  oauthActions: {
     gap: LIENZO.space.sm,
-    marginTop: LIENZO.space.xs,
   },
   primaryBtn: {
     width: '100%',
-    minHeight: LIENZO.buttonMinHeight,
+    minHeight: 52,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primary,
     flexDirection: 'row',
@@ -223,7 +462,7 @@ const styles = StyleSheet.create({
   },
   secondaryBtn: {
     width: '100%',
-    minHeight: LIENZO.buttonMinHeight,
+    minHeight: 50,
     borderRadius: LIENZO.radius.icon,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
@@ -238,11 +477,14 @@ const styles = StyleSheet.create({
     ...LIENZO.type.button,
     color: LIENZO.color.ink,
   },
+  disabledBtn: {
+    opacity: 0.5,
+  },
   skipBtn: {
     minHeight: LIENZO.touchMin,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: LIENZO.space.xs,
+    marginTop: 4,
   },
   skipText: {
     ...LIENZO.type.smallSemiBold,

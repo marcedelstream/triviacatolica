@@ -13,7 +13,8 @@ create unique index if not exists idx_profiles_username_lower
   on public.profiles (lower(username))
   where username is not null;
 
-create or replace view public.leaderboard_top as
+drop view if exists public.leaderboard_top;
+create view public.leaderboard_top as
 select
   id,
   coalesce(nullif(trim(display_name), ''), 'Peregrino') as display_name,

@@ -15,7 +15,7 @@ import {
 } from '@/data/localSeed';
 import { LOCAL_VATICAN_NEWS } from '@/data/vaticanNewsSeed';
 import { initRevenueCat } from '@/lib/revenuecat';
-import { ensureAnonymousSession, linkIdentityProvider } from '@/services/authService';
+import { ensureAnonymousSession, linkIdentityProvider, verifyEmailOtp } from '@/services/authService';
 import { loadVaticanNewsQuizzes } from '@/services/newsService';
 import {
   loadCatalogData,
@@ -145,6 +145,11 @@ interface GameState {
   completeRound: (input: RoundCompletionInput) => RoundCompletionResult;
   linkAccount: (
     provider: 'google' | 'apple',
+    displayName?: string
+  ) => Promise<{ ok: boolean; message: string }>;
+  completeEmailOtpLogin: (
+    email: string,
+    token: string,
     displayName?: string
   ) => Promise<{ ok: boolean; message: string }>;
   dismissSoftAuth: () => void;
@@ -370,6 +375,28 @@ export const useGameStore = create<GameState>()(
           };
           set({ profile: updatedProfile, hasDismissedSoftAuth: true });
           void syncProfileToSupabase(updatedProfile);
+        }
+        return { ok: res.ok, message: res.message };
+      },
+
+      completeEmailOtpLogin: async (email, token, displayName) => {
+        const res = await verifyEmailOtp(email, token, displayName);
+        if (res.ok) {
+          const current = get();
+          const finalUserId = res.userId || current.profile.id;
+          const updatedProfile: UserProfile = {
+            ...current.profile,
+            id: finalUserId,
+            isAnonymous: false,
+            authProvider: 'email',
+            displayName: displayName?.trim() || current.profile.displayName || 'Peregrino',
+          };
+          set({ profile: updatedProfile, hasDismissedSoftAuth: true });
+          void syncProfileToSupabase(updatedProfile);
+          // Sincronizar también niveles ya completados como invitado hacia la cuenta autenticada
+          for (const prog of Object.values(current.levelProgress)) {
+            void syncLevelProgressToSupabase(finalUserId, prog);
+          }
         }
         return { ok: res.ok, message: res.message };
       },
