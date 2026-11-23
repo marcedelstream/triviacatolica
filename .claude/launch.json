@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "landing",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/pyweb/AppData/Local/Temp/claude/1b27a4c55683e963/73b93c30-2bdb-4425-a5ce-09ab18564b8a/scratchpad/serve.mjs",
+        "C:/Users/pyweb/OneDrive/Desktop/TRIVIA CATOLICA/landing"
+      ],
+      "port": 4173
+    },
+    {
+      "name": "capturas",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "branding/play-store/serve.mjs"
+      ],
+      "port": 4180
+    }
+  ]
+}

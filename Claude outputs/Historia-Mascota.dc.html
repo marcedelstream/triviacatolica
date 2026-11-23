@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Historia · Mascota animada</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes tcFloat{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-16px)}}
+.tc-anim{animation:tcFloat 4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.tc-anim{animation:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #FFFFFF; font-family: 'Source Sans 3', system-ui, sans-serif; color: #14161C">
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 860px; background: {{band}}; border-top: 3px solid #E6E8EE"></div>
+
+  <div style="position: absolute; left: 96px; right: 96px; top: 260px; display: flex; flex-direction: column; gap: 40px">
+    <div style="display: flex; align-items: center; gap: 20px">
+      <svg viewBox="0 0 120 120" width="80" height="80" aria-hidden="true"><rect width="120" height="120" rx="26" fill="#2F5BD3"/><path d="M84 24L86.8 31.2L94 34L86.8 36.8L84 44L81.2 36.8L74 34L81.2 31.2Z" fill="#FFD27A"/><path d="M23 55C23 51.7 25.7 49 29 49H31V79.5C31 81.2 32.3 82.4 34 82.3C41.8 81.8 49.4 83.2 55.5 87.2V90.8C47.7 87.5 37.8 86.7 27.6 88.2C25 88.6 23 86.5 23 83.9V55Z" fill="#fff"/><path d="M97 55C97 51.7 94.3 49 91 49H89V79.5C89 81.2 87.7 82.4 86 82.3C78.2 81.8 70.6 83.2 64.5 87.2V90.8C72.3 87.5 82.2 86.7 92.4 88.2C95 88.6 97 86.5 97 83.9V55Z" fill="#fff"/><path d="M35 46.5C35 44.6 36.6 43.1 38.5 43.3C45.3 44.1 51.4 46.6 55.5 50.6V82.2C50.5 79.1 44.1 77.7 36.8 78.3C35.8 78.4 35 77.6 35 76.6V46.5Z" fill="#fff"/><path d="M85 46.5C85 44.6 83.4 43.1 81.5 43.3C74.7 44.1 68.6 46.6 64.5 50.6V82.2C69.5 79.1 75.9 77.7 83.2 78.3C84.2 78.4 85 77.6 85 76.6V46.5Z" fill="#fff"/><rect x="56.5" y="25" width="7" height="68" rx="3.5" fill="#fff"/><rect x="44" y="37" width="32" height="7" rx="3.5" fill="#fff"/></svg>
+      <span style="font-size: 40px; font-weight: 700">Trivia Católica</span>
+    </div>
+    <h1 style="margin: 0; font-size: 96px; line-height: 1.04; font-weight: 700; letter-spacing: -0.5px">Conocé y disfrutá tu fe, <span style="color: #2F5BD3">pregunta a pregunta.</span></h1>
+    <p style="margin: 0; font-size: 36px; line-height: 1.35; color: #5B6170">Desafíos diarios, ranking y explicaciones con citas de la Biblia y del Catecismo.</p>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+      <span style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 24px; border-radius: 999px; background: #FDF3E1; border: 1.5px solid #F3DDB5; color: #8A5A0B; font-size: 28px; font-weight: 600"><span style="width: 14px; height: 14px; border-radius: 50%; background: #E8A33D"></span>Gratis en iOS y Android</span>
+      <span style="font-size: 36px; font-weight: 700; color: #2F5BD3">triviacatolica.com</span>
+    </div>
+  </div>
+
+  <img class="tc-anim" src="/_blob/61a928fd90aa620d2b5bcbab41f37207" alt="Jesús animado mostrando la app en un celular" style="position: absolute; left: 50%; bottom: 0; height: 900px; width: auto; transform: translate(-50%, 0)">
+
+  <sc-if value="{{guides}}" hint-placeholder-val="{{ true }}">
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 250px; background: rgba(180, 35, 24, 0.12); border-bottom: 3px dashed #B42318; display: flex; align-items: flex-end; padding: 0 24px 12px; box-sizing: border-box; font-size: 24px; font-weight: 700; color: #B42318">Zona segura superior · 250 px</div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: rgba(180, 35, 24, 0.12); border-top: 3px dashed #B42318; padding: 12px 24px 0; box-sizing: border-box; font-size: 24px; font-weight: 700; color: #B42318">Zona segura inferior · 340 px (solo ilustración)</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"guides":{"editor":"boolean","default":true},"band":{"editor":"color","default":"#EEF2FD","options":["#EEF2FD","#FBEFE6","#FBECEF","#E7F4EC","#F1EEFB"]},"$preview":{"width":1080,"height":1920}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { guides: this.props.guides ?? true, band: this.props.band ?? '#EEF2FD' };
+  }
+}
+</script>
+</body>
+</html>

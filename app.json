@@ -73,7 +73,8 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-      ]
+      ],
+      "versionCode": 2
     },
     "web": {
       "output": "single",

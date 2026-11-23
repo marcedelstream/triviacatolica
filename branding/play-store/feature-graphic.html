@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Feature Graphic Play Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #2F5BD3; }
+  .fg {
+    position: relative; width: 1024px; height: 500px; overflow: hidden;
+    font-family: 'Source Sans 3', system-ui, sans-serif; color: #fff;
+    background:
+      radial-gradient(circle at 78% 42%, rgba(255,255,255,.28) 0, rgba(255,255,255,0) 300px),
+      radial-gradient(circle at 0% 100%, #1E3F9E 0, rgba(30,63,158,0) 420px),
+      linear-gradient(135deg, #3B6AE6 0%, #2F5BD3 50%, #2449B5 100%);
+  }
+  /* rayos suaves detrás de Jesús */
+  .rays {
+    position: absolute; left: 800px; top: 205px; width: 1100px; height: 1100px;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(rgba(255,255,255,.07) 0deg 7deg, rgba(255,255,255,0) 7deg 18deg);
+    -webkit-mask: radial-gradient(circle, #000 0, #000 180px, transparent 520px);
+            mask: radial-gradient(circle, #000 0, #000 180px, transparent 520px);
+  }
+  .halo {
+    position: absolute; left: 800px; top: 120px; width: 250px; height: 250px;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,226,140,.55) 0, rgba(255,226,140,.18) 55%, rgba(255,226,140,0) 72%);
+  }
+  .dot { position: absolute; border-radius: 50%; background: rgba(255,255,255,.16); }
+  .star { position: absolute; color: #FFD34D; font-size: 26px; line-height: 1; }
+
+  .jesus {
+    position: absolute; left: 580px; top: 18px; height: 560px;
+    filter: drop-shadow(0 14px 30px rgba(10,25,80,.35));
+  }
+
+  .copy { position: absolute; left: 64px; top: 0; bottom: 0; width: 500px;
+          display: flex; flex-direction: column; justify-content: center; }
+  .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+  .brand img.icon { width: 74px; height: 74px; border-radius: 18px; outline: 3px solid rgba(255,255,255,.9);
+                    box-shadow: 0 6px 18px rgba(10,25,80,.3); }
+  .brand img.word { height: 50px; }
+  h1 { margin: 0; font-size: 54px; line-height: 1.02; font-weight: 800; letter-spacing: -.5px; }
+  h1 .hl { color: #FFD34D; }
+  .chips { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .chip { font-size: 19px; font-weight: 700; padding: 8px 16px; border-radius: 999px;
+          background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.35); }
+</style>
+</head>
+<body>
+<div class="fg">
+  <div class="rays"></div>
+  <div class="halo"></div>
+  <div class="dot" style="left:560px;top:52px;width:14px;height:14px"></div>
+  <div class="dot" style="left:980px;top:330px;width:22px;height:22px"></div>
+  <div class="dot" style="left:610px;top:410px;width:10px;height:10px"></div>
+  <span class="star" style="left:985px;top:70px">★</span>
+  <span class="star" style="left:600px;top:150px;font-size:18px">★</span>
+
+  <img class="jesus" src="../../landing/jesus-app.png" alt="">
+
+  <div class="copy">
+    <div class="brand">
+      <img class="icon" src="../icono/icono-app-redondeado.svg" alt="">
+      <img class="word" src="../logo-texto-es-blanco.svg" alt="Trivia Católica">
+    </div>
+    <h1>Conocé y disfrutá tu fe, <span class="hl">pregunta a pregunta.</span></h1>
+    <div class="chips">
+      <span class="chip">📖 Biblia</span>
+      <span class="chip">⛪ Catecismo</span>
+      <span class="chip">🙏 Santos</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

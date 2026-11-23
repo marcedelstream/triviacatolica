@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Historia · Anuncio o desafío</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #FFFFFF; font-family: 'Source Sans 3', system-ui, sans-serif; color: #14161C">
+
+  <div style="position: absolute; left: 96px; right: 96px; top: 260px; bottom: 340px; display: flex; flex-direction: column; gap: 48px">
+    <div style="display: flex; align-items: center; gap: 20px">
+      <svg viewBox="0 0 120 120" width="72" height="72" aria-hidden="true"><rect width="120" height="120" rx="26" fill="#2F5BD3"/><path d="M84 24L86.8 31.2L94 34L86.8 36.8L84 44L81.2 36.8L74 34L81.2 31.2Z" fill="#FFD27A"/><path d="M23 55C23 51.7 25.7 49 29 49H31V79.5C31 81.2 32.3 82.4 34 82.3C41.8 81.8 49.4 83.2 55.5 87.2V90.8C47.7 87.5 37.8 86.7 27.6 88.2C25 88.6 23 86.5 23 83.9V55Z" fill="#fff"/><path d="M97 55C97 51.7 94.3 49 91 49H89V79.5C89 81.2 87.7 82.4 86 82.3C78.2 81.8 70.6 83.2 64.5 87.2V90.8C72.3 87.5 82.2 86.7 92.4 88.2C95 88.6 97 86.5 97 83.9V55Z" fill="#fff"/><path d="M35 46.5C35 44.6 36.6 43.1 38.5 43.3C45.3 44.1 51.4 46.6 55.5 50.6V82.2C50.5 79.1 44.1 77.7 36.8 78.3C35.8 78.4 35 77.6 35 76.6V46.5Z" fill="#fff"/><path d="M85 46.5C85 44.6 83.4 43.1 81.5 43.3C74.7 44.1 68.6 46.6 64.5 50.6V82.2C69.5 79.1 75.9 77.7 83.2 78.3C84.2 78.4 85 77.6 85 76.6V46.5Z" fill="#fff"/><rect x="56.5" y="25" width="7" height="68" rx="3.5" fill="#fff"/><rect x="44" y="37" width="32" height="7" rx="3.5" fill="#fff"/></svg>
+      <span style="font-size: 38px; font-weight: 700">Trivia Católica</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 28px">
+      <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 12px; padding: 12px 24px; border-radius: 999px; background: #FDF3E1; border: 1.5px solid #F3DDB5; color: #8A5A0B; font-size: 28px; font-weight: 700"><span style="width: 14px; height: 14px; border-radius: 50%; background: #E8A33D"></span>Novedad</span>
+      <h1 style="margin: 0; font-size: 88px; line-height: 1.06; font-weight: 700; letter-spacing: -0.5px">¿Cuánto sabés de los <span style="color: #2F5BD3">Sacramentos?</span></h1>
+      <p style="margin: 0; font-size: 36px; line-height: 1.35; color: #5B6170">10 preguntas, explicaciones con citas del Catecismo y tu racha en el ranking.</p>
+    </div>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 32px; padding: 56px; border-radius: 48px; background: #2F5BD3; color: #FFFFFF">
+      <div style="display: flex; align-items: center; gap: 16px">
+        <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M12 2l2.2 6.4L21 10l-6.8 1.6L12 18l-2.2-6.4L3 10l6.8-1.6Z" fill="#FFD27A"/></svg>
+        <span style="font-size: 30px; font-weight: 600; color: #DCE4FA">Desafío del día</span>
+      </div>
+      <span style="font-size: 52px; font-weight: 700; line-height: 1.1">Jugalo gratis en la app</span>
+      <div style="display: flex; align-items: center; justify-content: center; height: 104px; border-radius: 28px; background: #FFFFFF; color: #1E3F9E; font-size: 38px; font-weight: 700">triviacatolica.com</div>
+    </div>
+  </div>
+
+  <sc-if value="{{guides}}" hint-placeholder-val="{{ true }}">
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 250px; background: rgba(180, 35, 24, 0.12); border-bottom: 3px dashed #B42318; display: flex; align-items: flex-end; padding: 0 24px 12px; box-sizing: border-box; font-size: 24px; font-weight: 700; color: #B42318">Zona segura superior · 250 px</div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: rgba(180, 35, 24, 0.12); border-top: 3px dashed #B42318; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; font-size: 24px; font-weight: 700; color: #B42318"><span>Zona segura inferior · 340 px</span><span style="font-weight: 600">Sticker de enlace: arriba de esta franja, sobre el bloque azul</span></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"guides":{"editor":"boolean","default":true},"$preview":{"width":1080,"height":1920}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { guides: this.props.guides ?? true };
+  }
+}
+</script>
+</body>
+</html>

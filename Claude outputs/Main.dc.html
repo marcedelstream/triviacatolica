@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía de línea gráfica para redes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2F5BD3}a:hover{color:#1E3F9E}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1560px; box-sizing: border-box; padding: 72px 80px; background: #FFFFFF; font-family: 'Source Sans 3', system-ui, sans-serif; color: #14161C; display: flex; flex-direction: column; gap: 56px">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 32px; padding-bottom: 40px; border-bottom: 1.5px solid #E6E8EE">
+    <div style="display: flex; align-items: center; gap: 24px">
+      <svg viewBox="0 0 120 120" width="88" height="88" aria-hidden="true"><rect width="120" height="120" rx="26" fill="#2F5BD3"/><path d="M84 24L86.8 31.2L94 34L86.8 36.8L84 44L81.2 36.8L74 34L81.2 31.2Z" fill="#FFD27A"/><path d="M23 55C23 51.7 25.7 49 29 49H31V79.5C31 81.2 32.3 82.4 34 82.3C41.8 81.8 49.4 83.2 55.5 87.2V90.8C47.7 87.5 37.8 86.7 27.6 88.2C25 88.6 23 86.5 23 83.9V55Z" fill="#fff"/><path d="M97 55C97 51.7 94.3 49 91 49H89V79.5C89 81.2 87.7 82.4 86 82.3C78.2 81.8 70.6 83.2 64.5 87.2V90.8C72.3 87.5 82.2 86.7 92.4 88.2C95 88.6 97 86.5 97 83.9V55Z" fill="#fff"/><path d="M35 46.5C35 44.6 36.6 43.1 38.5 43.3C45.3 44.1 51.4 46.6 55.5 50.6V82.2C50.5 79.1 44.1 77.7 36.8 78.3C35.8 78.4 35 77.6 35 76.6V46.5Z" fill="#fff"/><path d="M85 46.5C85 44.6 83.4 43.1 81.5 43.3C74.7 44.1 68.6 46.6 64.5 50.6V82.2C69.5 79.1 75.9 77.7 83.2 78.3C84.2 78.4 85 77.6 85 76.6V46.5Z" fill="#fff"/><rect x="56.5" y="25" width="7" height="68" rx="3.5" fill="#fff"/><rect x="44" y="37" width="32" height="7" rx="3.5" fill="#fff"/></svg>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 20px; font-weight: 600; color: #5B6170">Trivia Católica · Línea «Lienzo» aplicada a redes</div>
+        <h1 style="margin: 0; font-size: 56px; line-height: 1.05; font-weight: 700">Guía para flyers de <span style="color: #2F5BD3">feed e historias</span></h1>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px">
+      <span style="font-size: 26px; font-weight: 700; color: #2F5BD3">triviacatolica.com</span>
+      <span style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; border-radius: 999px; background: #FDF3E1; border: 1.5px solid #F3DDB5; color: #8A5A0B; font-size: 18px; font-weight: 600"><span style="width: 10px; height: 10px; border-radius: 50%; background: #E8A33D"></span>Minimalista · blanco · mucho aire</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px">
+
+    <div style="display: flex; flex-direction: column; gap: 28px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><span style="font-size: 18px; font-weight: 700; color: #2F5BD3">01</span><h2 style="margin: 0; font-size: 32px; font-weight: 700">Paleta</h2></div>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+        <sc-for list="{{base}}" as="s" hint-placeholder-count="10">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="height: 92px; border-radius: 16px; border: 1.5px solid #E6E8EE; background: {{s.hex}}"></div>
+            <div style="font-size: 16px; font-weight: 700; line-height: 1.2">{{s.name}}</div>
+            <div style="font-size: 15px; font-weight: 600; color: #1E3F9E">{{s.hex}}</div>
+            <div style="font-size: 14px; color: #5B6170; line-height: 1.3">{{s.use}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size: 20px; font-weight: 700; margin-top: 8px">Categorías (para etiquetar cada pieza)</div>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+        <sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; height: 64px; border-radius: 16px; overflow: hidden; border: 1.5px solid #E6E8EE">
+              <div style="flex: 1; background: {{c.hex}}"></div>
+              <div style="flex: 1; background: {{c.soft}}"></div>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; line-height: 1.2">{{c.name}}</div>
+            <div style="font-size: 14px; font-weight: 600; color: #5B6170">{{c.hex}} · {{c.soft}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding: 20px 24px; border-radius: 20px; background: #EEF2FD; font-size: 18px; line-height: 1.45; color: #1E3F9E">
+        <b>Regla de color:</b> fondo blanco + un solo bloque sólido por pieza (azul mariano). El celeste <b>#EEF2FD</b> es la «banda» donde vive la ilustración, como en el OG. Ámbar solo para logros y chips de estado.
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 28px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><span style="font-size: 18px; font-weight: 700; color: #2F5BD3">02</span><h2 style="margin: 0; font-size: 32px; font-weight: 700">Tipografía · Source Sans 3</h2></div>
+      <div style="display: flex; gap: 12px">
+        <span style="padding: 8px 16px; border-radius: 999px; border: 1.5px solid #E6E8EE; font-size: 18px; font-weight: 400">Regular 400</span>
+        <span style="padding: 8px 16px; border-radius: 999px; border: 1.5px solid #E6E8EE; font-size: 18px; font-weight: 600">SemiBold 600</span>
+        <span style="padding: 8px 16px; border-radius: 999px; border: 1.5px solid #E6E8EE; font-size: 18px; font-weight: 700">Bold 700</span>
+        <span style="padding: 8px 16px; border-radius: 999px; background: #FDECEA; color: #B42318; font-size: 18px; font-weight: 600">Sin itálicas · sin mayúsculas sostenidas</span>
+      </div>
+      <div style="display: flex; flex-direction: column; border-top: 1.5px solid #E6E8EE">
+        <sc-for list="{{type}}" as="t" hint-placeholder-count="6">
+          <div style="display: flex; align-items: center; gap: 20px; padding: 14px 0; border-bottom: 1.5px solid #E6E8EE">
+            <div style="width: 168px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 17px; font-weight: 700">{{t.name}}</span>
+              <span style="font-size: 15px; color: #5B6170">{{t.spec}}</span>
+            </div>
+            <div style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: {{t.preview}}; font-weight: {{t.w}}; line-height: 1.1; color: {{t.color}}">{{t.sample}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size: 16px; color: #5B6170; line-height: 1.4">Tamaños en px reales para un lienzo de 1080 px de ancho. Muestra a escala reducida. Interlineado: títulos 1.05–1.1 · textos 1.35. Tracking −0.5 px solo en Display.</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><span style="font-size: 18px; font-weight: 700; color: #2F5BD3">03</span><h2 style="margin: 0; font-size: 32px; font-weight: 700">Estructura de cada flyer</h2></div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{structure}}" as="r" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 16px; border: 1.5px solid #E6E8EE">
+            <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; background: #EEF2FD; color: #1E3F9E; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700">{{r.n}}</span>
+            <span style="font-size: 19px; font-weight: 700; width: 150px; flex-shrink: 0">{{r.name}}</span>
+            <span style="font-size: 17px; color: #5B6170; line-height: 1.35">{{r.desc}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><span style="font-size: 18px; font-weight: 700; color: #2F5BD3">04</span><h2 style="margin: 0; font-size: 32px; font-weight: 700">Estilo y medidas</h2></div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <sc-for list="{{rules}}" as="r" hint-placeholder-count="8">
+          <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; border-radius: 16px; background: #F2F3F6">
+            <span style="font-size: 17px; font-weight: 700">{{r.k}}</span>
+            <span style="font-size: 16px; color: #5B6170; line-height: 1.35">{{r.v}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      base: [
+        { name: 'Azul mariano', hex: '#2F5BD3', use: 'Bloque sólido, palabra destacada, CTA' },
+        { name: 'Azul tinta', hex: '#1E3F9E', use: 'Texto sobre celeste' },
+        { name: 'Celeste banda', hex: '#EEF2FD', use: 'Banda de ilustración / fondos suaves' },
+        { name: 'Tinta', hex: '#14161C', use: 'Títulos y texto principal' },
+        { name: 'Gris texto', hex: '#5B6170', use: 'Bajada, pie, datos' },
+        { name: 'Blanco', hex: '#FFFFFF', use: 'Fondo de toda pieza' },
+        { name: 'Línea', hex: '#E6E8EE', use: 'Bordes 3 px y divisores' },
+        { name: 'Ámbar', hex: '#E8A33D', use: 'Destello, estrellas (solo ícono)' },
+        { name: 'Ámbar texto', hex: '#8A5A0B', use: 'Texto de chips de estado' },
+        { name: 'Ámbar suave', hex: '#FDF3E1', use: 'Fondo de chip «Próximamente»' }
+      ],
+      cats: [
+        { name: 'Antiguo Testamento', hex: '#A94C25', soft: '#FBEFE6' },
+        { name: 'Nuevo Testamento', hex: '#2F5BD3', soft: '#EEF2FD' },
+        { name: 'Santos', hex: '#A83E5A', soft: '#FBECEF' },
+        { name: 'Sacramentos', hex: '#2B754D', soft: '#E7F4EC' },
+        { name: 'Liturgia', hex: '#6A52C2', soft: '#F1EEFB' }
+      ],
+      type: [
+        { name: 'Display', spec: '88–96 · 700', preview: '52px', w: 700, color: '#14161C', sample: 'Conocé tu fe' },
+        { name: 'Título', spec: '64 · 700', preview: '40px', w: 700, color: '#14161C', sample: '¿Quién construyó el arca?' },
+        { name: 'Destacado', spec: '44 · 600', preview: '30px', w: 600, color: '#2F5BD3', sample: 'pregunta a pregunta.' },
+        { name: 'Cuerpo', spec: '34 · 400', preview: '24px', w: 400, color: '#5B6170', sample: 'Desafíos diarios, ranking y citas de la Biblia.' },
+        { name: 'Etiqueta / chip', spec: '28 · 600', preview: '21px', w: 600, color: '#8A5A0B', sample: 'Próximamente en iOS y Android' },
+        { name: 'Pie / dominio', spec: '30 · 700 / 26 · 400', preview: '21px', w: 700, color: '#2F5BD3', sample: 'triviacatolica.com' }
+      ],
+      structure: [
+        { n: '1', name: 'Marca', desc: 'Ícono 72 px + «Trivia Católica» 36/700, arriba a la izquierda.' },
+        { n: '2', name: 'Mensaje', desc: 'Título en tinta; la segunda mitad en azul mariano (como el OG).' },
+        { n: '3', name: 'Apoyo', desc: 'Una bajada corta en gris o la etiqueta de categoría.' },
+        { n: '4', name: 'Visual', desc: 'Banda celeste con la mascota animada, o pregunta / cita.' },
+        { n: '5', name: 'Pie', desc: 'Dominio en azul + chip de estado. Siempre en el mismo lugar.' }
+      ],
+      rules: [
+        { k: 'Márgenes', v: 'Feed 80 px. Historias 96 px laterales.' },
+        { k: 'Zona segura historias', v: 'Nada clave en los 250 px de arriba ni en los 340 px de abajo.' },
+        { k: 'Radios', v: 'Chips 999 · tarjetas 32 · bloques 48 · ícono 26 %.' },
+        { k: 'Bordes', v: '3 px #E6E8EE en tarjetas; 4 px de color en estados.' },
+        { k: 'Sin efectos', v: 'Cero sombras, degradados, blur o texturas.' },
+        { k: 'Un solo sólido', v: 'Máximo un bloque azul por pieza: es la acción.' },
+        { k: 'Formatos', v: 'Feed 1080 × 1350 (4:5). Historias 1080 × 1920 (9:16).' },
+        { k: 'Texto', v: 'Máx. ~12 palabras en el título. Nada menor a 24 px.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

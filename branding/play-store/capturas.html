@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capturas Play Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+  :root { --primary:#2F5BD3; --ink:#14161C; --ink2:#5B6170; --line:#E6E8EE; --bgApp:#F2F3F6; --gold:#E8A33D; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; font-family:'Source Sans 3', system-ui, sans-serif; background:#E9EBF0; color:var(--ink); }
+  .app { display:flex; height:100vh; }
+
+  /* ---------- Panel lateral ---------- */
+  .panel { width:340px; flex:none; background:#fff; border-right:1px solid var(--line); overflow:auto; padding:18px 18px 40px; }
+  .panel h2 { margin:0 0 4px; font-size:20px; }
+  .panel p.hint { margin:0 0 14px; color:var(--ink2); font-size:14px; }
+  .tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .tabs button { flex:1; padding:9px 0; border:1.5px solid var(--line); background:#fff; border-radius:10px; font:700 15px inherit; font-family:inherit; cursor:pointer; color:var(--ink2); }
+  .tabs button.on { border-color:var(--primary); background:#EEF2FD; color:var(--primary); }
+  label { display:block; font-size:13px; font-weight:700; color:var(--ink2); margin:12px 0 5px; text-transform:uppercase; letter-spacing:.4px; }
+  input[type=text], textarea, select { width:100%; padding:9px 11px; border:1.5px solid var(--line); border-radius:10px; font:16px 'Source Sans 3', sans-serif; color:var(--ink); background:#fff; }
+  textarea { resize:vertical; min-height:70px; }
+  .row { display:flex; gap:10px; align-items:center; }
+  input[type=color] { width:46px; height:38px; border:1.5px solid var(--line); border-radius:10px; padding:2px; background:#fff; }
+  .swatches { display:flex; gap:6px; flex-wrap:wrap; }
+  .swatches span { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1.5px var(--line); }
+  .btn { display:block; width:100%; margin-top:10px; padding:12px; border:0; border-radius:12px; background:var(--primary); color:#fff; font:700 16px 'Source Sans 3', sans-serif; cursor:pointer; }
+  .btn.ghost { background:#EEF2FD; color:var(--primary); }
+  .btn.small { padding:8px; font-size:14px; }
+  .status { margin-top:10px; font-size:14px; color:#2B754D; min-height:20px; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+
+  /* ---------- Vista previa ---------- */
+  .preview { flex:1; overflow:auto; padding:24px; display:flex; flex-wrap:wrap; gap:22px; align-items:flex-start; justify-content:center; align-content:flex-start; }
+  .frame { width:min(100%, 340px); flex:1 1 220px; max-width:400px; }
+  .frame .cap { font-size:14px; font-weight:700; color:var(--ink2); margin:0 0 6px 2px; }
+  .stage { position:relative; width:100%; aspect-ratio:9/16; overflow:hidden; border-radius:10px; outline:3px solid transparent; cursor:pointer; }
+  .stage.on { outline-color:var(--primary); }
+  .stage .shot { position:absolute; left:0; top:0; transform-origin:0 0; }
+
+  /* ---------- Captura 1920x1080 ---------- */
+  .shot { width:1080px; height:1920px; overflow:hidden; position:relative; color:#fff; font-family:'Source Sans 3', sans-serif; }
+  .shot .bg { position:absolute; inset:0; }
+  .shot .rays { position:absolute; left:540px; top:1280px; width:1700px; height:1700px; transform:translate(-50%,-50%);
+    background:repeating-conic-gradient(rgba(255,255,255,.07) 0deg 7deg, rgba(255,255,255,0) 7deg 18deg);
+    -webkit-mask:radial-gradient(circle,#000 0,#000 200px,transparent 750px); mask:radial-gradient(circle,#000 0,#000 200px,transparent 750px); }
+  .shot .char { position:absolute; left:-170px; bottom:-60px; height:860px; filter:drop-shadow(0 20px 40px rgba(10,25,80,.35)); }
+  .shot .copy { position:absolute; left:70px; right:70px; top:110px; text-align:center; }
+  .shot .brand { display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:40px; }
+  .shot .brand img.icon { width:92px; height:92px; border-radius:22px; box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 8px 22px rgba(10,25,80,.3); }
+  .shot .brand img.word { height:52px; }
+  .shot h1 { margin:0; font-size:104px; line-height:.98; font-weight:800; letter-spacing:-1.5px; }
+  .shot h1 em { font-style:normal; color:#FFD34D; }
+  .shot .sub { margin-top:28px; font-size:42px; line-height:1.22; font-weight:600; opacity:.92; max-width:880px; margin-left:auto; margin-right:auto; }
+
+  .shot .phone { position:absolute; left:50%; transform:translateX(-50%); top:700px; width:560px; height:1140px; border-radius:72px; background:#101218; padding:18px;
+    box-shadow:0 30px 70px rgba(10,25,80,.45); z-index:2; }
+
+  /* la pantalla se diseña a 440px de ancho y se agranda para llenar el celular */
+  /* diseño centrado sin celular: logo, título y personaje grande abajo */
+  .shot.solo .char { left:50%; transform:translateX(-50%); height:1240px; bottom:-40px; }
+  .shot.solo .rays { left:540px; top:1180px; }
+  .shot .phone .screen { width:440px; height:928px; transform:scale(1.1909); transform-origin:0 0; }
+  .shot .screen { width:100%; height:100%; border-radius:50px; overflow:hidden; background:var(--bgApp); color:var(--ink); position:relative; }
+  .shot .screen > img.custom { width:100%; height:100%; object-fit:cover; display:block; }
+  .qtag, .cite .t span, .sbar span, .pill, .li .xp, .li .st { white-space:nowrap; }
+  .notch { position:absolute; left:50%; top:12px; width:130px; height:34px; transform:translateX(-50%); background:#101218; border-radius:20px; z-index:3; }
+  .sbar { height:62px; display:flex; justify-content:space-between; align-items:center; padding:0 34px; font-weight:700; font-size:18px; }
+
+  /* pantalla: inicio */
+  .s-pad { padding:4px 22px; }
+  .hello { display:flex; justify-content:space-between; align-items:center; margin:6px 0 16px; }
+  .hello b { font-size:27px; }
+  .hello small { display:block; color:var(--ink2); font-size:17px; font-weight:600; }
+  .pill { background:#FDF3E1; color:#8A5A0B; font-weight:800; font-size:18px; border-radius:999px; padding:6px 13px; }
+  .hero { background:var(--primary); color:#fff; border-radius:24px; padding:20px; margin-bottom:16px; }
+  .hero small { font-size:15px; font-weight:700; color:#DCE4FA; text-transform:uppercase; letter-spacing:.5px; }
+  .hero b { display:block; font-size:25px; margin:4px 0 12px; }
+  .bar { height:10px; background:rgba(255,255,255,.25); border-radius:9px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:62%; background:#FFD27A; border-radius:9px; }
+  .hero .go { margin-top:14px; background:#fff; color:var(--primary); font-weight:800; text-align:center; padding:12px; border-radius:14px; font-size:19px; }
+  .sec { font-size:21px; font-weight:800; margin:4px 0 10px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .cat { background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:14px; height:128px; display:flex; flex-direction:column; justify-content:space-between; }
+  .cat .ic { width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .cat b { font-size:18px; line-height:1.1; }
+  .cat small { font-size:14px; color:var(--ink2); font-weight:600; }
+
+  /* pantalla: quiz */
+  .qtop { display:flex; align-items:center; gap:12px; margin:4px 0 18px; }
+  .qtop .x { font-size:26px; color:var(--ink2); }
+  .qtop .bar { flex:1; background:#EEF0F4; }
+  .qtop .bar i { width:60%; background:var(--primary); }
+  .qtop b { font-size:18px; color:var(--ink2); }
+  .qtag { display:inline-block; background:#EEF2FD; color:var(--primary); font-weight:800; font-size:15px; border-radius:999px; padding:5px 12px; margin-bottom:12px; }
+  .q { font-size:31px; font-weight:800; line-height:1.15; margin-bottom:22px; }
+  .opt { background:#fff; border:2px solid var(--line); border-radius:18px; padding:17px 18px; font-size:21px; font-weight:700; margin-bottom:11px; display:flex; justify-content:space-between; align-items:center; }
+  .opt.ok { border-color:#2B754D; background:#E7F4EC; color:#1E5A3A; }
+  .cite { position:absolute; left:16px; right:16px; bottom:16px; background:#fff; border-radius:26px; padding:20px; border:1.5px solid var(--line); box-shadow:0 -6px 30px rgba(20,22,28,.12); }
+  .cite .t { display:flex; gap:8px; margin-bottom:10px; }
+  .cite .t span { font-size:15px; font-weight:800; padding:5px 11px; border-radius:999px; }
+  .cite p { margin:0 0 14px; font-size:18px; line-height:1.35; color:var(--ink2); font-weight:600; }
+  .cite .next { background:var(--primary); color:#fff; text-align:center; font-weight:800; font-size:19px; padding:13px; border-radius:14px; }
+
+  /* pantalla: ranking */
+  .rk-h { font-size:31px; font-weight:800; margin:6px 0 4px; }
+  .rk-s { color:var(--ink2); font-size:17px; font-weight:600; margin-bottom:18px; }
+  .podium { display:flex; align-items:flex-end; gap:10px; margin-bottom:16px; }
+  .podium div { flex:1; border-radius:18px 18px 10px 10px; color:#fff; text-align:center; padding:12px 6px; }
+  .podium .av { width:54px; height:54px; border-radius:50%; background:#fff; color:var(--ink); margin:0 auto 6px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:21px; }
+  .podium b { display:block; font-size:16px; }
+  .podium small { font-size:14px; font-weight:700; opacity:.9; }
+  .li { display:flex; align-items:center; gap:12px; background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:12px 14px; margin-bottom:9px; }
+  .li .n { width:24px; font-weight:800; color:var(--ink2); font-size:18px; }
+  .li .av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:16px; }
+  .li .nm { flex:1; font-weight:700; font-size:19px; }
+  .li .xp { font-weight:800; font-size:17px; color:var(--primary); }
+  .li .st { font-size:15px; font-weight:700; color:#8A5A0B; margin-left:6px; }
+  .li.me { border-color:var(--primary); background:#EEF2FD; }
+
+  @media (max-width: 760px) { .app { flex-direction:column; height:auto; } .panel { width:auto; border-right:0; border-bottom:1px solid var(--line); } .preview { padding:16px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <h2>Capturas Play Store</h2>
+    <p class="hint">1080×1920 (9:16, vertical). Elegí una captura y editala acá; los cambios se guardan solos.</p>
+    <div class="tabs" id="tabs"></div>
+
+    <label for="f-title">Título <span style="text-transform:none;font-weight:600">(usá *texto* para resaltar en dorado)</span></label>
+    <textarea id="f-title"></textarea>
+    <label for="f-sub">Subtítulo</label>
+    <textarea id="f-sub"></textarea>
+    <label for="f-char">Personaje</label>
+    <select id="f-char"></select>
+    <label for="f-screen">Pantalla del celular</label>
+    <select id="f-screen">
+      <option value="none">Sin celular (logo, título y personaje)</option>
+      <option value="home">Inicio con categorías</option>
+      <option value="quiz">Pregunta con cita bíblica</option>
+      <option value="ranking">Ranking</option>
+      <option value="custom">Mi propia captura (subir imagen)</option>
+    </select>
+    <div id="upload-wrap" style="display:none">
+      <label for="f-file">Imagen de la pantalla</label>
+      <input type="file" id="f-file" accept="image/*">
+    </div>
+    <label>Color de fondo</label>
+    <div class="row"><input type="color" id="f-color"><div class="swatches" id="sw"></div></div>
+
+    <button class="btn" id="b-save">Guardar esta captura (PNG)</button>
+    <button class="btn ghost" id="b-all">Guardar las 3</button>
+    <button class="btn ghost small" id="b-reset">Restaurar textos originales</button>
+    <div class="status" id="status"></div>
+  </aside>
+
+  <main class="preview" id="preview"></main>
+</div>
+
+<script>
+const ROOT = '../../';
+const CHARS = {
+  'jesus': ['Jesús', ROOT + 'landing/jesus-app.png'],
+  'virgen-maria': ['Virgen María', ROOT + 'branding/personajes/virgen-maria.png'],
+  'san-jose': ['San José', ROOT + 'branding/personajes/san-jose.png'],
+  'san-pedro': ['San Pedro', ROOT + 'branding/personajes/san-pedro.png'],
+  'san-pablo': ['San Pablo', ROOT + 'branding/personajes/san-pablo.png'],
+  'moises': ['Moisés', ROOT + 'branding/personajes/moises.png'],
+  'noe': ['Noé', ROOT + 'branding/personajes/noe.png'],
+  'rey-david': ['Rey David', ROOT + 'branding/personajes/rey-david.png'],
+  'arcangel-gabriel': ['Arcángel Gabriel', ROOT + 'branding/personajes/arcangel-gabriel.png'],
+  'none': ['Sin personaje', ''],
+};
+const SWATCHES = ['#2F5BD3', '#1E3F9E', '#6A52C2', '#1F7A8C', '#2B754D', '#A83E5A', '#A94C25', '#E8A33D'];
+const DEFAULTS = [
+  { title: 'Jugá por *categorías*', sub: 'Antiguo y Nuevo Testamento, Santos, Sacramentos, Liturgia y la Virgen María.', char: 'san-pedro', screen: 'none', color: '#2F5BD3', img: '' },
+  { title: 'Aprendé con *cada respuesta*', sub: 'Cada pregunta trae su cita de la Biblia y del Catecismo.', char: 'jesus', screen: 'none', color: '#2F5BD3', img: '' },
+  { title: 'Subí en el *ranking*', sub: 'Sumá XP, mantené tu racha y competí con tu comunidad.', char: 'virgen-maria', screen: 'none', color: '#2F5BD3', img: '' },
+];
+const KEY = 'tc-capturas-v2';
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { state = null; }
+// Migra lo editado en la versión anterior, pasando al nuevo diseño centrado (sin celular).
+if (!state) { try { const old = JSON.parse(localStorage.getItem('tc-capturas-v1')); if (Array.isArray(old) && old.length === 3) state = old.map((o) => ({ ...o, screen: 'none' })); } catch (e) {} }
+if (!Array.isArray(state) || state.length !== 3) state = JSON.parse(JSON.stringify(DEFAULTS));
+let cur = 0;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmtTitle = (s) => esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f)))); return '#' + c.map((v) => v.toString(16).padStart(2, '0')).join(''); };
+
+const SB = '<div class="notch"></div><div class="sbar"><span>9:41</span><span>●●● 100%</span></div>';
+const SCREENS = {
+  home: () => SB + `<div class="s-pad">
+    <div class="hello"><div><small>¡Hola, @lucia!</small><b>¿Jugamos hoy?</b></div><span class="pill">🔥 7</span></div>
+    <div class="hero"><small>Continuar</small><b>Los milagros de Jesús</b><div class="bar"><i></i></div><div class="go">Seguir jugando</div></div>
+    <div class="sec">Categorías</div>
+    <div class="grid">
+      ${[['📜','Antiguo Testamento','#A94C25','#FBEFE6','3 niveles'],['📖','Nuevo Testamento','#2F5BD3','#EEF2FD','3 niveles'],['🙏','Santos','#A83E5A','#FBECEF','3 niveles'],['💧','Sacramentos','#2B754D','#E7F4EC','3 niveles'],['⛪','Liturgia','#6A52C2','#F1EEFB','3 niveles'],['🌹','Virgen María','#1F7A8C','#E6F3F5','3 niveles']]
+        .map(([i,n,c,s,l]) => `<div class="cat"><div class="ic" style="background:${s};color:${c}">${i}</div><div><b>${n}</b><br><small>${l}</small></div></div>`).join('')}
+    </div></div>`,
+  quiz: () => SB + `<div class="s-pad">
+    <div class="qtop"><span class="x">✕</span><div class="bar"><i></i></div><b>3/5</b></div>
+    <span class="qtag">📖 Nuevo Testamento</span>
+    <div class="q">¿En qué ciudad realizó Jesús su primer milagro?</div>
+    <div class="opt">Belén</div>
+    <div class="opt ok">Caná de Galilea <span>✓</span></div>
+    <div class="opt">Nazaret</div>
+    <div class="opt">Cafarnaúm</div>
+    </div>
+    <div class="cite"><div class="t"><span style="background:#EEF2FD;color:#2F5BD3">Jn 2, 1-11</span><span style="background:#FDF3E1;color:#8A5A0B">CIC 1613</span></div>
+    <p>En las bodas de Caná, Jesús convirtió el agua en vino: fue el primero de sus signos.</p><div class="next">Continuar</div></div>`,
+  ranking: () => SB + `<div class="s-pad">
+    <div class="rk-h">Ranking semanal</div><div class="rk-s">Tu comunidad esta semana</div>
+    <div class="podium">
+      <div style="background:#6A52C2;height:170px"><div class="av">P</div><b>Padre Tomás</b><small>520 XP</small></div>
+      <div style="background:#E8A33D;height:205px"><div class="av">M</div><b>Marta G.</b><small>640 XP</small></div>
+      <div style="background:#1F7A8C;height:150px"><div class="av">L</div><b>Lucía R.</b><small>410 XP</small></div>
+    </div>
+    ${[[4,'Carlos M.','#A94C25',290,5],[5,'Vos','#2F5BD3',245,7,1],[6,'Sofía P.','#A83E5A',180,4],[7,'Jorge A.','#2B754D',90,2]]
+      .map(([n,nm,c,xp,st,me]) => `<div class="li${me ? ' me' : ''}"><span class="n">${n}</span><span class="av" style="background:${c}">${nm[0]}</span><span class="nm">${nm}</span><span class="xp">${xp} XP</span><span class="st">🔥${st}</span></div>`).join('')}
+    </div>`,
+};
+
+function shotHTML(s) {
+  const ch = CHARS[s.char] || CHARS.none;
+  const screen = s.screen === 'none' ? '' : s.screen === 'custom'
+    ? (s.img ? `<img class="custom" src="${s.img}" alt="">` : SB + '<div class="s-pad" style="padding-top:300px;text-align:center;font-size:22px;color:#5B6170;font-weight:700">Subí tu captura<br>desde el panel</div>')
+    : SCREENS[s.screen]();
+  return `<div class="bg" style="background:radial-gradient(circle at 18% 40%, rgba(255,255,255,.25) 0, rgba(255,255,255,0) 520px), linear-gradient(135deg, ${shade(s.color, .1)} 0%, ${s.color} 50%, ${shade(s.color, -.22)} 100%)"></div>
+    ${ch[1] ? `<div class="rays"></div><img class="char" src="${ch[1]}" alt="">` : ''}
+    <div class="copy">
+      <div class="brand"><img class="icon" src="${ROOT}branding/icono/icono-app-redondeado.svg" alt=""><img class="word" src="${ROOT}branding/logo-texto-es-blanco.svg" alt="Trivia Católica"></div>
+      <h1>${fmtTitle(s.title)}</h1>
+      <div class="sub">${esc(s.sub)}</div>
+    </div>
+    ${s.screen === 'none' ? '' : `<div class="phone"><div class="screen">${screen}</div></div>`}`;
+}
+
+const preview = document.getElementById('preview');
+const tabs = document.getElementById('tabs');
+function render() {
+  preview.innerHTML = state.map((s, i) => `<div class="frame"><p class="cap">Captura ${i + 1}</p>
+    <div class="stage${i === cur ? ' on' : ''}" data-i="${i}"><div class="shot${(CHARS[s.char] || CHARS.none)[1] ? '' : ' nochar'}${s.screen === 'none' ? ' solo' : ''}" id="shot-${i}">${shotHTML(s)}</div></div></div>`).join('');
+  tabs.innerHTML = state.map((_, i) => `<button class="${i === cur ? 'on' : ''}" data-i="${i}">${i + 1}</button>`).join('');
+  fit();
+}
+function fit() {
+  document.querySelectorAll('.stage').forEach((st) => { st.querySelector('.shot').style.transform = `scale(${st.clientWidth / 1080})`; });
+}
+window.addEventListener('resize', fit);
+
+const $ = (id) => document.getElementById(id);
+$('f-char').innerHTML = Object.entries(CHARS).map(([k, [n]]) => `<option value="${k}">${n}</option>`).join('');
+$('sw').innerHTML = SWATCHES.map((c) => `<span style="background:${c}" data-c="${c}"></span>`).join('');
+function loadForm() {
+  const s = state[cur];
+  $('f-title').value = s.title; $('f-sub').value = s.sub; $('f-char').value = s.char;
+  $('f-screen').value = s.screen; $('f-color').value = s.color;
+  $('upload-wrap').style.display = s.screen === 'custom' ? 'block' : 'none';
+}
+function select(i) { cur = i; loadForm(); render(); }
+const upd = (k, v) => { state[cur][k] = v; save(); render(); };
+$('f-title').oninput = (e) => upd('title', e.target.value);
+$('f-sub').oninput = (e) => upd('sub', e.target.value);
+$('f-char').onchange = (e) => upd('char', e.target.value);
+$('f-screen').onchange = (e) => { upd('screen', e.target.value); loadForm(); };
+$('f-color').oninput = (e) => upd('color', e.target.value);
+$('sw').onclick = (e) => { const c = e.target.dataset.c; if (c) { $('f-color').value = c; upd('color', c); } };
+$('f-file').onchange = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader(); r.onload = () => upd('img', r.result); r.readAsDataURL(f);
+};
+tabs.onclick = (e) => { if (e.target.dataset.i) select(+e.target.dataset.i); };
+preview.onclick = (e) => { const st = e.target.closest('.stage'); if (st) select(+st.dataset.i); };
+$('b-reset').onclick = () => { state[cur] = { ...DEFAULTS[cur], img: state[cur].img }; save(); loadForm(); render(); };
+
+const status = (t) => { $('status').textContent = t; };
+// Incrusta Source Sans 3 en la exportación (html-to-image no puede leer la hoja de Google por CORS).
+let fontCSS = null;
+async function getFontCSS() {
+  if (fontCSS) return fontCSS;
+  const href = document.querySelector('link[href*="fonts.googleapis"]').href;
+  let css = await (await fetch(href)).text();
+  const urls = [...new Set(css.match(/https:[^)'"]+/g) || [])];
+  for (const u of urls) {
+    const blob = await (await fetch(u)).blob();
+    const data = await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+    css = css.split(u).join(data);
+  }
+  return (fontCSS = css);
+}
+// PNG de 24 bits SIN canal alfa (Play Store rechaza PNG con transparencia;
+// canvas.toDataURL siempre genera RGBA, así que lo codificamos a mano).
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (b) => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+function chunk(type, data) {
+  const out = new Uint8Array(12 + data.length); const dv = new DataView(out.buffer);
+  dv.setUint32(0, data.length); for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  out.set(data, 8); dv.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length))); return out;
+}
+async function canvasToRgbPng(canvas) {
+  const w = canvas.width, h = canvas.height;
+  const px = canvas.getContext('2d').getImageData(0, 0, w, h).data;
+  const raw = new Uint8Array(h * (1 + w * 3));
+  for (let y = 0, o = 0; y < h; y++) { raw[o++] = 0; for (let x = 0; x < w; x++) { const p = (y * w + x) * 4; raw[o++] = px[p]; raw[o++] = px[p + 1]; raw[o++] = px[p + 2]; } }
+  const z = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate'))).arrayBuffer());
+  const ihdr = new Uint8Array(13); const dv = new DataView(ihdr.buffer); dv.setUint32(0, w); dv.setUint32(4, h); ihdr[8] = 8; ihdr[9] = 2;
+  const blob = new Blob([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', z), chunk('IEND', new Uint8Array())], { type: 'image/png' });
+  return new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+}
+async function exportOne(i) {
+  const node = document.getElementById('shot-' + i);
+  const prev = node.style.transform; node.style.transform = 'none';
+  try {
+    const canvas = await htmlToImage.toCanvas(node, { width: 1080, height: 1920, pixelRatio: 1, backgroundColor: state[i].color, cacheBust: true, fontEmbedCSS: await getFontCSS() });
+    const url = await canvasToRgbPng(canvas);
+    const name = `captura-${i + 1}-1080x1920.png`;
+    try {
+      const r = await fetch('/save?name=' + name, { method: 'POST', body: url });
+      if (!r.ok) throw new Error();
+      return 'guardada en branding/play-store/' + name;
+    } catch (e) {
+      const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+      return 'descargada como ' + name;
+    }
+  } finally { node.style.transform = prev; }
+}
+$('b-save').onclick = async () => { status('Generando…'); try { status('Captura ' + (cur + 1) + ' ' + await exportOne(cur)); } catch (e) { status('Error: ' + e.message); } };
+$('b-all').onclick = async () => { status('Generando las 3…'); try { for (let i = 0; i < 3; i++) await exportOne(i); status('Las 3 capturas guardadas en branding/play-store/'); } catch (e) { status('Error: ' + e.message); } };
+
+loadForm(); render();
+document.fonts && document.fonts.ready.then(fit);
+</script>
+</body>
+</html>
