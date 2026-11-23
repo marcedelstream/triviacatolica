@@ -3,7 +3,11 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/", "has": [{ "type": "host", "value": "www.triviacatolica.com" }], "destination": "https://triviacatolica.com/", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.triviacatolica.com" }], "destination": "https://triviacatolica.com/:path*", "permanent": true }
+    { "source": "/:path((?!\\.well-known/).*)", "has": [{ "type": "host", "value": "www.triviacatolica.com" }], "destination": "https://triviacatolica.com/:path", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/play/:slug*", "destination": "/abrir" },
+    { "source": "/category/:slug*", "destination": "/abrir" }
   ],
   "headers": [
     {
@@ -23,6 +27,14 @@
     {
       "source": "/site.webmanifest",
       "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
     }
   ]
 }

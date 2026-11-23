@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jugá este quiz en Trivia Católica</title>
+<meta name="description" content="Te desafiaron a un quiz de Trivia Católica. Abrilo en la app o descargala gratis.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2F5BD3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Trivia Católica">
+<meta property="og:title" content="¿Te animás a este quiz de Trivia Católica?">
+<meta property="og:description" content="Respondé, aprendé con la Biblia y el Catecismo, y compará tu resultado.">
+<meta property="og:image" content="https://triviacatolica.com/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!--
+  Página de respaldo para los enlaces compartidos desde la app:
+    /play/<slug>      → abre el cuestionario
+    /category/<slug>  → abre la categoría
+  (vercel.json reescribe esas rutas a este archivo).
+  Si la app está instalada y los App Links están verificados (assetlinks.json),
+  Android abre la app directo y esta página ni se ve. Si no, acá se intenta
+  abrir la app y, si no está, se ofrece descargarla.
+-->
+<style>
+  :root {
+    --primary:#2F5BD3; --primary-ink:#1E3F9E; --primary-soft:#EEF2FD;
+    --ink:#14161C; --ink2:#5B6170; --line:#E6E8EE; --bg:#F2F3F6;
+    --gold:#E8A33D; --gold-soft:#FDF3E1; --gold-ink:#8A5A0B;
+    --font:'Source Sans 3', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body { font-family:var(--font); color:var(--ink); background:var(--primary); min-height:100vh; min-height:100dvh;
+         display:flex; flex-direction:column; align-items:center; -webkit-font-smoothing:antialiased; }
+  .top { width:100%; max-width:480px; padding:22px 20px 0; display:flex; align-items:center; gap:10px; color:#fff; text-decoration:none; }
+  .top img { width:40px; height:40px; border-radius:10px; box-shadow:0 0 0 2px rgba(255,255,255,.85); }
+  .top b { font-size:20px; font-weight:700; }
+  .hero-img { width:min(52vw, 220px); height:auto; display:block; margin:0 auto 10px; }
+  .card { width:100%; max-width:480px; background:#fff; border-radius:28px 28px 0 0; margin-top:20px; padding:22px 20px 34px; flex:1;
+          display:flex; flex-direction:column; align-items:stretch; text-align:center; }
+  .eyebrow { display:inline-block; align-self:center; background:var(--gold-soft); color:var(--gold-ink); font-weight:700;
+             font-size:14px; letter-spacing:.3px; text-transform:uppercase; border-radius:999px; padding:6px 12px; margin-bottom:12px; }
+  h1 { margin:0 0 8px; font-size:30px; line-height:1.1; font-weight:800; }
+  h1 .hl { color:var(--primary); }
+  .lead { margin:0 0 22px; color:var(--ink2); font-size:18px; line-height:1.4; }
+  .btn { display:flex; align-items:center; justify-content:center; gap:10px; min-height:56px; border-radius:16px;
+         font-size:19px; font-weight:700; text-decoration:none; padding:0 18px; margin-bottom:12px; border:0; cursor:pointer; font-family:inherit; }
+  .btn svg { width:24px; height:24px; flex:none; }
+  .btn-primary { background:var(--primary); color:#fff; }
+  .btn-primary:active { background:var(--primary-ink); }
+  .btn-store { background:var(--ink); color:#fff; }
+  .btn-store small { display:block; font-size:12px; font-weight:600; opacity:.8; text-transform:uppercase; letter-spacing:.4px; }
+  .btn-store span { text-align:left; line-height:1.1; }
+  .btn-store.soon { background:#fff; color:var(--ink2); border:1.5px solid var(--line); cursor:default; }
+  .note { color:var(--ink2); font-size:15px; margin:6px 0 0; line-height:1.4; }
+  .note a { color:var(--primary); font-weight:700; }
+  .hidden { display:none !important; }
+  .opening { color:var(--ink2); font-size:16px; margin:0 0 14px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .spin { width:16px; height:16px; border:2.5px solid var(--line); border-top-color:var(--primary); border-radius:50%; animation:r .8s linear infinite; }
+  @keyframes r { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation:none; } }
+  footer { width:100%; max-width:480px; background:#fff; text-align:center; padding:0 20px 24px; color:var(--ink2); font-size:14px; }
+  footer a { color:var(--ink2); }
+</style>
+</head>
+<body>
+  <a class="top" href="/">
+    <img src="/apple-touch-icon.png" alt="">
+    <b>Trivia Católica</b>
+  </a>
+
+  <main class="card">
+    <img class="hero-img" src="/jesus-app.jpg" alt="" width="220" height="282">
+    <span class="eyebrow" id="eyebrow">Te desafiaron</span>
+    <h1 id="title">¿Te animás a este <span class="hl">quiz</span>?</h1>
+    <p class="lead" id="lead">Respondé las preguntas en la app de Trivia Católica y aprendé con la Biblia y el Catecismo.</p>
+
+    <p class="opening hidden" id="opening"><span class="spin"></span><span id="opening-txt">Abriendo la app…</span></p>
+
+    <a class="btn btn-primary" id="open-btn" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+      <span id="open-txt">Jugar en la app</span>
+    </a>
+
+    <a class="btn btn-store" id="play-btn" href="https://play.google.com/store/apps/details?id=com.triviacatolica.app" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.3c-.3.3-.5.8-.5 1.4v16.6c0 .6.2 1.1.5 1.4l9.3-9.7-9.3-9.7zm10.6 11 2.5 2.6-10.9 6.2c-.5.3-1 .3-1.4.2l9.8-9zm0-2.6-9.8-9c.4-.1.9 0 1.4.2l10.9 6.2-2.5 2.6zm3.8-1.3 2.9 1.6c.9.5.9 1.5 0 2l-2.9 1.6-2.7-2.6 2.7-2.6z"/></svg>
+      <span><small id="play-small">Descargala en</small>Google Play</span>
+    </a>
+
+    <a class="btn btn-store soon" id="ios-btn" aria-disabled="true">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.1 5.8c.6-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>
+      <span><small id="ios-small">Próximamente en</small>App Store</span>
+    </a>
+
+    <p class="note" id="note">¿Ya la tenés instalada? Tocá <b>Jugar en la app</b>.</p>
+  </main>
+
+  <footer><a href="/" id="home-link">Conocé Trivia Católica</a> · <a href="/privacidad" id="priv-link">Privacidad</a></footer>
+
+<script>
+(function () {
+  var PKG = 'com.triviacatolica.app';
+  var SCHEME = 'triviacatolica';
+  var PLAY_URL = 'https://play.google.com/store/apps/details?id=' + PKG;
+  var IOS_URL = ''; // completar con https://apps.apple.com/app/idXXXXXXXXX cuando esté publicada
+
+  var T = {
+    es: { eyebrowPlay: 'Te desafiaron', eyebrowCat: 'Categoría', titlePlay: '¿Te animás a este <span class="hl">quiz</span>?',
+          titleCat: 'Jugá <span class="hl">{name}</span>', lead: 'Respondé las preguntas en la app de Trivia Católica y aprendé con la Biblia y el Catecismo.',
+          open: 'Jugar en la app', opening: 'Abriendo la app…', playSmall: 'Descargala gratis en', iosSmall: 'Próximamente en', iosReady: 'Descargala gratis en',
+          note: '¿Ya la tenés instalada? Tocá <b>Jugar en la app</b>.', noApp: 'Parece que todavía no tenés la app. Descargala gratis y el quiz te espera adentro.',
+          home: 'Conocé Trivia Católica', priv: 'Privacidad', daily: 'Desafío del día', news: 'Quiz de la noticia' },
+    en: { eyebrowPlay: 'You were challenged', eyebrowCat: 'Category', titlePlay: 'Up for this <span class="hl">quiz</span>?',
+          titleCat: 'Play <span class="hl">{name}</span>', lead: 'Answer the questions in the Catholic Trivia app and learn with the Bible and the Catechism.',
+          open: 'Play in the app', opening: 'Opening the app…', playSmall: 'Get it free on', iosSmall: 'Coming soon to', iosReady: 'Get it free on',
+          note: 'Already installed? Tap <b>Play in the app</b>.', noApp: "Looks like you don't have the app yet. Get it free and the quiz will be waiting.",
+          home: 'About Catholic Trivia', priv: 'Privacy', daily: 'Daily challenge', news: 'News quiz' },
+    pt: { eyebrowPlay: 'Você foi desafiado', eyebrowCat: 'Categoria', titlePlay: 'Topa este <span class="hl">quiz</span>?',
+          titleCat: 'Jogue <span class="hl">{name}</span>', lead: 'Responda às perguntas no app Trívia Católica e aprenda com a Bíblia e o Catecismo.',
+          open: 'Jogar no app', opening: 'Abrindo o app…', playSmall: 'Baixe grátis no', iosSmall: 'Em breve na', iosReady: 'Baixe grátis na',
+          note: 'Já tem o app? Toque em <b>Jogar no app</b>.', noApp: 'Parece que você ainda não tem o app. Baixe grátis e o quiz estará te esperando.',
+          home: 'Conheça a Trívia Católica', priv: 'Privacidade', daily: 'Desafio do dia', news: 'Quiz da notícia' },
+    it: { eyebrowPlay: 'Sei stato sfidato', eyebrowCat: 'Categoria', titlePlay: 'Ti va questo <span class="hl">quiz</span>?',
+          titleCat: 'Gioca <span class="hl">{name}</span>', lead: "Rispondi alle domande nell'app Trivia Cattolica e impara con la Bibbia e il Catechismo.",
+          open: "Gioca nell'app", opening: "Apertura dell'app…", playSmall: 'Scaricala gratis su', iosSmall: 'Presto su', iosReady: 'Scaricala gratis su',
+          note: "Ce l'hai già? Tocca <b>Gioca nell'app</b>.", noApp: "Sembra che tu non abbia ancora l'app. Scaricala gratis e il quiz ti aspetta.",
+          home: 'Scopri Trivia Cattolica', priv: 'Privacy', daily: 'Sfida del giorno', news: 'Quiz della notizia' }
+  };
+  var lang = ((navigator.language || 'es').slice(0, 2)).toLowerCase();
+  var t = T[lang] || T.es;
+  document.documentElement.lang = T[lang] ? lang : 'es';
+
+  // ---- Ruta: /play/<slug> o /category/<slug> ----
+  var parts = location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+  var kind = parts[0] === 'category' ? 'category' : 'play';
+  var slug = decodeURIComponent(parts[1] || '').replace(/[^\w\-áéíóúñü]/gi, '');
+  var appPath = slug ? kind + '/' + encodeURIComponent(slug) : '';
+
+  var CATS = { 'antiguo-testamento': 'Antiguo Testamento', 'nuevo-testamento': 'Nuevo Testamento', 'santos': 'Santos',
+               'sacramentos': 'Sacramentos', 'liturgia': 'Liturgia', 'virgen-maria': 'Virgen María' };
+  function prettify(s) {
+    if (s === 'daily' || s === 'desafio-del-dia') return t.daily;
+    if (/^(news-|noticia-)/.test(s)) return t.news;
+    for (var c in CATS) if (s.indexOf(c + '-') === 0) s = s.slice(c.length + 1);
+    if (CATS[s]) return CATS[s];
+    var w = s.replace(/-/g, ' ').trim();
+    return w ? w.charAt(0).toUpperCase() + w.slice(1) : '';
+  }
+  var catName = '';
+  for (var c in CATS) if (slug === c || slug.indexOf(c + '-') === 0) catName = CATS[c];
+  var special = (slug === 'daily' || slug === 'desafio-del-dia') ? t.daily : (/^(news-|noticia-)/.test(slug) ? t.news : '');
+  var name = kind === 'category' ? (catName || prettify(slug)) : (special || catName);
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  $('eyebrow').textContent = kind === 'category' ? t.eyebrowCat : (name || t.eyebrowPlay);
+  $('title').innerHTML = kind === 'category' && name ? t.titleCat.replace('{name}', esc(name)) : t.titlePlay;
+  $('lead').innerHTML = t.lead;
+  $('open-txt').textContent = t.open;
+  $('opening-txt').textContent = t.opening;
+  $('play-small').textContent = t.playSmall;
+  $('note').innerHTML = t.note;
+  $('home-link').textContent = t.home;
+  $('priv-link').textContent = t.priv;
+  if (name) document.title = name + ' · Trivia Católica';
+
+  if (IOS_URL) {
+    $('ios-btn').href = IOS_URL; $('ios-btn').classList.remove('soon'); $('ios-btn').removeAttribute('aria-disabled');
+    $('ios-small').textContent = t.iosReady;
+  } else {
+    $('ios-small').textContent = t.iosSmall;
+  }
+
+  // ---- Abrir la app ----
+  var ua = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var params = new URLSearchParams(location.search);
+  var cameBack = params.get('app') === '0';
+
+  // Android: intent:// abre la app si está instalada; si no, Chrome vuelve a esta
+  // misma página con ?app=0 (para mostrar la descarga en vez de saltar a la tienda).
+  var back = location.origin + location.pathname + '?app=0';
+  var intentUrl = 'intent://' + appPath + '#Intent;scheme=' + SCHEME + ';package=' + PKG +
+                  ';S.browser_fallback_url=' + encodeURIComponent(back) + ';end';
+  var schemeUrl = SCHEME + '://' + appPath;
+
+  if (isIOS) $('play-btn').classList.add('hidden');
+  if (isAndroid && !IOS_URL) $('ios-btn').classList.add('hidden');
+
+  var openBtn = $('open-btn');
+  openBtn.href = isAndroid ? intentUrl : schemeUrl;
+  if (!isAndroid && !isIOS) openBtn.classList.add('hidden'); // en compu no hay app que abrir
+
+  if (cameBack) {
+    $('note').textContent = t.noApp;
+  } else if (isAndroid && appPath) {
+    // Intento automático una sola vez por enlace.
+    var key = 'tc-open-' + appPath;
+    var tried = false;
+    try { tried = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1'); } catch (e) {}
+    if (!tried) {
+      $('opening').classList.remove('hidden');
+      setTimeout(function () { location.href = intentUrl; }, 250);
+      setTimeout(function () { $('opening').classList.add('hidden'); }, 2500);
+    }
+  }
+})();
+</script>
+</body>
+</html>

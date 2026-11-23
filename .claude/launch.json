@@ -17,6 +17,15 @@
         "branding/play-store/serve.mjs"
       ],
       "port": 4180
+    },
+    {
+      "name": "landing-abrir",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/pyweb/AppData/Local/Temp/claude/1b27a4c55683e963/3ad57ec4-a289-4dc2-b9aa-fcfd77030131/scratchpad/serve-landing.mjs",
+        "C:/Users/pyweb/OneDrive/Desktop/TRIVIA CATOLICA/landing"
+      ],
+      "port": 4190
     }
   ]
 }
