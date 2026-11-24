@@ -42,3 +42,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Panel admin: carpeta de publicación en Vercel
+admin/.deploy/

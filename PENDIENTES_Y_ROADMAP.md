@@ -15,8 +15,12 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 - [x] **Migración 004 (categoría Virgen María):** ejecutada en Supabase.
 - [x] **Migración 006 (cuestionarios, niveles, fuentes y Desafío del día):** ejecutada el 2026-11-23 en el SQL Editor de Supabase (`questions.level_id`, `public.daily_challenges`, 8 categorías, 32 niveles, 160 preguntas vinculadas 1-a-1 a su nivel, 316 textos en `reference_texts` y 13 desafíos diarios iniciales).
 - [ ] **Migración 007 (limpieza de Ranking, `@usuarios` y perfiles públicos `/u/<username>`):** correr `supabase/migrations/007_ranking_perfiles_publicos_y_limpieza.sql` en el SQL Editor de Supabase. Sincroniza `is_anonymous`, libera `@usuarios` bloqueados por invitados fantasma, agrega fusión segura invitado→cuenta (`prepare_guest_handoff`/`complete_guest_handoff`), filtra `leaderboard_top` solo a cuentas registradas con `@usuario` y crea `get_public_profile`.
+- [ ] **Migración 008 (país/bandera, avatares por XP, idioma y logros):** correr `supabase/migrations/008_pais_avatares_idioma_y_logros.sql` en el SQL Editor de Supabase (agrega `country`, `avatar_id` y `language` a `profiles`, `leaderboard_top` y `get_public_profile`).
 - [x] **Edge Function `sync-daily-challenge` + cron diario:** configurado el 2026-11-24. Función desplegada (Verify JWT apagado; la protege el header `x-cron-secret` = secreto `CRON_SECRET`, copia local en `supabase/.env.local`). Secretos: `GEMINI_API_KEY`, `CRON_SECRET`, `GEMINI_MODEL=gemini-3.8-flash`. Cron `desafio-diario` (`0 3 * * *` UTC, pg_cron + pg_net, timeout 5 s): la función responde 202 y genera en segundo plano; el resultado queda en *Edge Functions → sync-daily-challenge → Logs*. Probado: generó el 2026-12-04; el 2026-12-05 falló solo por saturación de Gemini (503).
 - [x] **Noticias (`sync-vatican-news`) + cron cada hora:** configurado el 2026-11-24. Toma las 2 últimas de Vatican News, ACI Prensa (`/rss/news`, hoy EWTN News en español) y Aleteia, genera el quiz con Gemini solo para las nuevas y deja siempre las 6 más recientes (borra las viejas). Misma protección `x-cron-secret`, Verify JWT apagado. Cron `noticias-cada-hora` (`15 * * * *`). Si Gemini está saturado, lo pendiente se completa en la siguiente hora.
+- [x] **Panel admin en app.triviacatolica.com:** publicado el 2026-11-24 en Vercel (proyecto `triviacatolica-admin`, mismo equipo que la landing). Para volver a publicar: `cd admin && npm run deploy` (compila con `admin/.env.local` y sube el sitio estático). Entra con correo + contraseña de un usuario de `admin_users`.
+- [x] **`send-push-notifications`:** desplegada el 2026-11-24 (solo administradores; desactiva tokens `DeviceNotRegistered`). La app ya registra el Expo push token en `user_push_tokens` y abre `data.url` al tocar la notificación.
+- [ ] **Push en Android (FCM):** falta crear el proyecto en Firebase, poner `google-services.json` en la raíz + `android.googleServicesFile` en `app.json`, subir la clave FCM V1 a EAS (`eas credentials` → Android → Google Service Account → FCM V1) y generar un **build nuevo**. Sin esto Expo no puede entregar pushes en Android.
 - [ ] **Lint:** `npx expo lint` da errores de reglas del React Compiler (`react-hooks/refs` por `useRef(new Animated.Value())`, `set-state-in-effect`) en onboarding, play, ReferenceModal y ranking. No rompen el build, pero el compilador saltea esos componentes. `tsc` pasa sin errores.
 - [x] **Fichas de tiendas:** completadas.
 
@@ -73,11 +77,12 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 - **Perfil especial de Sacerdote:** insignia / sello verificado de sacerdote visible en su perfil y en el **Ranking**, con opción de **desafiar a un sacerdote en un quiz** (modo 1 vs 1).
 
 ### D. Perfil social, nacionalidad y logros (pedido 2026-11-20)
-- **Nacionalidad:** elegir país en onboarding o Perfil (`profiles.country`, código ISO de 2 letras) y mostrar la **banderita** junto al nombre en el Ranking.
-- **Ranking nacional e internacional:** filtro *Mi país / Mundial* en Ranking (la vista `leaderboard_top` necesita la columna `country`).
-- **Perfil público individual:** pantalla `/u/<username>` con bandera, nivel, racha, estadísticas y sellos, punto de entrada para **desafiar en versus**.
-- **Panel de logros (sellos):** sellos por hitos (rachas, categorías completas, niveles perfectos, primer versus), con tablas `achievements` y `user_achievements`.
-- **Versus 1 vs 1** contra otros jugadores (se conecta con el desafío al Sacerdote de la sección C).
+- [x] **Nacionalidad:** elegir país en onboarding, Perfil o popup automático (`profiles.country`, código ISO de 2 letras) y mostrar la **banderita** junto al avatar en Inicio, Ranking y Perfil público.
+- [x] **Ranking nacional e internacional:** filtro *Mundial / Mi país* en Ranking (`leaderboard_top` incluye `country` y `avatar_id`).
+- [x] **Perfil público individual:** pantalla `/u/<username>` con avatar de personaje, bandera, fecha de ingreso, racha, estadísticas, sellos y bloque de desafío 1 vs 1 (*Próximamente*).
+- [x] **Avatares desbloqueables con XP (8 personajes)** y **Panel de logros (8 sellos)** visibles en Perfil y `/u/<username>`.
+- [x] **Límites de juego + Pro:** 1 quiz de prueba para invitados, 3 quizzes/día para gratuitos, repaso de errores (Pro), protector de racha semanal (Pro), login con correo + contraseña y multilenguaje de UI (ES/EN/PT). *(Pendiente: traducir el banco de 160 preguntas y citas a EN y PT, y conectar claves reales de RevenueCat.)*
+- [ ] **Versus 1 vs 1** contra otros jugadores (se conecta con el desafío al Sacerdote de la sección C).
 
 ### E. Panel de administración personal (`app.triviacatolica.com` — estética *Lienzo*) (pedido 2026-11-23)
 Panel web privado para administrar todo el ecosistema de Trivia Católica, respetando la línea gráfica *Lienzo* (fondo blanco limpio, Source Sans 3, acentos de color por categoría, cero sombras ni sobrecarga) y protegido con autenticación de administrador (Supabase Auth + rol `admin` en RLS):
