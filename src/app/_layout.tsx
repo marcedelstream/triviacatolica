@@ -12,6 +12,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { LIENZO } from '@/constants/theme';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useGameStore } from '@/store/useGameStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -26,6 +27,9 @@ export default function RootLayout() {
   });
 
   const bootstrap = useGameStore((s) => s.bootstrap);
+
+  // Guarda el push token y abre la pantalla de la notificación tocada.
+  usePushNotifications(Boolean(fontsLoaded || fontError));
 
   useEffect(() => {
     void bootstrap();
@@ -56,6 +60,7 @@ export default function RootLayout() {
         <Stack.Screen name="categories" />
         <Stack.Screen name="category/[slug]" />
         <Stack.Screen name="play/[levelId]" />
+        <Stack.Screen name="versus" />
         <Stack.Screen name="u/[username]" />
         <Stack.Screen name="auth-modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
