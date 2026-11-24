@@ -1,0 +1,678 @@
+import type { Question } from '@/types/trivia';
+
+const TOPIC_AT = '11111111-1111-4111-8111-111111111101';
+const TOPIC_NT = '11111111-1111-4111-8111-111111111102';
+
+export const BIBLE_QUESTIONS: Question[] = [
+  // =========================================================================
+  // ANTIGUO TESTAMENTO — Nivel 1: Los comienzos y patriarcas
+  // =========================================================================
+  {
+    id: 'q-at-1',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222101',
+    levelSlug: 'antiguo-testamento-comienzos-patriarcas',
+    difficulty: 1,
+    prompt: '¿A quién le pidió Dios que construyera el arca antes del diluvio?',
+    options: ['Moisés', 'Noé', 'Abraham', 'Elías'],
+    correctIndex: 1,
+    explanation:
+      'Dios encomendó a Noé construir el arca para salvar a su familia y a los animales, prefigurando la salvación por el Bautismo.',
+    sourceRef: 'Gn 6,14 · CIC 1219',
+  },
+  {
+    id: 'q-at-2',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222101',
+    levelSlug: 'antiguo-testamento-comienzos-patriarcas',
+    difficulty: 1,
+    prompt: '¿En qué monte recibió Moisés las tablas de los Diez Mandamientos?',
+    options: ['Monte Carmelo', 'Monte Tabor', 'Monte Sinaí', 'Monte de los Olivos'],
+    correctIndex: 2,
+    explanation:
+      'En el monte Sinaí Dios selló la Alianza con Israel y entregó a Moisés el Decálogo como camino de vida.',
+    sourceRef: 'Éx 19,20; 20,1-17 · CIC 2056',
+  },
+  {
+    id: 'q-at-3',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222101',
+    levelSlug: 'antiguo-testamento-comienzos-patriarcas',
+    difficulty: 1,
+    prompt: '¿Quién es llamado en la Escritura el "padre de todos los creyentes"?',
+    options: ['Isaac', 'Jacob', 'Abraham', 'David'],
+    correctIndex: 2,
+    explanation:
+      'Abraham creyó en la promesa de Dios y partió hacia la tierra prometida, convirtiéndose en modelo de obediencia en la fe.',
+    sourceRef: 'Gn 12,1-4 · CIC 145',
+  },
+  {
+    id: 'q-at-7',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222101',
+    levelSlug: 'antiguo-testamento-comienzos-patriarcas',
+    difficulty: 1,
+    prompt: '¿A imagen y semejanza de quién creó Dios al ser humano, varón y mujer?',
+    options: ['De los ángeles', 'De Dios mismo', 'De las estrellas', 'De los profetas'],
+    correctIndex: 1,
+    explanation:
+      'El libro del Génesis enseña que cada persona posee una dignidad inviolable por haber sido creada a imagen y semejanza de Dios.',
+    sourceRef: 'Gn 1,27 · CIC 355',
+  },
+  {
+    id: 'q-at-8',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222101',
+    levelSlug: 'antiguo-testamento-comienzos-patriarcas',
+    difficulty: 1,
+    prompt: '¿Qué nombre nuevo recibió Jacob después de luchar con el ángel de Dios?',
+    options: ['Israel', 'Judá', 'Josué', 'Samuel'],
+    correctIndex: 0,
+    explanation:
+      'Dios cambió el nombre de Jacob por Israel ("el que es fuerte con Dios"), y de sus doce hijos nacieron las doce tribus del pueblo elegido.',
+    sourceRef: 'Gn 32,29 · CIC 2573',
+  },
+
+  // =========================================================================
+  // ANTIGUO TESTAMENTO — Nivel 2: Reyes y profetas
+  // =========================================================================
+  {
+    id: 'q-at-4',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222102',
+    levelSlug: 'antiguo-testamento-reyes-profetas',
+    difficulty: 2,
+    prompt: '¿Qué rey de Israel compuso gran parte de los Salmos?',
+    options: ['Saúl', 'David', 'Salomón', 'Josías'],
+    correctIndex: 1,
+    explanation:
+      'La tradición bíblica atribuye al rey David la mayoría de los Salmos, oración inspirada de Israel y de la Iglesia.',
+    sourceRef: '2 Sam 23,1-2 · CIC 2579',
+  },
+  {
+    id: 'q-at-5',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222102',
+    levelSlug: 'antiguo-testamento-reyes-profetas',
+    difficulty: 2,
+    prompt: '¿Qué profeta anunció que una virgen concebiría y daría a luz a Emmanuel?',
+    options: ['Jeremías', 'Ezequiel', 'Isaías', 'Daniel'],
+    correctIndex: 2,
+    explanation:
+      'Isaías profetizó el nacimiento de Emmanuel, "Dios con nosotros", promesa cumplida plenamente en Jesucristo.',
+    sourceRef: 'Is 7,14 · Mt 1,22-23 · CIC 497',
+  },
+  {
+    id: 'q-at-9',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222102',
+    levelSlug: 'antiguo-testamento-reyes-profetas',
+    difficulty: 2,
+    prompt: '¿Qué pidió el joven rey Salomón a Dios cuando el Señor le ofreció concederle un don?',
+    options: [
+      'Riquezas y poder militar',
+      'Un corazón sabio para gobernar con justicia',
+      'Larga vida sin enfermedades',
+      'La conquista de Egipto',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Salomón pidió sabiduría y discernimiento para servir a su pueblo, y luego edificó el primer Templo de Jerusalén.',
+    sourceRef: '1 Re 3,9 · CIC 2580',
+  },
+  {
+    id: 'q-at-10',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222102',
+    levelSlug: 'antiguo-testamento-reyes-profetas',
+    difficulty: 2,
+    prompt: '¿En qué signo reconoció el profeta Elías la presencia de Dios en el monte Horeb?',
+    options: [
+      'En un huracán impetuoso',
+      'En un terremoto',
+      'En el susurro de una brisa suave',
+      'En una columna de fuego',
+    ],
+    correctIndex: 2,
+    explanation:
+      'Dios no estaba en el viento, el terremoto ni el fuego, sino en el murmullo de una brisa suave, invitando a la escucha interior.',
+    sourceRef: '1 Re 19,11-13 · CIC 2583',
+  },
+  {
+    id: 'q-at-11',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222102',
+    levelSlug: 'antiguo-testamento-reyes-profetas',
+    difficulty: 2,
+    prompt: '¿Qué profeta fue preservado ileso en el foso de los leones por mantenerse fiel a la oración?',
+    options: ['Oseas', 'Daniel', 'Amós', 'Jonás'],
+    correctIndex: 1,
+    explanation:
+      'Daniel siguió orando tres veces al día al Dios verdadero pese al decreto del rey, y el Señor envió a su ángel para protegerlo.',
+    sourceRef: 'Dn 6,17-23 · CIC 2568',
+  },
+
+  // =========================================================================
+  // ANTIGUO TESTAMENTO — Nivel 3: Sabiduría y alianza
+  // =========================================================================
+  {
+    id: 'q-at-6',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222103',
+    levelSlug: 'antiguo-testamento-sabiduria-alianza',
+    difficulty: 3,
+    prompt: '¿Qué libro deuterocanónico del Antiguo Testamento fundamenta la oración por los difuntos?',
+    options: ['Segundo libro de los Macabeos', 'Libro de Rut', 'Eclesiastés', 'Lamentaciones'],
+    correctIndex: 0,
+    explanation:
+      'En 2 Macabeos, Judas Macabeo ofrece sacrificios y oraciones por los caídos, gesto que la Iglesia cita para orar por los difuntos.',
+    sourceRef: '2 Mac 12,43-46 · CIC 1032',
+  },
+  {
+    id: 'q-at-12',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222103',
+    levelSlug: 'antiguo-testamento-sabiduria-alianza',
+    difficulty: 3,
+    prompt: '¿Cuántos libros componen el Antiguo Testamento en el canon de la Biblia católica?',
+    options: ['39 libros', '46 libros', '27 libros', '52 libros'],
+    correctIndex: 1,
+    explanation:
+      'El canon católico reconoce 46 libros en el Antiguo Testamento (incluidos los 7 deuterocanónicos) y 27 en el Nuevo: 73 libros en total.',
+    sourceRef: 'CIC 120',
+  },
+  {
+    id: 'q-at-13',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222103',
+    levelSlug: 'antiguo-testamento-sabiduria-alianza',
+    difficulty: 3,
+    prompt: '¿Qué personaje del Antiguo Testamento es modelo de paciencia y confianza en Dios en medio del sufrimiento?',
+    options: ['Job', 'Tobías', 'Nehemías', 'Esdras'],
+    correctIndex: 0,
+    explanation:
+      'Aun en la prueba extrema, Job dialoga con Dios con sinceridad y proclama: "Yo sé que mi Redentor vive".',
+    sourceRef: 'Job 19,25 · CIC 1502',
+  },
+  {
+    id: 'q-at-14',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222103',
+    levelSlug: 'antiguo-testamento-sabiduria-alianza',
+    difficulty: 3,
+    prompt: 'Según el libro de los Proverbios, ¿cuál es "el principio de la sabiduría"?',
+    options: [
+      'El estudio de la astronomía',
+      'El temor del Señor',
+      'La elocuencia pública',
+      'La experiencia de los viajes',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El temor de Dios no es miedo, sino reverencia filial y amor respetuoso que orienta la vida hacia el bien.',
+    sourceRef: 'Prov 9,10 · CIC 1831',
+  },
+  {
+    id: 'q-at-15',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222103',
+    levelSlug: 'antiguo-testamento-sabiduria-alianza',
+    difficulty: 3,
+    prompt: '¿Qué arcángel acompaña y guía al joven Tobías en el libro deuterocanónico de Tobías?',
+    options: ['San Miguel', 'San Gabriel', 'San Rafael', 'Uriel'],
+    correctIndex: 2,
+    explanation:
+      'Rafael significa "Dios sana"; acompañó a Tobías en su viaje, devolvió la vista a su padre y reveló ser uno de los siete ángeles ante el Señor.',
+    sourceRef: 'Tob 12,15 · CIC 332',
+  },
+
+  // =========================================================================
+  // ANTIGUO TESTAMENTO — Nivel 4: Éxodo y Tierra Prometida
+  // =========================================================================
+  {
+    id: 'q-at-16',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222104',
+    levelSlug: 'antiguo-testamento-exodo-tierra-prometida',
+    difficulty: 2,
+    prompt: '¿A través de qué signo se reveló Dios a Moisés diciendo "Yo soy el que soy"?',
+    options: [
+      'Una nube sobre el río Nilo',
+      'Una zarza que ardía sin consumirse',
+      'Un arco iris en el desierto',
+      'Una paloma sobre el altar',
+    ],
+    correctIndex: 1,
+    explanation:
+      'En el Horeb, desde la zarza ardiente, Dios reveló su Nombre a Moisés y lo envió a liberar a Israel de la esclavitud en Egipto.',
+    sourceRef: 'Éx 3,1-14 · CIC 206',
+  },
+  {
+    id: 'q-at-17',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222104',
+    levelSlug: 'antiguo-testamento-exodo-tierra-prometida',
+    difficulty: 2,
+    prompt: '¿Con qué alimento milagroso sostuvo Dios a Israel durante los cuarenta años en el desierto?',
+    options: ['Higos y miel', 'El maná', 'Pan ázimo de Egipto', 'Trigo del Jordán'],
+    correctIndex: 1,
+    explanation:
+      'El maná caído del cielo cada mañana prefiguraba a Jesús, el verdadero Pan vivo bajado del cielo en la Eucaristía.',
+    sourceRef: 'Éx 16,14-15 · Jn 6,31-35 · CIC 1094',
+  },
+  {
+    id: 'q-at-18',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222104',
+    levelSlug: 'antiguo-testamento-exodo-tierra-prometida',
+    difficulty: 2,
+    prompt: '¿Qué signo prefiguraba el Bautismo cuando Israel salió de Egipto guiado por Moisés?',
+    options: [
+      'El paso del mar Rojo',
+      'La construcción de las pirámides',
+      'El sueño de Faraón',
+      'La venta de José',
+    ],
+    correctIndex: 0,
+    explanation:
+      'Al atravesar las aguas del mar Rojo hacia la libertad, Israel vivió una figura del Bautismo que nos libera de la esclavitud del pecado.',
+    sourceRef: 'Éx 14,21-22 · CIC 1221',
+  },
+  {
+    id: 'q-at-19',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222104',
+    levelSlug: 'antiguo-testamento-exodo-tierra-prometida',
+    difficulty: 2,
+    prompt: '¿Quién sucedió a Moisés para conducir al pueblo de Israel hacia la Tierra Prometida?',
+    options: ['Aarón', 'Josué', 'Gedeón', 'Sansón'],
+    correctIndex: 1,
+    explanation:
+      'Josué (cuyo nombre hebreo significa "Dios salva", igual que Jesús) guió a Israel en el paso del río Jordán hacia Canaán.',
+    sourceRef: 'Jos 1,1-6 · CIC 430',
+  },
+  {
+    id: 'q-at-20',
+    topicId: TOPIC_AT,
+    topicSlug: 'antiguo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222104',
+    levelSlug: 'antiguo-testamento-exodo-tierra-prometida',
+    difficulty: 2,
+    prompt: '¿Qué cofre sagrado guardaba las tablas de la Ley y acompañaba a Israel como signo de la presencia de Dios?',
+    options: [
+      'El Arca de la Alianza',
+      'El Candelabro de los siete brazos',
+      'La Copa de Melquisedec',
+      'El Altar de Betel',
+    ],
+    correctIndex: 0,
+    explanation:
+      'El Arca de la Alianza contenía las tablas del Decálogo; los Padres de la Iglesia ven en ella una figura de María, que llevó en su seno al Verbo hecho carne.',
+    sourceRef: 'Éx 25,10-16 · CIC 2676',
+  },
+
+  // =========================================================================
+  // NUEVO TESTAMENTO — Nivel 1: Los milagros de Jesús
+  // =========================================================================
+  {
+    id: 'q-nt-1',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222201',
+    levelSlug: 'nuevo-testamento-milagros-de-jesus',
+    difficulty: 1,
+    prompt: '¿Cuál fue el primer milagro público de Jesús narrado en el Evangelio de san Juan?',
+    options: [
+      'La multiplicación de los panes',
+      'Convertir el agua en vino en Caná',
+      'Caminar sobre las aguas',
+      'La resurrección de Lázaro',
+    ],
+    correctIndex: 1,
+    explanation:
+      'A pedido de su Madre María en las bodas de Caná, Jesús transformó el agua en vino y manifestó su gloria.',
+    sourceRef: 'Jn 2,1-11 · CIC 2618',
+  },
+  {
+    id: 'q-nt-3',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222201',
+    levelSlug: 'nuevo-testamento-milagros-de-jesus',
+    difficulty: 1,
+    prompt: '¿Con cuántos panes y peces alimentó Jesús a una multitud de cinco mil hombres?',
+    options: [
+      'Tres panes y un pez',
+      'Cinco panes y dos peces',
+      'Siete panes y cinco peces',
+      'Doce panes y dos peces',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Con cinco panes de cebada y dos peces Jesús sació a la multitud, prefigurando la sobreabundancia de la Eucaristía.',
+    sourceRef: 'Jn 6,9-13 · CIC 1335',
+  },
+  {
+    id: 'q-nt-7',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222201',
+    levelSlug: 'nuevo-testamento-milagros-de-jesus',
+    difficulty: 1,
+    prompt: '¿A qué amigo suyo, hermano de Marta y María, resucitó Jesús en Betania después de cuatro días en el sepulcro?',
+    options: ['Zaqueo', 'Lázaro', 'Bartimeo', 'Nicodemo'],
+    correctIndex: 1,
+    explanation:
+      'Antes de llamar a Lázaro fuera de la tumba, Jesús se proclamó "la Resurrección y la Vida", anunciando su propia victoria sobre la muerte.',
+    sourceRef: 'Jn 11,25-44 · CIC 640',
+  },
+  {
+    id: 'q-nt-8',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222201',
+    levelSlug: 'nuevo-testamento-milagros-de-jesus',
+    difficulty: 1,
+    prompt: 'Cuando diez leprosos fueron curados por Jesús, ¿cuántos regresaron a darle gracias?',
+    options: ['Todos', 'Cinco', 'Tres', 'Solo uno, un samaritano'],
+    correctIndex: 3,
+    explanation:
+      'Solo el samaritano volvió alabando a Dios y se postró a los pies de Jesús, enseñándonos la importancia de la gratitud en la fe.',
+    sourceRef: 'Lc 17,11-19 · CIC 2638',
+  },
+  {
+    id: 'q-nt-9',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222201',
+    levelSlug: 'nuevo-testamento-milagros-de-jesus',
+    difficulty: 1,
+    prompt: '¿Qué le dijo Jesús al viento y al mar embravecido para calmar la tempestad desde la barca?',
+    options: [
+      '"¡Silencio, cálmate!"',
+      '"¡Abran las redes!"',
+      '"¡Vuelvan a la orilla!"',
+      '"¡Sube a la montaña!"',
+    ],
+    correctIndex: 0,
+    explanation:
+      'Con su sola palabra Jesús devolvió una gran calma, revelando su poder divino y pidiendo a los discípulos no tener miedo.',
+    sourceRef: 'Mc 4,35-41 · CIC 547',
+  },
+
+  // =========================================================================
+  // NUEVO TESTAMENTO — Nivel 2: Parábolas y apóstoles
+  // =========================================================================
+  {
+    id: 'q-nt-2',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222202',
+    levelSlug: 'nuevo-testamento-parabolas-apostoles',
+    difficulty: 2,
+    prompt: '¿A qué apóstol le dijo Jesús: "Tú eres Pedro, y sobre esta piedra edificaré mi Iglesia"?',
+    options: ['San Juan', 'Santiago', 'Simón Pedro', 'San Andrés'],
+    correctIndex: 2,
+    explanation:
+      'Tras la confesión de fe de Simón en Cesarea de Filipo, Jesús le confió las llaves del Reino y el ministerio de unidad.',
+    sourceRef: 'Mt 16,18-19 · CIC 552',
+  },
+  {
+    id: 'q-nt-4',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222202',
+    levelSlug: 'nuevo-testamento-parabolas-apostoles',
+    difficulty: 2,
+    prompt: '¿En qué Evangelio se encuentra la parábola del Hijo Pródigo?',
+    options: ['San Mateo', 'San Marcos', 'San Lucas', 'San Juan'],
+    correctIndex: 2,
+    explanation:
+      'El Evangelio de san Lucas recoge esta parábola en el capítulo 15 para mostrar la misericordia infinita del Padre.',
+    sourceRef: 'Lc 15,11-32 · CIC 1439',
+  },
+  {
+    id: 'q-nt-10',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222202',
+    levelSlug: 'nuevo-testamento-parabolas-apostoles',
+    difficulty: 2,
+    prompt: 'En la parábola del Buen Samaritano, ¿qué nos enseña Jesús sobre quién es nuestro prójimo?',
+    options: [
+      'Solo los familiares y vecinos cercanos',
+      'Toda persona necesitada a quien nos acercamos con compasión',
+      'Únicamente quienes comparten la misma ciudad',
+      'Quienes pueden devolvernos el favor',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El samaritano se detuvo, vendó las heridas y cuidó al hombre asaltado; Jesús concluye: "Ve y haz tú lo mismo".',
+    sourceRef: 'Lc 10,29-37 · CIC 1932',
+  },
+  {
+    id: 'q-nt-11',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222202',
+    levelSlug: 'nuevo-testamento-parabolas-apostoles',
+    difficulty: 2,
+    prompt: '¿Qué oficio tenía san Mateo antes de ser llamado por Jesús a seguirlo?',
+    options: ['Pescador en Galilea', 'Recaudador de impuestos', 'Carpintero en Nazaret', 'Médico en Antioquía'],
+    correctIndex: 1,
+    explanation:
+      'Jesús llamó a Mateo sentado en la mesa de recaudación y comió con pecadores para mostrar que vino a llamar a conversión.',
+    sourceRef: 'Mt 9,9-13 · CIC 545',
+  },
+  {
+    id: 'q-nt-12',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222202',
+    levelSlug: 'nuevo-testamento-parabolas-apostoles',
+    difficulty: 2,
+    prompt: 'En la parábola del sembrador, ¿qué representa la semilla que cae en tierra buena?',
+    options: [
+      'Quien escucha la Palabra, la acoge y da fruto abundante',
+      'Quien acumula cosechas para sí mismo',
+      'Quien olvida la Palabra por las preocupaciones',
+      'Quien escucha sin poner en práctica',
+    ],
+    correctIndex: 0,
+    explanation:
+      'La tierra buena simboliza el corazón dócil y perseverante donde la Palabra de Dios produce fruto al treinta, sesenta y ciento por uno.',
+    sourceRef: 'Mt 13,1-23 · CIC 546',
+  },
+
+  // =========================================================================
+  // NUEVO TESTAMENTO — Nivel 3: Cartas apostólicas y Hechos
+  // =========================================================================
+  {
+    id: 'q-nt-5',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222203',
+    levelSlug: 'nuevo-testamento-cartas-apostolicas',
+    difficulty: 3,
+    prompt: '¿Qué fiesta celebraban los discípulos cuando descendió el Espíritu Santo en lenguas de fuego?',
+    options: ['Pascua', 'Pentecostés', 'Tabernáculos', 'Dedicación'],
+    correctIndex: 1,
+    explanation:
+      'Cincuenta días después de la Resurrección, en Pentecostés, el Espíritu Santo fue derramado y la Iglesia comenzó su misión universal.',
+    sourceRef: 'Hch 2,1-4 · CIC 731',
+  },
+  {
+    id: 'q-nt-6',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222203',
+    levelSlug: 'nuevo-testamento-cartas-apostolicas',
+    difficulty: 3,
+    prompt: '¿En qué carta escribió san Pablo el célebre himno a la caridad ("El amor es paciente, es servicial")?',
+    options: [
+      'Carta a los Romanos',
+      'Primera carta a los Corintios',
+      'Carta a los Efesios',
+      'Carta a los Gálatas',
+    ],
+    correctIndex: 1,
+    explanation:
+      'En 1 Corintios 13, san Pablo enseña que la caridad es el mayor de todos los dones y el vínculo de la perfección.',
+    sourceRef: '1 Cor 13,4-13 · CIC 1826',
+  },
+  {
+    id: 'q-nt-13',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222203',
+    levelSlug: 'nuevo-testamento-cartas-apostolicas',
+    difficulty: 3,
+    prompt: '¿Camino a qué ciudad tuvo Saulo de Tarso su encuentro con Cristo resucitado?',
+    options: ['Antioquía', 'Damasco', 'Corinto', 'Éfeso'],
+    correctIndex: 1,
+    explanation:
+      'Camino a Damasco Jesús le dijo: "Saulo, ¿por qué me persigues?", revelando la unión íntima entre Cristo y su Iglesia.',
+    sourceRef: 'Hch 9,1-6 · CIC 795',
+  },
+  {
+    id: 'q-nt-14',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222203',
+    levelSlug: 'nuevo-testamento-cartas-apostolicas',
+    difficulty: 3,
+    prompt: '¿Qué enseña la Carta de Santiago sobre la relación entre la fe y las obras?',
+    options: [
+      'Que las obras no tienen valor alguno',
+      'Que la fe sin obras está muerta',
+      'Que solo importan las obras externas',
+      'Que la fe solo es para los apóstoles',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Santiago recuerda que la fe viva se manifiesta necesariamente en el amor concreto y en el servicio a los hermanos.',
+    sourceRef: 'Sant 2,14-17 · CIC 1815',
+  },
+  {
+    id: 'q-nt-15',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222203',
+    levelSlug: 'nuevo-testamento-cartas-apostolicas',
+    difficulty: 3,
+    prompt: '¿En qué isla del mar Egeo recibió san Juan las visiones del libro del Apocalipsis?',
+    options: ['Chipre', 'Creta', 'Patmos', 'Malta'],
+    correctIndex: 2,
+    explanation:
+      'Desterrado en la isla de Patmos por su testimonio de Jesús, Juan escribió el Apocalipsis para alentar la esperanza de las comunidades.',
+    sourceRef: 'Ap 1,9 · CIC 1137',
+  },
+
+  // =========================================================================
+  // NUEVO TESTAMENTO — Nivel 4: Pasión y Resurrección
+  // =========================================================================
+  {
+    id: 'q-nt-16',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222204',
+    levelSlug: 'nuevo-testamento-pasion-y-resurreccion',
+    difficulty: 2,
+    prompt: '¿Qué gesto de humildad realizó Jesús con sus discípulos durante la Última Cena?',
+    options: [
+      'Les lavó los pies',
+      'Les entregó una túnica blanca',
+      'Los llevó al monte Tabor',
+      'Les impuso ceniza en la frente',
+    ],
+    correctIndex: 0,
+    explanation:
+      'Al lavarles los pies, Jesús dio ejemplo de servicio humilde y les dejó el mandamiento nuevo: "Ámense los unos a los otros como yo los he amado".',
+    sourceRef: 'Jn 13,12-15 · CIC 1823',
+  },
+  {
+    id: 'q-nt-17',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222204',
+    levelSlug: 'nuevo-testamento-pasion-y-resurreccion',
+    difficulty: 2,
+    prompt: '¿Quién fue obligado por los soldados romanos a ayudar a Jesús a cargar la cruz camino al Calvario?',
+    options: ['José de Arimatea', 'Simón de Cirene', 'Nicodemo', 'Cleofás'],
+    correctIndex: 1,
+    explanation:
+      'Simón de Cirene cargó la cruz detrás de Jesús, convirtiéndose en imagen de todo discípulo llamado a compartir la cruz de Cristo.',
+    sourceRef: 'Lc 23,26 · CIC 618',
+  },
+  {
+    id: 'q-nt-18',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222204',
+    levelSlug: 'nuevo-testamento-pasion-y-resurreccion',
+    difficulty: 2,
+    prompt: '¿A quién se apareció primero Jesús resucitado junto al sepulcro vacío, según san Juan?',
+    options: ['A Pedro', 'A María Magdalena', 'A Tomás', 'A Santiago'],
+    correctIndex: 1,
+    explanation:
+      'Jesús llamó por su nombre a María Magdalena y la envió a anunciar la Resurrección a los apóstoles; por eso la tradición la llama "apóstol de los apóstoles".',
+    sourceRef: 'Jn 20,11-18 · CIC 641',
+  },
+  {
+    id: 'q-nt-19',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222204',
+    levelSlug: 'nuevo-testamento-pasion-y-resurreccion',
+    difficulty: 2,
+    prompt: '¿En qué gesto reconocieron a Jesús resucitado los dos discípulos camino de Emaús?',
+    options: [
+      'Al multiplicar los peces',
+      'Al partir el pan',
+      'Al caminar sobre el lago',
+      'Al entrar en el Templo',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Después de explicarles las Escrituras, Jesús se sentó a la mesa y al partir el pan se les abrieron los ojos: imagen de la Santa Misa.',
+    sourceRef: 'Lc 24,30-35 · CIC 1347',
+  },
+  {
+    id: 'q-nt-20',
+    topicId: TOPIC_NT,
+    topicSlug: 'nuevo-testamento',
+    levelId: '22222222-2222-4222-8222-222222222204',
+    levelSlug: 'nuevo-testamento-pasion-y-resurreccion',
+    difficulty: 2,
+    prompt: '¿Qué profesión de fe exclamó el apóstol Tomás al ver a Jesús resucitado?',
+    options: [
+      '"¡Señor mío y Dios mío!"',
+      '"¡Hágase tu voluntad!"',
+      '"¡Tú eres el Rey de Israel!"',
+      '"¡Hosanna en las alturas!"',
+    ],
+    correctIndex: 0,
+    explanation:
+      'La exclamación de Tomás es una de las confesiones más claras de la divinidad de Cristo en todo el Nuevo Testamento.',
+    sourceRef: 'Jn 20,28 · CIC 448',
+  },
+];

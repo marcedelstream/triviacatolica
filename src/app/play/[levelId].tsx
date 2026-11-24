@@ -20,7 +20,7 @@ import { QuestionCard } from '@/components/QuestionCard';
 import { ScreenFrame } from '@/components/ScreenFrame';
 import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO, getCategoryTheme } from '@/constants/theme';
-import { DAILY_CHALLENGE, MAX_HEARTS } from '@/data/localSeed';
+import { MAX_HEARTS } from '@/data/localSeed';
 import { playGameCue } from '@/lib/gameFeedback';
 import {
   selectQuestionsForDailyChallenge,
@@ -45,6 +45,7 @@ export default function PlayScreen() {
   const topics = useGameStore((s) => s.topics);
   const levels = useGameStore((s) => s.levels);
   const allQuestions = useGameStore((s) => s.questions);
+  const dailyChallenge = useGameStore((s) => s.dailyChallenge);
   const vaticanNews = useGameStore((s) => s.vaticanNews);
   const profile = useGameStore((s) => s.profile);
   const consumeHeart = useGameStore((s) => s.consumeHeart);
@@ -87,13 +88,15 @@ export default function PlayScreen() {
       return currentNewsItem.questions;
     }
     if (isDaily) {
-      return selectQuestionsForDailyChallenge(allQuestions, DAILY_CHALLENGE.questionCount);
+      return dailyChallenge.questions.length > 0
+        ? dailyChallenge.questions
+        : selectQuestionsForDailyChallenge(allQuestions, 5);
     }
     if (currentLevel) {
       return selectQuestionsForLevel(allQuestions, currentLevel);
     }
     return allQuestions.slice(0, 5);
-  }, [allQuestions, currentLevel, currentNewsItem, isDaily, isNewsQuiz]);
+  }, [allQuestions, currentLevel, currentNewsItem, dailyChallenge.questions, isDaily, isNewsQuiz]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -358,7 +361,7 @@ export default function PlayScreen() {
             <Pressable
               onPress={async () => {
                 const shareMessage = `Respondí ${correctIds.length}/${roundQuestions.length} en Trivia Católica (${
-                  currentNewsItem?.title ?? currentLevel?.title ?? DAILY_CHALLENGE.title
+                  currentNewsItem?.title ?? currentLevel?.title ?? dailyChallenge.title
                 }). ¡Probalo acá! ${shareUrl}`;
 
                 if (Platform.OS === 'web') {
@@ -601,7 +604,11 @@ export default function PlayScreen() {
             categoryTitle={
               currentNewsItem
                 ? `${currentNewsItem.sourceName} · ${currentNewsItem.sectionLabel}`
-                : (topicForQuestion?.title ?? 'Trivia')
+                : isDaily
+                  ? `${dailyChallenge.sourceLabel}${
+                      dailyChallenge.gospelRef ? ` · ${dailyChallenge.gospelRef}` : ''
+                    }`
+                  : (topicForQuestion?.title ?? 'Trivia')
             }
             selectedIndex={selectedIndex}
             isRevealed={isRevealed}

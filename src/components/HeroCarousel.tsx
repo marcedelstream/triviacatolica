@@ -20,6 +20,8 @@ import type { BannerItem } from '@/types/trivia';
 
 interface HeroCarouselProps {
   dailyTitle: string;
+  dailySubtitle?: string;
+  dailyReadingsLabel?: string;
   dailyQuestionCount: number;
   dailyCompletedToday: boolean;
   onStartDaily: () => void;
@@ -30,6 +32,8 @@ const SLIDE_GAP = 12;
 
 export function HeroCarousel({
   dailyTitle,
+  dailySubtitle,
+  dailyReadingsLabel,
   dailyQuestionCount,
   dailyCompletedToday,
   onStartDaily,
@@ -92,8 +96,16 @@ export function HeroCarousel({
           <Text style={styles.dailyTitle} numberOfLines={2}>
             {dailyTitle}
           </Text>
+          {dailyReadingsLabel ? (
+            <View style={styles.dailyReadingsRow}>
+              <Text style={styles.dailyReadingsText} numberOfLines={1}>
+                {dailyReadingsLabel}
+              </Text>
+            </View>
+          ) : null}
           <Text style={styles.dailySub} numberOfLines={2}>
-            Sumá experiencia diaria y mantené viva tu racha respondiendo el desafío especial de hoy.
+            {dailySubtitle ||
+              'Sumá experiencia diaria y mantené viva tu racha respondiendo las lecturas de hoy.'}
           </Text>
 
           <Pressable
@@ -295,10 +307,22 @@ const styles = StyleSheet.create({
     color: LIENZO.color.onPrimary,
     marginTop: 8,
   },
+  dailyReadingsRow: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderRadius: LIENZO.radius.chip,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginTop: 6,
+  },
+  dailyReadingsText: {
+    ...LIENZO.type.captionBold,
+    color: LIENZO.color.onPrimary,
+  },
   dailySub: {
     ...LIENZO.type.small,
     color: LIENZO.color.onPrimary2,
-    marginTop: 4,
+    marginTop: 6,
     marginBottom: 14,
   },
   dailyBtn: {

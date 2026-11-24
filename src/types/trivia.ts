@@ -1,4 +1,6 @@
 import type { BannerType, CategoryIconName, CategorySlug } from '@/constants/theme';
+import type { AvatarId } from '@/data/avatars';
+import type { AppLanguage } from '@/i18n/translations';
 
 export interface Topic {
   id: string;
@@ -28,12 +30,27 @@ export interface Question {
   id: string;
   topicId: string;
   topicSlug: CategorySlug;
+  levelId?: string | null;
+  levelSlug?: string;
   difficulty: 1 | 2 | 3;
   prompt: string;
   options: [string, string, string, string];
   correctIndex: 0 | 1 | 2 | 3;
   explanation: string;
   sourceRef: string;
+}
+
+export interface DailyChallenge {
+  id: string;
+  challengeDate: string; // YYYY-MM-DD
+  liturgicalDay: string;
+  title: string;
+  subtitle: string;
+  firstReadingRef: string;
+  gospelRef: string;
+  sourceLabel: string;
+  isCustom?: boolean;
+  questions: Question[];
 }
 
 export interface BannerItem {
@@ -63,6 +80,11 @@ export interface UserProfile {
   isPremium: boolean;
   timerEnabled: boolean;
   soundEnabled: boolean;
+  country?: string | null; // ISO-2 ej. 'PY', 'AR', 'MX'
+  avatarId?: AvatarId;
+  language?: AppLanguage;
+  streakShieldUsedWeek?: string | null; // ej. '2026-W47'
+  createdAt?: string; // ISO
 }
 
 export interface LevelProgress {
@@ -77,9 +99,29 @@ export interface LeaderboardEntry {
   id: string;
   displayName: string;
   username?: string;
+  country?: string | null;
+  avatarId?: AvatarId;
   xp: number;
   streakCount: number;
+  longestStreak?: number;
+  createdAt?: string;
   isCurrentUser?: boolean;
+}
+
+export interface PublicProfile {
+  id: string;
+  displayName: string;
+  username: string;
+  country?: string | null;
+  avatarId?: AvatarId;
+  xp: number;
+  streakCount: number;
+  longestStreak: number;
+  createdAt: string;
+  levelsCompleted: number;
+  totalStars: number;
+  perfectLevels?: number;
+  rankPosition: number | null;
 }
 
 export interface QuestionReport {

@@ -1,0 +1,713 @@
+import type { Question } from '@/types/trivia';
+
+const TOPIC_SC = '11111111-1111-4111-8111-111111111104';
+const TOPIC_LI = '11111111-1111-4111-8111-111111111105';
+
+export const SACRAMENTS_AND_LITURGY_QUESTIONS: Question[] = [
+  // =========================================================================
+  // SACRAMENTOS — Nivel 1: Iniciación cristiana
+  // =========================================================================
+  {
+    id: 'q-sc-1',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222401',
+    levelSlug: 'sacramentos-iniciacion-cristiana',
+    difficulty: 1,
+    prompt: '¿Cuántos son los sacramentos instituidos por Jesucristo en la Iglesia católica?',
+    options: ['Cinco', 'Seis', 'Siete', 'Nueve'],
+    correctIndex: 2,
+    explanation:
+      'Los siete sacramentos abarcan todas las etapas de la vida cristiana: iniciación, curación y servicio a la comunión.',
+    sourceRef: 'Mt 28,19-20 · CIC 1210',
+  },
+  {
+    id: 'q-sc-2',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222401',
+    levelSlug: 'sacramentos-iniciacion-cristiana',
+    difficulty: 1,
+    prompt: '¿Cuál es el sacramento que constituye el fundamento de toda la vida cristiana y nos hace hijos de Dios?',
+    options: ['Confirmación', 'Bautismo', 'Reconciliación', 'Eucaristía'],
+    correctIndex: 1,
+    explanation:
+      'El Bautismo es la puerta de la vida en el Espíritu, perdona el pecado original y nos incorpora a la Iglesia.',
+    sourceRef: 'Jn 3,5 · CIC 1213',
+  },
+  {
+    id: 'q-sc-3',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222401',
+    levelSlug: 'sacramentos-iniciacion-cristiana',
+    difficulty: 1,
+    prompt: '¿Qué sacramento es llamado por el Catecismo "fuente y culmen de toda la vida cristiana"?',
+    options: ['El Matrimonio', 'El Bautismo', 'La Eucaristía', 'El Orden Sagrado'],
+    correctIndex: 2,
+    explanation:
+      'En la Eucaristía está contenido todo el bien espiritual de la Iglesia, es decir, Cristo mismo, nuestra Pascua.',
+    sourceRef: 'Jn 6,51 · CIC 1324',
+  },
+  {
+    id: 'q-sc-5',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222401',
+    levelSlug: 'sacramentos-iniciacion-cristiana',
+    difficulty: 1,
+    prompt: '¿Cuál es el signo esencial del sacramento de la Confirmación?',
+    options: [
+      'La entrega de una vela encendida',
+      'La unción con el santo crisma y la imposición de la mano',
+      'La aspersión con agua bendita',
+      'La señal de la paz',
+    ],
+    correctIndex: 1,
+    explanation:
+      'La Confirmación se confiere por la unción del santo crisma en la frente con la imposición de la mano y las palabras rituales.',
+    sourceRef: 'Hch 8,14-17 · CIC 1300',
+  },
+  {
+    id: 'q-sc-7',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222401',
+    levelSlug: 'sacramentos-iniciacion-cristiana',
+    difficulty: 1,
+    prompt: '¿En el nombre de quién se administra válidamente el Bautismo según el mandato de Jesús?',
+    options: [
+      'En el nombre de los profetas y apóstoles',
+      'En el nombre del Padre, y del Hijo, y del Espíritu Santo',
+      'En el nombre de la Iglesia de Roma',
+      'En el nombre de la ley de Moisés',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Jesús resucitado mandó bautizar en el nombre de la Santísima Trinidad; con agua natural y esa fórmula se realiza el rito esencial.',
+    sourceRef: 'Mt 28,19 · CIC 1240',
+  },
+
+  // =========================================================================
+  // SACRAMENTOS — Nivel 2: Curación y servicio
+  // =========================================================================
+  {
+    id: 'q-sc-4',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222402',
+    levelSlug: 'sacramentos-curacion-servicio',
+    difficulty: 2,
+    prompt: '¿Cuáles son los dos sacramentos llamados "de curación"?',
+    options: [
+      'Bautismo y Confirmación',
+      'Penitencia (Reconciliación) y Unción de los Enfermos',
+      'Matrimonio y Orden Sagrado',
+      'Eucaristía y Reconciliación',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Cristo, médico de almas y cuerpos, quiso que su Iglesia continuara su obra de curación mediante la Reconciliación y la Unción de los Enfermos.',
+    sourceRef: 'Sant 5,14-15 · CIC 1421',
+  },
+  {
+    id: 'q-sc-8',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222402',
+    levelSlug: 'sacramentos-curacion-servicio',
+    difficulty: 2,
+    prompt: '¿Cuáles son los tres grados del sacramento del Orden Sagrado?',
+    options: [
+      'Lector, acólito y diácono',
+      'Episcopado (obispos), presbiterado (sacerdotes) y diaconado (diáconos)',
+      'Monje, fraile y párroco',
+      'Catequista, misionero y sacerdote',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Desde los tiempos apostólicos el ministerio ordenado se ejerce en tres grados: obispos, presbíteros y diáconos.',
+    sourceRef: '1 Tim 3,1-13 · CIC 1554',
+  },
+  {
+    id: 'q-sc-9',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222402',
+    levelSlug: 'sacramentos-curacion-servicio',
+    difficulty: 2,
+    prompt: 'En el rito latino, ¿quiénes son los ministros que se confieren mutuamente el sacramento del Matrimonio?',
+    options: [
+      'El sacerdote y los padrinos',
+      'Los propios esposos al expresar su consentimiento ante la Iglesia',
+      'Los padres de los novios',
+      'El obispo diocesano',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Los contrayentes son los ministros de la gracia matrimonial al intercambiar su consentimiento libre; el sacerdote o diácono asiste como testigo cualificado.',
+    sourceRef: 'Ef 5,31-32 · CIC 1623',
+  },
+  {
+    id: 'q-sc-10',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222402',
+    levelSlug: 'sacramentos-curacion-servicio',
+    difficulty: 2,
+    prompt: '¿Cuándo conviene recibir el sacramento de la Unción de los Enfermos?',
+    options: [
+      'Únicamente en el último instante de la muerte',
+      'Cuando un fiel comienza a estar en peligro por enfermedad grave o vejez',
+      'Solo una vez en toda la vida',
+      'Antes de cualquier viaje largo',
+    ],
+    correctIndex: 1,
+    explanation:
+      'La Unción no es solo para agonizantes: fortalece, consuela, perdona los pecados y puede recibirse de nuevo si la enfermedad empeora o se presenta otra grave.',
+    sourceRef: 'Sant 5,14-15 · CIC 1514',
+  },
+  {
+    id: 'q-sc-11',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222402',
+    levelSlug: 'sacramentos-curacion-servicio',
+    difficulty: 2,
+    prompt: '¿Qué poder confió Jesús resucitado a los apóstoles al soplar sobre ellos diciendo "Reciban el Espíritu Santo"?',
+    options: [
+      'El poder de perdonar los pecados en su nombre',
+      'El poder de gobernar las naciones',
+      'El poder de construir templos',
+      'El poder de predecir fechas exactas',
+    ],
+    correctIndex: 0,
+    explanation:
+      'Cristo confió a los apóstoles y a sus sucesores el ministerio de la reconciliación para perdonar los pecados en nombre de Dios.',
+    sourceRef: 'Jn 20,22-23 · CIC 1441',
+  },
+
+  // =========================================================================
+  // SACRAMENTOS — Nivel 3: Gracia y carácter sacramental
+  // =========================================================================
+  {
+    id: 'q-sc-6',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222403',
+    levelSlug: 'sacramentos-gracia-caracter',
+    difficulty: 3,
+    prompt: '¿Qué tres sacramentos imprimen un "carácter" espiritual indeleble y por eso no se repiten?',
+    options: [
+      'Bautismo, Eucaristía y Matrimonio',
+      'Bautismo, Confirmación y Orden Sagrado',
+      'Confirmación, Reconciliación y Unción',
+      'Bautismo, Matrimonio y Orden Sagrado',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El Bautismo, la Confirmación y el Orden confieren un sello espiritual permanente que configura al fiel con Cristo de modo definitivo.',
+    sourceRef: '2 Cor 1,21-22 · CIC 1121',
+  },
+  {
+    id: 'q-sc-12',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222403',
+    levelSlug: 'sacramentos-gracia-caracter',
+    difficulty: 3,
+    prompt: '¿Qué significa que los sacramentos actúan "ex opere operato"?',
+    options: [
+      'Que su eficacia depende de la santidad personal del ministro',
+      'Que actúan por la fuerza misma de Cristo que obra en el rito válidamente celebrado',
+      'Que solo tienen efecto si el fiel entiende latín',
+      'Que requieren una ofrenda económica',
+    ],
+    correctIndex: 1,
+    explanation:
+      'En todo sacramento es Cristo mismo quien actúa; los frutos recibidos dependen también de la fe y disposición de quien lo recibe.',
+    sourceRef: '1 Cor 3,7 · CIC 1128',
+  },
+  {
+    id: 'q-sc-13',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222403',
+    levelSlug: 'sacramentos-gracia-caracter',
+    difficulty: 3,
+    prompt: '¿Cómo define el Catecismo a los sacramentos de la Nueva Ley?',
+    options: [
+      'Recuerdos simbólicos de historias antiguas',
+      'Signos eficaces de la gracia, instituidos por Cristo y confiados a la Iglesia',
+      'Normas administrativas de cada parroquia',
+      'Tradiciones culturales de Europa',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Cada sacramento realiza realmente la gracia que significa, comunicando la vida divina al creyente.',
+    sourceRef: 'Jn 1,16 · CIC 1131',
+  },
+  {
+    id: 'q-sc-14',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222403',
+    levelSlug: 'sacramentos-gracia-caracter',
+    difficulty: 3,
+    prompt: 'En caso de peligro de muerte y ausencia de sacerdote, ¿quién puede bautizar válidamente?',
+    options: [
+      'Solo un obispo',
+      'Solo un diácono permanente',
+      'Cualquier persona, incluso no bautizada, si tiene la intención de hacer lo que hace la Iglesia',
+      'Nadie puede bautizar fuera del templo',
+    ],
+    correctIndex: 2,
+    explanation:
+      'Por la voluntad salvífica universal de Dios, en caso de necesidad cualquier persona puede bautizar vertiendo agua y usando la fórmula trinitaria.',
+    sourceRef: '1 Tim 2,4 · CIC 1256',
+  },
+  {
+    id: 'q-sc-15',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222403',
+    levelSlug: 'sacramentos-gracia-caracter',
+    difficulty: 3,
+    prompt: '¿Qué es la gracia santificante que recibimos por primera vez en el Bautismo?',
+    options: [
+      'Un sentimiento pasajero de alegría',
+      'Un don habitual y estable que nos hace partícipes de la naturaleza divina y templos del Espíritu Santo',
+      'Una recompensa que se gana con méritos propios',
+      'Un título honorífico dentro de la parroquia',
+    ],
+    correctIndex: 1,
+    explanation:
+      'La gracia santificante es participación real en la vida de Dios que perfecciona nuestra alma para vivir y obrar por amor a Él.',
+    sourceRef: '2 P 1,4 · CIC 2000',
+  },
+
+  // =========================================================================
+  // SACRAMENTOS — Nivel 4: Eucaristía y Reconciliación
+  // =========================================================================
+  {
+    id: 'q-sc-16',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222404',
+    levelSlug: 'sacramentos-eucaristia-reconciliacion',
+    difficulty: 2,
+    prompt: '¿Con qué término expresa la Iglesia el cambio de toda la sustancia del pan y del vino en el Cuerpo y la Sangre de Cristo?',
+    options: ['Consubstanciación', 'Transubstanciación', 'Transfiguración', 'Encarnación'],
+    correctIndex: 1,
+    explanation:
+      'Por la consagración, mediante la palabra de Cristo y la acción del Espíritu Santo, el pan y el vino se convierten verdadera, real y sustancialmente en Cristo.',
+    sourceRef: 'Lc 22,19-20 · CIC 1376',
+  },
+  {
+    id: 'q-sc-17',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222404',
+    levelSlug: 'sacramentos-eucaristia-reconciliacion',
+    difficulty: 2,
+    prompt: '¿Cuáles son los actos esenciales del penitente en el sacramento de la Reconciliación?',
+    options: [
+      'Ayuno, limosna y peregrinación',
+      'Contrición (arrepentimiento), confesión de los pecados y satisfacción (penitencia)',
+      'Lectura de tres salmos y silencio',
+      'Solo un propósito interior sin confesión',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El arrepentimiento sincero del corazón, la confesión ante el sacerdote y la reparación del daño preparan el alma para recibir la absolución de Dios.',
+    sourceRef: '1 Jn 1,9 · CIC 1450',
+  },
+  {
+    id: 'q-sc-18',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222404',
+    levelSlug: 'sacramentos-eucaristia-reconciliacion',
+    difficulty: 2,
+    prompt: '¿Qué obligación absoluta tiene el sacerdote respecto de todo lo escuchado en la confesión?',
+    options: [
+      'Puede comentarlo solo con el obispo',
+      'Guardar el sigilo sacramental inviolable bajo toda circunstancia',
+      'Llevar un registro escrito confidencial',
+      'Puede revelarlo después de diez años',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El secreto de confesión no admite ninguna excepción; protege la dignidad del penitente y la libertad total del diálogo con Dios.',
+    sourceRef: 'Jn 20,23 · CIC 1467',
+  },
+  {
+    id: 'q-sc-19',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222404',
+    levelSlug: 'sacramentos-eucaristia-reconciliacion',
+    difficulty: 2,
+    prompt: '¿Qué condición principal requiere la Iglesia antes de acercarse a recibir la Sagrada Comunión?',
+    options: [
+      'No haber hablado durante todo el día',
+      'Estar en estado de gracia (sin pecado mortal sin confesar) y guardar el ayuno eucarístico',
+      'Haber peregrinado a un santuario ese año',
+      'Saber de memoria el Evangelio del día',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Quien tiene conciencia de pecado grave debe recibir primero la Reconciliación antes de comulgar, además de guardar una hora de ayuno (excepto agua y medicinas).',
+    sourceRef: '1 Cor 11,27-29 · CIC 1385',
+  },
+  {
+    id: 'q-sc-20',
+    topicId: TOPIC_SC,
+    topicSlug: 'sacramentos',
+    levelId: '22222222-2222-4222-8222-222222222404',
+    levelSlug: 'sacramentos-eucaristia-reconciliacion',
+    difficulty: 2,
+    prompt: '¿Cómo se llama el lugar sagrado del templo donde se reserva la Eucaristía para la adoración y para llevarla a los enfermos?',
+    options: ['El ambón', 'El sagrario (tabernáculo)', 'La pila bautismal', 'La sacristía'],
+    correctIndex: 1,
+    explanation:
+      'El sagrario guarda las especies consagradas; una lámpara encendida junto a él indica la presencia real de Jesús sacramentado.',
+    sourceRef: 'Mt 28,20 · CIC 1379',
+  },
+
+  // =========================================================================
+  // LITURGIA — Nivel 1: La Santa Misa
+  // =========================================================================
+  {
+    id: 'q-li-1',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222501',
+    levelSlug: 'liturgia-la-santa-misa',
+    difficulty: 1,
+    prompt: '¿Cuáles son las dos grandes partes que forman un solo acto de culto en la Santa Misa?',
+    options: [
+      'Ritos iniciales y despedida',
+      'Liturgia de la Palabra y Liturgia Eucarística',
+      'Homilía y Comunión',
+      'Salmo y Credo',
+    ],
+    correctIndex: 1,
+    explanation:
+      'La Misa se estructura en la mesa de la Palabra de Dios y la mesa del Cuerpo de Cristo, inseparablemente unidas.',
+    sourceRef: 'Lc 24,27-35 · CIC 1346',
+  },
+  {
+    id: 'q-li-2',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222501',
+    levelSlug: 'liturgia-la-santa-misa',
+    difficulty: 1,
+    prompt: '¿Qué tiempo litúrgico prepara durante cuatro semanas la celebración de la Navidad?',
+    options: ['Cuaresma', 'Adviento', 'Tiempo Ordinario', 'Octava de Pascua'],
+    correctIndex: 1,
+    explanation:
+      'El Adviento abre el año litúrgico y nos invita a esperar con alegría el nacimiento de Jesús y su venida gloriosa.',
+    sourceRef: 'Is 40,3 · CIC 524',
+  },
+  {
+    id: 'q-li-3',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222501',
+    levelSlug: 'liturgia-la-santa-misa',
+    difficulty: 1,
+    prompt: '¿Cuál es la celebración central de todo el año litúrgico cristiano?',
+    options: ['La Epifanía', 'El Domingo de Pascua (Resurrección)', 'La Asunción', 'Todos los Santos'],
+    correctIndex: 1,
+    explanation:
+      'La Pascua es la "Fiesta de las fiestas" porque celebra la resurrección de Cristo, fundamento de nuestra fe.',
+    sourceRef: '1 Cor 15,14 · CIC 1169',
+  },
+  {
+    id: 'q-li-7',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222501',
+    levelSlug: 'liturgia-la-santa-misa',
+    difficulty: 1,
+    prompt: '¿Cuál es el momento culminante de la Liturgia de la Palabra en la Santa Misa, que escuchamos de pie?',
+    options: [
+      'La primera lectura',
+      'La proclamación del Santo Evangelio',
+      'El salmo responsorial',
+      'Las moniciones iniciales',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Nos ponemos de pie y cantamos el Aleluya porque en la proclamación del Evangelio es Cristo mismo quien habla a su pueblo.',
+    sourceRef: 'Jn 6,68 · IGMR 60',
+  },
+  {
+    id: 'q-li-8',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222501',
+    levelSlug: 'liturgia-la-santa-misa',
+    difficulty: 1,
+    prompt: '¿Qué significa la palabra "Amén" que respondemos al recibir la Comunión y al cerrar las oraciones?',
+    options: ['"Hasta pronto"', '"Así sea / Creo firmemente"', '"Paz a todos"', '"Gracias por venir"'],
+    correctIndex: 1,
+    explanation:
+      'Al decir "Amén" ante "El Cuerpo de Cristo", expresamos nuestra adhesión libre y nuestra fe en su presencia real.',
+    sourceRef: 'Ap 22,20 · CIC 1062',
+  },
+
+  // =========================================================================
+  // LITURGIA — Nivel 2: Año litúrgico y colores
+  // =========================================================================
+  {
+    id: 'q-li-4',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222502',
+    levelSlug: 'liturgia-ano-liturgico-colores',
+    difficulty: 2,
+    prompt: '¿Qué color litúrgico se usa habitualmente durante Adviento y Cuaresma?',
+    options: ['Verde', 'Rojo', 'Morado', 'Blanco'],
+    correctIndex: 2,
+    explanation:
+      'El color morado expresa conversión, espera vigilante y penitencia en Adviento y Cuaresma.',
+    sourceRef: 'Jl 2,12-13 · IGMR 346',
+  },
+  {
+    id: 'q-li-5',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222502',
+    levelSlug: 'liturgia-ano-liturgico-colores',
+    difficulty: 2,
+    prompt: '¿En qué fiestas se emplea el color litúrgico rojo?',
+    options: [
+      'Domingos del Tiempo Ordinario',
+      'Pentecostés, Domingo de Ramos, Viernes Santo y mártires',
+      'Navidad y Pascua',
+      'Solemnidades de la Virgen María',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El rojo simboliza el fuego del Espíritu Santo y la sangre derramada por Cristo y sus mártires.',
+    sourceRef: 'Hch 2,3-4 · IGMR 346',
+  },
+  {
+    id: 'q-li-9',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222502',
+    levelSlug: 'liturgia-ano-liturgico-colores',
+    difficulty: 2,
+    prompt: '¿Qué tres días forman el Triduo Pascual, corazón del año litúrgico?',
+    options: [
+      'Miércoles de Ceniza, Jueves y Viernes',
+      'Desde la Misa vespertina del Jueves Santo hasta las Vísperas del Domingo de Pascua',
+      'Navidad, San Esteban y San Juan',
+      'Ascensión, Pentecostés y Trinidad',
+    ],
+    correctIndex: 1,
+    explanation:
+      'El Triduo Pascual celebra en una sola gran liturgia la Pasión, Muerte y Resurrección del Señor.',
+    sourceRef: 'Rm 6,4 · CIC 1168',
+  },
+  {
+    id: 'q-li-10',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222502',
+    levelSlug: 'liturgia-ano-liturgico-colores',
+    difficulty: 2,
+    prompt: '¿Cuántos días dura el Tiempo Pascual, desde el Domingo de Resurrección hasta Pentecostés?',
+    options: ['Treinta días', 'Cuarenta días', 'Cincuenta días', 'Veintiocho días'],
+    correctIndex: 2,
+    explanation:
+      'Los cincuenta días de Pascua se celebran con alegría como un "gran domingo" que culmina con la efusión del Espíritu Santo.',
+    sourceRef: 'Hch 2,1 · CIC 1169',
+  },
+  {
+    id: 'q-li-11',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222502',
+    levelSlug: 'liturgia-ano-liturgico-colores',
+    difficulty: 2,
+    prompt: '¿Qué color litúrgico simboliza la esperanza y se utiliza a lo largo del Tiempo Ordinario?',
+    options: ['Blanco', 'Verde', 'Rosa', 'Celeste'],
+    correctIndex: 1,
+    explanation:
+      'El verde evoca la vida que crece y la esperanza cristiana mientras meditamos la vida pública y las enseñanzas de Jesús.',
+    sourceRef: 'Rm 15,13 · IGMR 346',
+  },
+
+  // =========================================================================
+  // LITURGIA — Nivel 3: Liturgia de las Horas y signos
+  // =========================================================================
+  {
+    id: 'q-li-6',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222503',
+    levelSlug: 'liturgia-de-las-horas-signos',
+    difficulty: 3,
+    prompt: '¿Cómo se llama la oración pública diaria de la Iglesia compuesta principalmente por salmos e himnos?',
+    options: ['Vía Crucis', 'Liturgia de las Horas', 'Lectio Divina', 'Ángelus'],
+    correctIndex: 1,
+    explanation:
+      'La Liturgia de las Horas (Oficio Divino) santifica el curso del día y de la noche uniendo a los fieles en la oración de Cristo.',
+    sourceRef: 'Sal 119,164 · CIC 1174-1175',
+  },
+  {
+    id: 'q-li-12',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222503',
+    levelSlug: 'liturgia-de-las-horas-signos',
+    difficulty: 3,
+    prompt: '¿Cuáles son las dos "horas principales" (quicios) de la Liturgia de las Horas?',
+    options: [
+      'Tercia y Sexta',
+      'Laudes (mañana) y Vísperas (tarde)',
+      'Completas y Nona',
+      'Oficio de Lectura y Ángelus',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Laudes consagra a Dios el comienzo del día y Vísperas le da gracias al caer la tarde; todos los fieles están invitados a rezarlas.',
+    sourceRef: 'Sal 141,2 · CIC 1175',
+  },
+  {
+    id: 'q-li-13',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222503',
+    levelSlug: 'liturgia-de-las-horas-signos',
+    difficulty: 3,
+    prompt: 'En el templo católico, ¿cómo se llama el atril elevado desde donde se proclama exclusivamente la Palabra de Dios?',
+    options: ['El presbiterio', 'El ambón', 'La credencia', 'El púlpito lateral'],
+    correctIndex: 1,
+    explanation:
+      'La dignidad de la Palabra de Dios exige un lugar adecuado —el ambón— desde donde se proclaman las lecturas, el salmo y la homilía.',
+    sourceRef: 'Neh 8,4 · IGMR 309',
+  },
+  {
+    id: 'q-li-14',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222503',
+    levelSlug: 'liturgia-de-las-horas-signos',
+    difficulty: 3,
+    prompt: '¿En cuántos ciclos dominicales (A, B y C) está organizado el Leccionario para leer los Evangelios sinópticos?',
+    options: [
+      'Un solo ciclo anual',
+      'Tres ciclos: A (Mateo), B (Marcos) y C (Lucas)',
+      'Dos ciclos: par e impar',
+      'Cuatro ciclos, uno por estación',
+    ],
+    correctIndex: 1,
+    explanation:
+      'En tres años se recorre la riqueza de toda la Escritura; el Evangelio de san Juan se proclama especialmente en Pascua y en el ciclo B.',
+    sourceRef: '2 Tim 3,16 · CIC 1154',
+  },
+  {
+    id: 'q-li-15',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222503',
+    levelSlug: 'liturgia-de-las-horas-signos',
+    difficulty: 3,
+    prompt: '¿Qué simboliza el Cirio Pascual encendido en la Vigilia Pascual y junto a la pila bautismal?',
+    options: [
+      'El calendario solar de la primavera',
+      'A Cristo resucitado, Luz del mundo que vence las tinieblas',
+      'La antigüedad del templo',
+      'El inicio del Adviento',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Lleva la cruz, el Alfa y la Omega y el año en curso, proclamando que Cristo es el mismo ayer, hoy y siempre.',
+    sourceRef: 'Jn 8,12 · CIC 1168',
+  },
+
+  // =========================================================================
+  // LITURGIA — Nivel 4: Oración cristiana y devociones
+  // =========================================================================
+  {
+    id: 'q-li-16',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222504',
+    levelSlug: 'liturgia-oracion-y-devociones',
+    difficulty: 1,
+    prompt: '¿Qué oración nos enseñó Jesús mismo y es llamada "el resumen de todo el Evangelio"?',
+    options: ['El Credo', 'El Padrenuestro', 'El Gloria', 'La Salve'],
+    correctIndex: 1,
+    explanation:
+      'El Padrenuestro contiene siete peticiones: tres orientadas a la gloria del Padre y cuatro que le presentan nuestras necesidades.',
+    sourceRef: 'Mt 6,9-13 · CIC 2761',
+  },
+  {
+    id: 'q-li-17',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222504',
+    levelSlug: 'liturgia-oracion-y-devociones',
+    difficulty: 1,
+    prompt: '¿Qué serie de misterios del Santo Rosario agregó san Juan Pablo II en 2002 para contemplar la vida pública de Jesús?',
+    options: [
+      'Misterios Gozosos',
+      'Misterios Luminosos (de la Luz)',
+      'Misterios Dolorosos',
+      'Misterios Gloriosos',
+    ],
+    correctIndex: 1,
+    explanation:
+      'Los misterios luminosos contemplan el Bautismo en el Jordán, Caná, el anuncio del Reino, la Transfiguración y la institución de la Eucaristía.',
+    sourceRef: 'Jn 8,12 · CIC 2678',
+  },
+  {
+    id: 'q-li-18',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222504',
+    levelSlug: 'liturgia-oracion-y-devociones',
+    difficulty: 1,
+    prompt: '¿Qué práctica de oración antigua recorre en cuatro pasos (lectura, meditación, oración y contemplación) un pasaje bíblico?',
+    options: ['Lectio Divina', 'Novena', 'Procesión', 'Letanía'],
+    correctIndex: 0,
+    explanation:
+      'La Lectio Divina permite escuchar personalmente a Dios que nos habla en la Sagrada Escritura y responderle desde el corazón.',
+    sourceRef: 'Sal 119,105 · CIC 2708',
+  },
+  {
+    id: 'q-li-19',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222504',
+    levelSlug: 'liturgia-oracion-y-devociones',
+    difficulty: 1,
+    prompt: '¿Cuántas estaciones tradicionales recorre el Vía Crucis al meditar la Pasión del Señor?',
+    options: ['Siete estaciones', 'Doce estaciones', 'Catorce estaciones', 'Veinte estaciones'],
+    correctIndex: 2,
+    explanation:
+      'El Vía Crucis acompaña a Jesús desde la condena a muerte hasta su sepultura, fortaleciendo la compasión y la esperanza en la cruz.',
+    sourceRef: 'Lc 9,23 · CIC 1674',
+  },
+  {
+    id: 'q-li-20',
+    topicId: TOPIC_LI,
+    topicSlug: 'liturgia',
+    levelId: '22222222-2222-4222-8222-222222222504',
+    levelSlug: 'liturgia-oracion-y-devociones',
+    difficulty: 1,
+    prompt: '¿Qué oración breve se reza tradicionalmente al mediodía recordando la Encarnación del Verbo (y se reemplaza en Pascua por el Regina Caeli)?',
+    options: ['El Ángelus', 'El Te Deum', 'El Tantum Ergo', 'El Salve Regina'],
+    correctIndex: 0,
+    explanation:
+      'El Ángelus comienza con "El ángel del Señor anunció a María" y nos ayuda a detenernos en medio del día para recordar que Dios se hizo hombre.',
+    sourceRef: 'Jn 1,14 · CIC 2676',
+  },
+];

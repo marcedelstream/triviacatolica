@@ -6,7 +6,7 @@ import {
   SparkleIcon,
   UserCircleIcon,
 } from 'phosphor-react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Animated,
   KeyboardAvoidingView,
@@ -39,8 +39,8 @@ export default function OnboardingScreen() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(16)).current;
+  const [fadeAnim] = useState(() => new Animated.Value(0));
+  const [slideAnim] = useState(() => new Animated.Value(16));
 
   useEffect(() => {
     fadeAnim.setValue(0);
@@ -59,9 +59,9 @@ export default function OnboardingScreen() {
     setStep(1);
   };
 
-  const handleFinish = async (skipUsernameCheck = false) => {
+  const handleFinish = async (skipAll = false) => {
     if (checkingUsername) return;
-    if (!skipUsernameCheck && cleanUsername && cleanUsername !== profile.username) {
+    if (!skipAll && cleanUsername && cleanUsername !== profile.username) {
       setCheckingUsername(true);
       const availability = await checkUsernameAvailability(cleanUsername);
       setCheckingUsername(false);
@@ -71,7 +71,10 @@ export default function OnboardingScreen() {
       }
     }
     playGameCue('celebrate', soundEnabled);
-    completeOnboarding(displayName.trim() || 'Peregrino', cleanUsername);
+    completeOnboarding(
+      skipAll ? profile.displayName || 'Peregrino' : displayName.trim() || 'Peregrino',
+      skipAll ? profile.username || '' : cleanUsername
+    );
     if (nextLevelId) {
       router.replace({
         pathname: '/play/[levelId]',

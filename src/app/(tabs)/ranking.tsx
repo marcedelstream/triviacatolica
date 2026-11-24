@@ -1,7 +1,14 @@
-import { useRouter } from 'expo-router';
-import { FlameIcon, MedalIcon, TrophyIcon, UserPlusIcon } from 'phosphor-react-native';
-import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import {
+  AtIcon,
+  CaretRightIcon,
+  FlameIcon,
+  MedalIcon,
+  TrophyIcon,
+  UserPlusIcon,
+} from 'phosphor-react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LIENZO } from '@/constants/theme';
@@ -12,24 +19,85 @@ export default function RankingScreen() {
   const router = useRouter();
   const profile = useGameStore((s) => s.profile);
   const leaderboardPeers = useGameStore((s) => s.leaderboardPeers);
+  const refreshLeaderboard = useGameStore((s) => s.refreshLeaderboard);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshLeaderboard();
+    }, [refreshLeaderboard])
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshLeaderboard();
+    setRefreshing(false);
+  };
+
+  const canAppearInRanking =
+    !profile.isAnonymous && Boolean(profile.username && profile.username.trim().length > 0);
 
   const rankedList = useMemo<LeaderboardEntry[]>(() => {
-    const withoutSelf = leaderboardPeers.filter((p) => p.id !== profile.id);
-    const selfEntry: LeaderboardEntry = {
-      id: profile.id,
-      displayName: profile.displayName || 'Peregrino',
-      username: profile.username || undefined,
-      xp: profile.xp,
-      streakCount: profile.streakCount,
-      isCurrentUser: true,
-    };
-    return [...withoutSelf, selfEntry].sort((a, b) => {
-      if (b.xp !== a.xp) return b.xp - a.xp;
-      return b.streakCount - a.streakCount;
-    });
-  }, [leaderboardPeers, profile.displayName, profile.id, profile.streakCount, profile.xp]);
+    const seenIds = new Set<string>();
+    const seenUsernames = new Set<string>();
+    const combined: LeaderboardEntry[] = [];
 
-  const userRank = rankedList.findIndex((item) => item.isCurrentUser) + 1;
+    if (canAppearInRanking && profile.xp > 0) {
+      const normalizedSelfUser = profile.username.trim().toLowerCase();
+      seenIds.add(profile.id);
+      seenUsernames.add(normalizedSelfUser);
+      combined.push({
+        id: profile.id,
+        displayName: profile.displayName || 'Peregrino',
+        username: normalizedSelfUser,
+        xp: profile.xp,
+        streakCount: profile.streakCount,
+        longestStreak: profile.longestStreak,
+        createdAt: profile.createdAt,
+        isCurrentUser: true,
+      });
+    }
+
+    for (const peer of leaderboardPeers) {
+      const cleanUser = peer.username?.trim().toLowerCase();
+      if (!cleanUser) continue;
+      if (seenIds.has(peer.id) || seenUsernames.has(cleanUser)) continue;
+      seenIds.add(peer.id);
+      seenUsernames.add(cleanUser);
+      combined.push({
+        ...peer,
+        username: cleanUser,
+        isCurrentUser: peer.id === profile.id,
+      });
+    }
+
+    return combined.sort((a, b) => {
+      if (b.xp !== a.xp) return b.xp - a.xp;
+      if (b.streakCount !== a.streakCount) return b.streakCount - a.streakCount;
+      return (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
+    });
+  }, [
+    canAppearInRanking,
+    leaderboardPeers,
+    profile.createdAt,
+    profile.displayName,
+    profile.id,
+    profile.longestStreak,
+    profile.streakCount,
+    profile.username,
+    profile.xp,
+  ]);
+
+  const userRankIdx = rankedList.findIndex((item) => item.isCurrentUser);
+  const userRank = userRankIdx >= 0 ? userRankIdx + 1 : null;
+
+  const handleOpenProfile = (username: string) => {
+    router.push({
+      pathname: '/u/[username]',
+      params: { username },
+    });
+  };
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -37,9 +105,17 @@ export default function RankingScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => void handleRefresh()}
+            tintColor={LIENZO.color.primary}
+            colors={[LIENZO.color.primary]}
+          />
+        }
       >
         <View style={styles.header}>
-          <Text style={styles.subtitle}>Comunidad semanal</Text>
+          <Text style={styles.subtitle}>Comunidad registrada</Text>
           <Text style={styles.title}>Ranking</Text>
         </View>
 
@@ -49,10 +125,21 @@ export default function RankingScreen() {
             <TrophyIcon size={28} color={LIENZO.color.gold} weight="duotone" />
           </View>
           <View style={styles.summaryBody}>
-            <Text style={styles.summaryLabel}>Tu posición actual</Text>
-            <Text style={styles.summaryValue}>
-              Puesto #{userRank} · {profile.xp} XP
+            <Text style={styles.summaryLabel}>
+              {userRank ? 'Tu posición actual' : 'Tu puntaje acumulado'}
             </Text>
+            <Text style={styles.summaryValue}>
+              {userRank ? `Puesto #${userRank} · ${profile.xp} XP` : `${profile.xp} XP`}
+            </Text>
+            {!userRank ? (
+              <Text style={styles.summaryHint}>
+                {profile.isAnonymous
+                  ? 'Vinculá tu cuenta y elegí tu @usuario para entrar al ranking.'
+                  : !profile.username
+                    ? 'Elegí un @usuario en tu Perfil para aparecer en la tabla.'
+                    : 'Completá tu primera partida para subir al ranking.'}
+              </Text>
+            ) : null}
           </View>
         </View>
 
@@ -66,75 +153,114 @@ export default function RankingScreen() {
               <UserPlusIcon size={24} color={LIENZO.color.primary} weight="duotone" />
             </View>
             <View style={styles.inviteBody}>
-              <Text style={styles.inviteTitle}>Guardá tu lugar en el ranking</Text>
+              <Text style={styles.inviteTitle}>Entrá al ranking con tu cuenta</Text>
               <Text style={styles.inviteText}>
-                Iniciá sesión con Google o Apple para conservar tu racha y tus puntos.
+                Iniciá sesión con correo, Google o Apple para reservar tu @usuario y conservar tu
+                racha.
               </Text>
             </View>
+            <CaretRightIcon size={20} color={LIENZO.color.ink2} weight="regular" />
+          </Pressable>
+        ) : !profile.username ? (
+          <Pressable
+            onPress={() => router.push('/(tabs)/profile')}
+            style={({ pressed }) => [styles.inviteCard, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            <View style={styles.inviteIcon}>
+              <AtIcon size={24} color={LIENZO.color.primary} weight="duotone" />
+            </View>
+            <View style={styles.inviteBody}>
+              <Text style={styles.inviteTitle}>Elegí tu @usuario para figurar acá</Text>
+              <Text style={styles.inviteText}>
+                En el ranking participan cuentas con @usuario para poder ver perfiles y futuros
+                desafíos.
+              </Text>
+            </View>
+            <CaretRightIcon size={20} color={LIENZO.color.ink2} weight="regular" />
           </Pressable>
         ) : null}
 
-        <Text style={styles.sectionTitle}>Tabla de posiciones</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Tabla de posiciones</Text>
+          <Text style={styles.sectionHint}>Tocá un jugador para ver su perfil</Text>
+        </View>
 
-        <View style={styles.list}>
-          {rankedList.map((entry, idx) => {
-            const rank = idx + 1;
-            const isTopThree = rank <= 3;
+        {rankedList.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Todavía no hay jugadores en el ranking</Text>
+            <Text style={styles.emptyText}>
+              Jugá tu primera partida con tu cuenta vinculada y tu @usuario para estrenar la tabla.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.list}>
+            {rankedList.map((entry, idx) => {
+              const rank = idx + 1;
+              const isTopThree = rank <= 3;
 
-            return (
-              <View
-                key={entry.id}
-                style={[
-                  styles.row,
-                  entry.isCurrentUser && styles.rowCurrent,
-                ]}
-              >
-                <View
-                  style={[
-                    styles.rankBadge,
-                    isTopThree
-                      ? { backgroundColor: LIENZO.color.goldSoft }
-                      : { backgroundColor: LIENZO.color.track },
+              return (
+                <Pressable
+                  key={entry.id}
+                  onPress={() => entry.username && handleOpenProfile(entry.username)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Ver perfil de ${entry.displayName}, @${entry.username}, puesto ${rank}, ${entry.xp} XP`}
+                  style={({ pressed }) => [
+                    styles.row,
+                    entry.isCurrentUser && styles.rowCurrent,
+                    pressed && styles.pressedRow,
                   ]}
                 >
-                  {isTopThree ? (
-                    <MedalIcon size={20} color={LIENZO.color.goldInk} weight="duotone" />
-                  ) : (
-                    <Text style={styles.rankNumber}>{rank}</Text>
-                  )}
-                </View>
-
-                <View style={styles.rowBody}>
-                  <View style={styles.nameRow}>
-                    <Text
-                      style={[
-                        styles.rowName,
-                        entry.isCurrentUser && { color: LIENZO.color.primaryInk },
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {entry.displayName}
-                    </Text>
-                    {entry.isCurrentUser ? (
-                      <View style={styles.youChip}>
-                        <Text style={styles.youChipText}>Vos</Text>
-                      </View>
-                    ) : null}
+                  <View
+                    style={[
+                      styles.rankBadge,
+                      isTopThree
+                        ? { backgroundColor: LIENZO.color.goldSoft }
+                        : { backgroundColor: LIENZO.color.track },
+                    ]}
+                  >
+                    {isTopThree ? (
+                      <MedalIcon size={20} color={LIENZO.color.goldInk} weight="duotone" />
+                    ) : (
+                      <Text style={styles.rankNumber}>{rank}</Text>
+                    )}
                   </View>
-                  <View style={styles.streakInline}>
-                    <FlameIcon size={16} color={LIENZO.color.gold} weight="duotone" />
-                    <Text style={styles.streakInlineText}>
-                      {entry.username ? `@${entry.username} · ` : ''}
-                      {entry.streakCount === 1 ? '1 día' : `${entry.streakCount} días`}
-                    </Text>
-                  </View>
-                </View>
 
-                <Text style={styles.xpText}>{entry.xp} XP</Text>
-              </View>
-            );
-          })}
-        </View>
+                  <View style={styles.rowBody}>
+                    <View style={styles.nameRow}>
+                      <Text
+                        style={[
+                          styles.rowName,
+                          entry.isCurrentUser && { color: LIENZO.color.primaryInk },
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {entry.displayName}
+                      </Text>
+                      {entry.isCurrentUser ? (
+                        <View style={styles.youChip}>
+                          <Text style={styles.youChipText}>Vos</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <View style={styles.streakInline}>
+                      <FlameIcon size={15} color={LIENZO.color.gold} weight="duotone" />
+                      <Text style={styles.streakInlineText} numberOfLines={1}>
+                        @{entry.username} ·{' '}
+                        {entry.streakCount === 1 ? '1 día' : `${entry.streakCount} días`}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.rightCol}>
+                    <Text style={styles.xpText}>{entry.xp} XP</Text>
+                    <CaretRightIcon size={16} color={LIENZO.color.ink2} weight="regular" />
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -192,6 +318,11 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink,
     marginTop: 2,
   },
+  summaryHint: {
+    ...LIENZO.type.caption,
+    color: LIENZO.color.goldInk,
+    marginTop: 4,
+  },
   inviteCard: {
     marginTop: LIENZO.space.md,
     flexDirection: 'row',
@@ -205,6 +336,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     backgroundColor: LIENZO.color.track,
+  },
+  pressedRow: {
+    opacity: 0.88,
   },
   inviteIcon: {
     width: 44,
@@ -226,11 +360,36 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink2,
     marginTop: 2,
   },
+  sectionHeader: {
+    marginTop: LIENZO.space.xxl,
+    marginBottom: LIENZO.space.sm,
+    gap: 2,
+  },
   sectionTitle: {
     ...LIENZO.type.section,
     color: LIENZO.color.ink,
-    marginTop: LIENZO.space.xxl,
-    marginBottom: LIENZO.space.sm,
+  },
+  sectionHint: {
+    ...LIENZO.type.caption,
+    color: LIENZO.color.ink2,
+  },
+  emptyCard: {
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    borderRadius: LIENZO.radius.card,
+    padding: LIENZO.space.xl,
+    alignItems: 'center',
+    gap: 6,
+  },
+  emptyTitle: {
+    ...LIENZO.type.item,
+    color: LIENZO.color.ink,
+    textAlign: 'center',
+  },
+  emptyText: {
+    ...LIENZO.type.small,
+    color: LIENZO.color.ink2,
+    textAlign: 'center',
   },
   list: {
     gap: LIENZO.space.sm,
@@ -299,10 +458,16 @@ const styles = StyleSheet.create({
   streakInlineText: {
     ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
+    flexShrink: 1,
+  },
+  rightCol: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flexShrink: 0,
   },
   xpText: {
     ...LIENZO.type.smallBold,
     color: LIENZO.color.ink,
-    flexShrink: 0,
   },
 });

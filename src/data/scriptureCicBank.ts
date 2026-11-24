@@ -1,3 +1,5 @@
+import { EXTENDED_BIBLE_AND_IGMR_REFERENCES } from '@/data/references/bibleReferences';
+import { EXTENDED_CIC_REFERENCES } from '@/data/references/cicReferences';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 export interface ReferenceTextEntry {
@@ -14,7 +16,7 @@ export interface ReferenceTextEntry {
  * en Supabase tenga cargada la Biblia y el CIC completos, se consulta en vivo
  * primero y se usa este banco como respaldo instantáneo.
  */
-const LOCAL_REFERENCES: Record<string, ReferenceTextEntry> = {
+const BASE_LOCAL_REFERENCES: Record<string, ReferenceTextEntry> = {
   'gn 6,14': {
     refKey: 'Gn 6,14',
     sourceType: 'biblia',
@@ -330,6 +332,12 @@ const LOCAL_REFERENCES: Record<string, ReferenceTextEntry> = {
     bookOrSection: 'Nuevo Testamento · Cartas de san Pablo',
     body: '«¿No saben que en el estadio todos corren, pero uno solo gana el premio? Corran, entonces, de manera que lo ganen. Los atletas se privan de todo por una corona corruptible; nosotros, en cambio, por una incorruptible.»',
   },
+};
+
+export const LOCAL_REFERENCES: Record<string, ReferenceTextEntry> = {
+  ...BASE_LOCAL_REFERENCES,
+  ...EXTENDED_BIBLE_AND_IGMR_REFERENCES,
+  ...EXTENDED_CIC_REFERENCES,
 };
 
 export function splitReferenceTokens(sourceRef: string): string[] {

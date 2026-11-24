@@ -22,8 +22,13 @@ import {
   signOutUser,
   verifyEmailOtp,
 } from '@/services/authService';
+import {
+  getLocalDailyChallengeForDate,
+  loadTodayDailyChallenge,
+} from '@/services/dailyChallengeService';
 import { loadVaticanNewsQuizzes } from '@/services/newsService';
 import {
+  fetchLeaderboard,
   fetchRemoteAccountData,
   loadCatalogData,
   sendQuestionReport,
@@ -32,6 +37,7 @@ import {
 } from '@/services/quizService';
 import type {
   BannerItem,
+  DailyChallenge,
   LeaderboardEntry,
   Level,
   LevelProgress,
@@ -134,6 +140,7 @@ interface GameState {
   levels: Level[];
   questions: Question[];
   banners: BannerItem[];
+  dailyChallenge: DailyChallenge;
   vaticanNews: VaticanNewsQuizItem[];
   leaderboardPeers: LeaderboardEntry[];
 
@@ -148,6 +155,8 @@ interface GameState {
   usernameConflict: string | null;
 
   bootstrap: () => Promise<void>;
+  refreshDailyChallengeIfNeeded: () => Promise<void>;
+  refreshLeaderboard: () => Promise<void>;
   refreshHearts: () => void;
   consumeHeart: () => number;
   refillHeartsNow: () => void;
@@ -196,6 +205,10 @@ const storage = createJSONStorage(() =>
  */
 function syncProfile(profile: UserProfile): void {
   void syncProfileToSupabase(profile).then((result) => {
+    if (result === 'ok' && !profile.isAnonymous && profile.username) {
+      void useGameStore.getState().refreshLeaderboard();
+      return;
+    }
     if (result !== 'username_taken') return;
     const state = useGameStore.getState();
     if (state.profile.id !== profile.id || state.profile.username !== profile.username) return;
@@ -230,6 +243,7 @@ export const useGameStore = create<GameState>()(
       levels: LOCAL_LEVELS,
       questions: LOCAL_QUESTIONS,
       banners: LOCAL_BANNERS,
+      dailyChallenge: getLocalDailyChallengeForDate(),
       vaticanNews: LOCAL_VATICAN_NEWS,
       leaderboardPeers: LOCAL_LEADERBOARD_PEERS,
 
@@ -248,10 +262,11 @@ export const useGameStore = create<GameState>()(
 
         try {
           const currentProfile = get().profile;
-          const [session, catalog, vaticanNews] = await Promise.all([
+          const [session, catalog, vaticanNews, dailyChallenge] = await Promise.all([
             ensureAnonymousSession(currentProfile.id),
             loadCatalogData(),
             loadVaticanNewsQuizzes(),
+            loadTodayDailyChallenge(todayKey()),
           ]);
           const recharged = computeRechargedHearts(currentProfile);
           void initRevenueCat(session.userId);
@@ -263,6 +278,7 @@ export const useGameStore = create<GameState>()(
             levels: catalog.levels,
             questions: catalog.questions,
             banners: catalog.banners,
+            dailyChallenge,
             vaticanNews,
             leaderboardPeers: catalog.leaderboard,
             profile: {
@@ -276,6 +292,20 @@ export const useGameStore = create<GameState>()(
           }));
         } catch {
           set({ isBootstrapping: false });
+        }
+      },
+
+      refreshDailyChallengeIfNeeded: async () => {
+        const today = todayKey();
+        if (get().dailyChallenge.challengeDate === today) return;
+        const fresh = await loadTodayDailyChallenge(today);
+        set({ dailyChallenge: fresh });
+      },
+
+      refreshLeaderboard: async () => {
+        const fresh = await fetchLeaderboard();
+        if (fresh) {
+          set({ leaderboardPeers: fresh });
         }
       },
 
@@ -354,9 +384,9 @@ export const useGameStore = create<GameState>()(
           gamesPlayedGuest: nextGamesPlayedGuest,
         };
 
-        // Registrar preguntas respondidas correctamente en cada categoría (solo si no es noticia)
+        // Registrar preguntas respondidas correctamente en cada categoría (solo niveles de categoría)
         const updatedCorrectByTopic = { ...state.answeredCorrectByTopic };
-        if (!input.newsQuizId) {
+        if (!input.newsQuizId && input.levelId !== 'daily') {
           const existingIds = new Set(updatedCorrectByTopic[input.topicSlug] ?? []);
           for (const qid of input.correctQuestionIds) {
             existingIds.add(qid);
@@ -410,14 +440,63 @@ export const useGameStore = create<GameState>()(
       linkAccount: async (provider, displayName) => {
         const res = await linkIdentityProvider(provider, displayName);
         if (res.ok) {
-          const updatedProfile: UserProfile = {
-            ...get().profile,
+          const current = get();
+          const finalUserId = res.userId || current.profile.id;
+          const baseProfile: UserProfile = {
+            ...current.profile,
+            id: finalUserId,
             isAnonymous: false,
             authProvider: provider,
-            displayName: displayName?.trim() || get().profile.displayName || 'Peregrino',
+            displayName: displayName?.trim() || current.profile.displayName || 'Peregrino',
           };
-          set({ profile: updatedProfile, hasDismissedSoftAuth: true });
-          syncProfile(updatedProfile);
+
+          let mergedProfile = baseProfile;
+          const mergedProgress: Record<string, LevelProgress> = { ...current.levelProgress };
+          const remote = await fetchRemoteAccountData(finalUserId);
+          if (remote) {
+            const r = remote.profile;
+            const localDate = baseProfile.lastPlayedDate ?? '';
+            const remoteDate = r.lastPlayedDate ?? '';
+            const remoteName =
+              r.displayName && r.displayName !== 'Peregrino' ? r.displayName : undefined;
+            mergedProfile = {
+              ...baseProfile,
+              displayName: displayName?.trim() || remoteName || baseProfile.displayName,
+              username: r.username || baseProfile.username,
+              xp: Math.max(baseProfile.xp, r.xp ?? 0),
+              longestStreak: Math.max(baseProfile.longestStreak, r.longestStreak ?? 0),
+              streakCount:
+                remoteDate > localDate
+                  ? (r.streakCount ?? 0)
+                  : Math.max(
+                      baseProfile.streakCount,
+                      remoteDate === localDate ? (r.streakCount ?? 0) : 0
+                    ),
+              lastPlayedDate: (remoteDate > localDate ? remoteDate : localDate) || null,
+              createdAt: r.createdAt ?? baseProfile.createdAt,
+            };
+            for (const prog of remote.levelProgress) {
+              const existing = mergedProgress[prog.levelId];
+              if (!existing || prog.stars > existing.stars) {
+                mergedProgress[prog.levelId] = {
+                  ...prog,
+                  totalQuestions: existing?.totalQuestions || 5,
+                };
+              }
+            }
+          }
+
+          set({
+            profile: mergedProfile,
+            levelProgress: mergedProgress,
+            hasDismissedSoftAuth: true,
+            usernameConflict: null,
+          });
+          syncProfile(mergedProfile);
+          for (const prog of Object.values(current.levelProgress)) {
+            void syncLevelProgressToSupabase(finalUserId, prog);
+          }
+          void get().refreshLeaderboard();
         }
         return { ok: res.ok, message: res.message };
       },
@@ -457,6 +536,7 @@ export const useGameStore = create<GameState>()(
                   ? (r.streakCount ?? 0)
                   : Math.max(updatedProfile.streakCount, remoteDate === localDate ? (r.streakCount ?? 0) : 0),
               lastPlayedDate: (remoteDate > localDate ? remoteDate : localDate) || null,
+              createdAt: r.createdAt ?? updatedProfile.createdAt,
             };
             for (const prog of remote.levelProgress) {
               const existing = mergedProgress[prog.levelId];
@@ -473,12 +553,14 @@ export const useGameStore = create<GameState>()(
             profile: mergedProfile,
             levelProgress: mergedProgress,
             hasDismissedSoftAuth: true,
+            usernameConflict: null,
           });
           syncProfile(mergedProfile);
           // Subir también los niveles completados como invitado a la cuenta
           for (const prog of Object.values(current.levelProgress)) {
             void syncLevelProgressToSupabase(finalUserId, prog);
           }
+          void get().refreshLeaderboard();
         }
         return { ok: res.ok, message: res.message };
       },
@@ -487,14 +569,14 @@ export const useGameStore = create<GameState>()(
 
       completeOnboarding: (displayName, username) => {
         const cleanName = displayName.trim() || 'Peregrino';
-        const cleanUser = sanitizeUsername(username || cleanName);
+        const cleanUser = sanitizeUsername(username);
         const updatedProfile: UserProfile = {
           ...get().profile,
           displayName: cleanName,
           username: cleanUser,
           hasCompletedOnboarding: true,
         };
-        set({ profile: updatedProfile });
+        set({ profile: updatedProfile, usernameConflict: null });
         syncProfile(updatedProfile);
       },
 

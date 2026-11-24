@@ -1,4 +1,5 @@
 import {
+  BankIcon,
   BookOpenTextIcon,
   ChurchIcon,
   DropIcon,
@@ -7,6 +8,7 @@ import {
   HandsPrayingIcon,
   MegaphoneIcon,
   ScrollIcon,
+  UsersThreeIcon,
 } from 'phosphor-react-native';
 
 import type { BannerIconName, CategoryIconName } from '@/constants/theme';
@@ -31,6 +33,10 @@ export function CategoryIcon({ name, color, size = 26 }: CategoryIconProps) {
       return <ChurchIcon size={size} color={color} weight="duotone" />;
     case 'flower':
       return <FlowerIcon size={size} color={color} weight="duotone" />;
+    case 'users-three':
+      return <UsersThreeIcon size={size} color={color} weight="duotone" />;
+    case 'bank':
+      return <BankIcon size={size} color={color} weight="duotone" />;
     case 'hand-heart':
       return <HandHeartIcon size={size} color={color} weight="duotone" />;
     case 'megaphone':

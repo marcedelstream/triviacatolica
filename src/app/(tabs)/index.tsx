@@ -9,7 +9,7 @@ import { HeroCarousel } from '@/components/HeroCarousel';
 import { VaticanNewsSection } from '@/components/VaticanNewsSection';
 import { PAYWALL_ENABLED } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
-import { DAILY_CHALLENGE, MAX_HEARTS } from '@/data/localSeed';
+import { MAX_HEARTS } from '@/data/localSeed';
 import { useGameStore } from '@/store/useGameStore';
 import type { VaticanNewsQuizItem } from '@/types/trivia';
 
@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const topics = useGameStore((s) => s.topics);
   const questions = useGameStore((s) => s.questions);
   const banners = useGameStore((s) => s.banners);
+  const dailyChallenge = useGameStore((s) => s.dailyChallenge);
   const vaticanNews = useGameStore((s) => s.vaticanNews);
   const completedNewsIds = useGameStore((s) => s.completedNewsIds);
   const profile = useGameStore((s) => s.profile);
@@ -39,10 +40,19 @@ export default function HomeScreen() {
   const dailyCompletedDate = useGameStore((s) => s.dailyCompletedDate);
   const refreshHearts = useGameStore((s) => s.refreshHearts);
   const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
+  const refreshDailyChallengeIfNeeded = useGameStore((s) => s.refreshDailyChallengeIfNeeded);
 
   useEffect(() => {
     refreshHearts();
-  }, [refreshHearts]);
+    void refreshDailyChallengeIfNeeded();
+  }, [refreshDailyChallengeIfNeeded, refreshHearts]);
+
+  const dailyReadingsLabel = [
+    dailyChallenge.firstReadingRef ? `Lectura: ${dailyChallenge.firstReadingRef}` : null,
+    dailyChallenge.gospelRef ? `Evangelio: ${dailyChallenge.gospelRef}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const completedDailyToday = dailyCompletedDate === getTodayKey();
   const streakLabel =
@@ -143,8 +153,10 @@ export default function HomeScreen() {
 
         {/* Banner superior unificado y deslizable: Desafío del día + Novedades/Oración/Iniciativa */}
         <HeroCarousel
-          dailyTitle={DAILY_CHALLENGE.title}
-          dailyQuestionCount={DAILY_CHALLENGE.questionCount}
+          dailyTitle={dailyChallenge.title}
+          dailySubtitle={dailyChallenge.subtitle}
+          dailyReadingsLabel={dailyReadingsLabel}
+          dailyQuestionCount={dailyChallenge.questions.length}
           dailyCompletedToday={completedDailyToday}
           onStartDaily={handleStartDaily}
           banners={banners}

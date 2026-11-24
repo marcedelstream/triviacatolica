@@ -203,6 +203,10 @@ export default function ProfileScreen() {
                 <Text style={styles.errorText} accessibilityLiveRegion="polite">
                   {usernameError}
                 </Text>
+              ) : profile.isAnonymous ? (
+                <Text style={styles.settingDesc}>
+                  Tu @usuario quedará reservado oficialmente en el ranking al vincular tu cuenta.
+                </Text>
               ) : null}
 
               <View style={styles.editActions}>

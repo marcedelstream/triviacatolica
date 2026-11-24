@@ -12,6 +12,7 @@ import type {
   LeaderboardEntry,
   Level,
   LevelProgress,
+  PublicProfile,
   Question,
   Topic,
   UserProfile,
@@ -66,11 +67,14 @@ export async function loadCatalogData(): Promise<CatalogBundle> {
       };
     });
 
+    const levelSlugById = new Map<string, string>();
     const levels: Level[] = (levelsRes.data ?? []).map((row) => {
       const topicSlug = topicSlugById.get(row.topic_id) ?? 'nuevo-testamento';
+      const slug = row.slug ?? `${topicSlug}-nivel-${row.level_number}`;
+      levelSlugById.set(row.id, slug);
       return {
         id: row.id,
-        slug: row.slug ?? `${topicSlug}-nivel-${row.level_number}`,
+        slug,
         topicId: row.topic_id,
         topicSlug,
         levelNumber: row.level_number,
@@ -87,6 +91,8 @@ export async function loadCatalogData(): Promise<CatalogBundle> {
       id: row.id,
       topicId: row.topic_id,
       topicSlug: topicSlugById.get(row.topic_id) ?? 'nuevo-testamento',
+      levelId: row.level_id ?? null,
+      levelSlug: row.level_id ? levelSlugById.get(row.level_id) : undefined,
       difficulty: (row.difficulty ?? 1) as 1 | 2 | 3,
       prompt: row.prompt,
       options: row.options as [string, string, string, string],
@@ -108,15 +114,17 @@ export async function loadCatalogData(): Promise<CatalogBundle> {
           }))
         : LOCAL_BANNERS;
 
-    const leaderboard: LeaderboardEntry[] =
-      leaderboardRes.data && leaderboardRes.data.length > 0
-        ? leaderboardRes.data.map((row) => ({
-            id: row.id,
-            displayName: row.display_name,
-            xp: row.xp ?? 0,
-            streakCount: row.streak_count ?? 0,
-          }))
-        : LOCAL_LEADERBOARD_PEERS;
+    const leaderboard: LeaderboardEntry[] = (leaderboardRes.data ?? [])
+      .filter((row) => typeof row.username === 'string' && row.username.trim().length > 0)
+      .map((row) => ({
+        id: row.id,
+        displayName: row.display_name,
+        username: row.username.trim().toLowerCase(),
+        xp: row.xp ?? 0,
+        streakCount: row.streak_count ?? 0,
+        longestStreak: row.longest_streak ?? undefined,
+        createdAt: row.created_at ?? undefined,
+      }));
 
     return {
       topics,
@@ -142,10 +150,24 @@ export function selectQuestionsForLevel(
   allQuestions: Question[],
   level: Level
 ): Question[] {
-  const byTopic = allQuestions.filter((q) => q.topicId === level.topicId || q.topicSlug === level.topicSlug);
+  // 1. Prioriza preguntas vinculadas directamente al nivel específico (level_id / levelSlug)
+  const linkedToLevel = allQuestions.filter(
+    (q) =>
+      (q.levelId && q.levelId === level.id) ||
+      (q.levelSlug && q.levelSlug === level.slug)
+  );
+  if (linkedToLevel.length >= level.questionsPerRound) {
+    return linkedToLevel.slice(0, level.questionsPerRound);
+  }
+
+  // 2. Respaldo compatible si alguna base remota aún tiene preguntas sin level_id
+  const linkedIds = new Set(linkedToLevel.map((q) => q.id));
+  const byTopic = allQuestions.filter(
+    (q) => !linkedIds.has(q.id) && (q.topicId === level.topicId || q.topicSlug === level.topicSlug)
+  );
   const exactDiff = byTopic.filter((q) => q.difficulty === level.difficulty);
   const others = byTopic.filter((q) => q.difficulty !== level.difficulty);
-  const combined = [...exactDiff, ...others];
+  const combined = [...linkedToLevel, ...exactDiff, ...others];
   return combined.slice(0, Math.min(level.questionsPerRound, combined.length));
 }
 
@@ -158,6 +180,75 @@ export function selectQuestionsForDailyChallenge(
   const rest = allQuestions.filter((q) => q.topicSlug !== 'nuevo-testamento');
   const ordered = [...nt, ...rest];
   return ordered.slice(0, Math.min(count, ordered.length));
+}
+
+export async function fetchLeaderboard(): Promise<LeaderboardEntry[] | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
+  try {
+    const { data, error } = await supabase.from('leaderboard_top').select('*').limit(100);
+    if (error || !data) return null;
+    return data
+      .filter((row) => typeof row.username === 'string' && row.username.trim().length > 0)
+      .map((row) => ({
+        id: row.id,
+        displayName: row.display_name,
+        username: row.username.trim().toLowerCase(),
+        xp: row.xp ?? 0,
+        streakCount: row.streak_count ?? 0,
+        longestStreak: row.longest_streak ?? undefined,
+        createdAt: row.created_at ?? undefined,
+      }));
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchPublicProfile(username: string): Promise<PublicProfile | null> {
+  const clean = username.trim().toLowerCase().replace(/^@/, '');
+  if (!clean) return null;
+
+  if (!isSupabaseConfigured || !supabase) {
+    const localPeer = LOCAL_LEADERBOARD_PEERS.find(
+      (p) => p.username?.toLowerCase() === clean
+    );
+    if (!localPeer || !localPeer.username) return null;
+    const rankIdx = LOCAL_LEADERBOARD_PEERS.findIndex((p) => p.id === localPeer.id);
+    return {
+      id: localPeer.id,
+      displayName: localPeer.displayName,
+      username: localPeer.username,
+      xp: localPeer.xp,
+      streakCount: localPeer.streakCount,
+      longestStreak: localPeer.longestStreak ?? localPeer.streakCount,
+      createdAt: localPeer.createdAt ?? new Date().toISOString(),
+      levelsCompleted: Math.max(1, Math.floor(localPeer.xp / 80)),
+      totalStars: Math.max(1, Math.floor(localPeer.xp / 35)),
+      rankPosition: rankIdx >= 0 ? rankIdx + 1 : null,
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('get_public_profile', {
+      p_username: clean,
+    });
+    if (error || !data) return null;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row || !row.id) return null;
+    return {
+      id: row.id,
+      displayName: row.display_name || 'Peregrino',
+      username: row.username || clean,
+      xp: row.xp ?? 0,
+      streakCount: row.streak_count ?? 0,
+      longestStreak: row.longest_streak ?? 0,
+      createdAt: row.created_at ?? new Date().toISOString(),
+      levelsCompleted: row.levels_completed ?? 0,
+      totalStars: row.total_stars ?? 0,
+      rankPosition: typeof row.rank_position === 'number' ? row.rank_position : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export type UsernameAvailability = 'available' | 'taken' | 'unknown';
@@ -187,9 +278,12 @@ const UNIQUE_VIOLATION = '23505';
 
 export async function syncProfileToSupabase(profile: UserProfile): Promise<ProfileSyncResult> {
   if (!isSupabaseConfigured || !supabase) return 'skipped';
+  // Los perfiles invitados (anónimos) no bloquean @usuarios en Supabase; el @usuario
+  // se reserva oficialmente apenas vinculan su cuenta con correo, Google o Apple.
+  const remoteUsername = profile.isAnonymous ? null : profile.username || null;
   const payload = {
     display_name: profile.displayName,
-    username: profile.username || null,
+    username: remoteUsername,
     is_anonymous: profile.isAnonymous,
     xp: profile.xp,
     streak_count: profile.streakCount,
@@ -243,6 +337,7 @@ export async function fetchRemoteAccountData(userId: string): Promise<RemoteAcco
           longestStreak: row.longest_streak ?? 0,
           lastPlayedDate: row.last_played_date ?? null,
           timerEnabled: Boolean(row.timer_enabled),
+          createdAt: row.created_at ?? undefined,
         }
       : {};
     const levelProgress: LevelProgress[] = (progressRes.data ?? []).map((p) => ({

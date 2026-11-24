@@ -14,7 +14,9 @@ export type CategorySlug =
   | 'santos'
   | 'sacramentos'
   | 'liturgia'
-  | 'virgen-maria';
+  | 'virgen-maria'
+  | 'movimientos'
+  | 'historia-iglesia';
 
 export type BannerType = 'oracion' | 'iniciativa' | 'novedad';
 
@@ -24,7 +26,9 @@ export type CategoryIconName =
   | 'hands-praying'
   | 'drop'
   | 'church'
-  | 'flower';
+  | 'flower'
+  | 'users-three'
+  | 'bank';
 
 export type BannerIconName = 'hands-praying' | 'hand-heart' | 'megaphone';
 
@@ -86,6 +90,16 @@ export const LIENZO = {
       color: '#1F7A8C',
       soft: '#E6F3F5',
       icon: 'flower' as CategoryIconName,
+    },
+    movimientos: {
+      color: '#9B6B16',
+      soft: '#FBF4E2',
+      icon: 'users-three' as CategoryIconName,
+    },
+    'historia-iglesia': {
+      color: '#3B537A',
+      soft: '#EDF1F8',
+      icon: 'bank' as CategoryIconName,
     },
   },
 

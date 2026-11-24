@@ -82,10 +82,51 @@ export async function ensureAnonymousSession(existingUserId?: string): Promise<A
   };
 }
 
-async function updateProfileAfterAuth(displayName?: string): Promise<void> {
-  if (!supabase) return;
+interface GuestHandoffTicket {
+  guestId: string;
+  token: string;
+}
+
+/**
+ * Si la sesión actual es anónima, genera un pase temporal en Supabase antes de iniciar sesión
+ * con correo o Apple/Google. Así, apenas se autentica la cuenta real, fusionamos el progreso
+ * y borramos el perfil anónimo viejo para evitar duplicados en el Ranking y @usuarios bloqueados.
+ */
+async function prepareGuestHandoff(): Promise<GuestHandoffTicket | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc('prepare_guest_handoff');
+    if (error || !data || typeof data !== 'object') return null;
+    const raw = data as { guest_id?: unknown; token?: unknown };
+    if (typeof raw.guest_id === 'string' && typeof raw.token === 'string') {
+      return { guestId: raw.guest_id, token: raw.token };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function completeGuestHandoff(
+  ticket: GuestHandoffTicket | null,
+  newUserId?: string
+): Promise<void> {
+  if (!ticket || !isSupabaseConfigured || !supabase) return;
+  if (newUserId && newUserId === ticket.guestId) return;
+  try {
+    await supabase.rpc('complete_guest_handoff', {
+      p_guest_id: ticket.guestId,
+      p_token: ticket.token,
+    });
+  } catch {
+    // Silencioso si todavía no se corrió la migración 007
+  }
+}
+
+async function updateProfileAfterAuth(displayName?: string): Promise<string | undefined> {
+  if (!supabase) return undefined;
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) return;
+  if (!userData.user) return undefined;
 
   const payload: Record<string, unknown> = {
     is_anonymous: false,
@@ -96,17 +137,18 @@ async function updateProfileAfterAuth(displayName?: string): Promise<void> {
   }
 
   await supabase.from('profiles').update(payload).eq('id', userData.user.id);
+  return userData.user.id;
 }
 
 /**
- * Vincula la cuenta anónima a Google o Apple sin perder progreso ni user_id.
+ * Vincula la cuenta anónima a Google o Apple sin perder progreso ni dejar cuentas fantasma.
  * - En iOS con Apple: usa Apple Sign-In nativo (Face ID / Touch ID) con nonce SHA-256.
  * - En Google (y Apple fuera de iOS): abre sesión OAuth segura con expo-web-browser + redirectTo.
  */
 export async function linkIdentityProvider(
   provider: 'google' | 'apple',
   displayName?: string
-): Promise<{ ok: boolean; mode: 'supabase' | 'local'; message: string }> {
+): Promise<{ ok: boolean; userId?: string; mode: 'supabase' | 'local'; message: string }> {
   if (!isSupabaseConfigured || !supabase) {
     return {
       ok: true,
@@ -116,6 +158,8 @@ export async function linkIdentityProvider(
   }
 
   try {
+    const handoff = await prepareGuestHandoff();
+
     // 1. Apple Sign-In nativo en iOS (Face ID / Touch ID)
     if (provider === 'apple' && Platform.OS === 'ios') {
       const isAvailable = await AppleAuthentication.isAvailableAsync();
@@ -142,7 +186,7 @@ export async function linkIdentityProvider(
           };
         }
 
-        const { error } = await supabase.auth.signInWithIdToken({
+        const { data: appleData, error } = await supabase.auth.signInWithIdToken({
           provider: 'apple',
           token: credential.identityToken,
           nonce: rawNonce,
@@ -159,9 +203,11 @@ export async function linkIdentityProvider(
             .join(' ')
             .trim();
 
-        await updateProfileAfterAuth(appleName || undefined);
+        await completeGuestHandoff(handoff, appleData.user?.id);
+        const finalId = await updateProfileAfterAuth(appleName || undefined);
         return {
           ok: true,
+          userId: finalId ?? appleData.user?.id,
           mode: 'supabase',
           message: 'Cuenta vinculada con Apple.',
         };
@@ -209,9 +255,11 @@ export async function linkIdentityProvider(
       }
     }
 
-    await updateProfileAfterAuth(displayName);
+    const finalId = await updateProfileAfterAuth(displayName);
+    await completeGuestHandoff(handoff, finalId);
     return {
       ok: true,
+      userId: finalId,
       mode: 'supabase',
       message: `Cuenta vinculada con ${provider === 'google' ? 'Google' : 'Apple'}.`,
     };
@@ -311,6 +359,8 @@ export async function verifyEmailOtp(
   }
 
   try {
+    const handoff = await prepareGuestHandoff();
+
     const { data, error } = await supabase.auth.verifyOtp({
       email: cleanEmail,
       token: cleanToken,
@@ -324,6 +374,7 @@ export async function verifyEmailOtp(
       };
     }
 
+    await completeGuestHandoff(handoff, data.user.id);
     await updateProfileAfterAuth(displayName);
     return {
       ok: true,
