@@ -149,7 +149,7 @@ Deno.serve(async (req: Request) => {
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const geminiModel = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
+    const geminiModel = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.8-flash';
 
     if (!geminiApiKey || !supabaseUrl || !serviceRoleKey) {
       return new Response(
