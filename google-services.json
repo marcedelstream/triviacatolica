@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "658640988276",
+    "project_id": "triviacatolica",
+    "storage_bucket": "triviacatolica.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658640988276:android:427e5856544c7f3fa48921",
+        "android_client_info": {
+          "package_name": "com.triviacatolica.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeiQPObtpfQz2zdRNbB503jWbX7yB044M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

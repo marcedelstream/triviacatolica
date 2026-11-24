@@ -45,3 +45,7 @@ example
 
 # Panel admin: carpeta de publicación en Vercel
 admin/.deploy/
+
+# Clave privada de Firebase (FCM V1): se sube a EAS, nunca al repo
+*firebase-adminsdk*.json
+fcm-service-account*.json
