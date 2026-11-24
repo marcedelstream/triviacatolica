@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from 'phosphor-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { CategoryIcon } from '@/components/CategoryIcon';
@@ -9,6 +10,8 @@ interface CategoryGridCardProps {
   completedCount: number;
   totalCount: number;
   fullWidth?: boolean;
+  cardWidth?: number;
+  isCompleted?: boolean;
   onPress: () => void;
 }
 
@@ -17,12 +20,15 @@ export function CategoryGridCard({
   completedCount,
   totalCount,
   fullWidth = false,
+  cardWidth,
+  isCompleted: isCompletedProp,
   onPress,
 }: CategoryGridCardProps) {
   const theme = getCategoryTheme(topic.slug);
   const safeTotal = Math.max(totalCount, 1);
   const pct = Math.min(100, Math.round((completedCount / safeTotal) * 100));
-  const isNew = completedCount === 0;
+  const isCompleted = isCompletedProp ?? (totalCount > 0 && completedCount >= totalCount);
+  const isNew = !isCompleted && completedCount === 0;
 
   if (fullWidth) {
     return (
@@ -64,16 +70,30 @@ export function CategoryGridCard({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${topic.title}, ${
-        isNew ? 'Nuevo' : `${completedCount} de ${safeTotal} respondidas`
+        isCompleted
+          ? 'Completada'
+          : isNew
+            ? 'Nuevo'
+            : `${completedCount} de ${safeTotal} respondidas`
       }`}
-      style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.tile,
+        cardWidth ? [styles.tileCompact, { width: cardWidth }] : null,
+        isCompleted && styles.tileCompleted,
+        pressed && styles.pressed,
+      ]}
     >
       <View style={styles.tileTop}>
-        <View style={[styles.iconBox, { backgroundColor: theme.soft }]}>
-          <CategoryIcon name={topic.icon} color={theme.color} size={26} />
+        <View style={[styles.iconBox, cardWidth ? styles.iconBoxCompact : null, { backgroundColor: theme.soft }]}>
+          <CategoryIcon name={topic.icon} color={theme.color} size={cardWidth ? 22 : 26} />
         </View>
 
-        {isNew ? (
+        {isCompleted ? (
+          <View style={styles.donePill}>
+            <CheckCircleIcon size={13} color={LIENZO.color.success} weight="duotone" />
+            <Text style={styles.donePillText}>Lista</Text>
+          </View>
+        ) : isNew ? (
           <View style={[styles.newPill, { backgroundColor: theme.soft }]}>
             <Text style={[styles.newPillText, { color: theme.color }]}>Nuevo</Text>
           </View>
@@ -84,13 +104,19 @@ export function CategoryGridCard({
         )}
       </View>
 
-      <Text style={styles.name} numberOfLines={2}>
+      <Text style={[styles.name, cardWidth ? styles.nameCompact : null]} numberOfLines={2}>
         {topic.title}
       </Text>
 
       <View style={styles.barTrack}>
         <View
-          style={[styles.barFill, { width: `${pct}%`, backgroundColor: theme.color }]}
+          style={[
+            styles.barFill,
+            {
+              width: `${isCompleted ? 100 : pct}%`,
+              backgroundColor: isCompleted ? LIENZO.color.success : theme.color,
+            },
+          ]}
         />
       </View>
     </Pressable>
@@ -109,6 +135,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 126,
     gap: 10,
+  },
+  tileCompact: {
+    flexGrow: 0,
+    padding: 12,
+    minHeight: 112,
+    gap: 8,
+  },
+  tileCompleted: {
+    borderColor: LIENZO.color.successSoft,
+  },
+  iconBoxCompact: {
+    width: 38,
+    height: 38,
+  },
+  nameCompact: {
+    fontSize: 15,
+    lineHeight: 19,
+  },
+  donePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: LIENZO.color.successSoft,
+    borderRadius: LIENZO.radius.chip,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  donePillText: {
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: LIENZO.font.bold,
+    color: LIENZO.color.successInk,
   },
   wideCard: {
     width: '100%',

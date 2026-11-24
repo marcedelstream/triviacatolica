@@ -6,75 +6,145 @@ import { Platform } from 'react-native';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 /**
- * Notificaciones push (Expo Push Service).
- * - Pide permiso, obtiene el Expo push token y lo guarda en public.user_push_tokens
- *   para que la Edge Function `send-push-notifications` (panel admin) pueda enviarle.
- * - Requiere build nativo (en Expo Go para Android no hay push remotas desde SDK 53) y,
- *   en Android, FCM configurado (google-services.json + clave FCM V1 en EAS).
+ * Notificaciones locales (recordatorio del Desafío del Día) y push remotas (Expo Push Service).
+ * - Nunca dispara el diálogo nativo del sistema por sorpresa: primero se muestra el
+ *   popup personalizado Lienzo (`NotificationPromptModal`) y solo si el usuario acepta
+ *   se llama a `requestNotificationPermissionAndSetup`.
+ * - Guarda el Expo push token en `public.user_push_tokens` para los envíos desde
+ *   el panel admin (`send-push-notifications`) y futuros avisos de duelos Versus.
  */
 
 export const ANDROID_CHANNEL_ID = 'default';
+const DAILY_REMINDER_ID = 'daily-challenge-reminder';
 
-// Mostrar la notificación aunque la app esté abierta.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 let lastSaved: { userId: string; token: string } | null = null;
 
-async function getExpoPushToken(): Promise<string | null> {
-  if (Platform.OS === 'web' || !Device.isDevice) return null;
+async function ensureAndroidChannel(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+    name: 'Trivia Católica',
+    // eslint-disable-next-line import/namespace -- se reexporta con `export *`; tsc lo resuelve
+    importance: Notifications.AndroidImportance.HIGH,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: '#2F5BD3',
+  });
+}
 
-  // Android 13+: el canal tiene que existir antes de pedir el token/permiso.
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
-      name: 'Trivia Católica',
-      // eslint-disable-next-line import/namespace -- se reexporta con `export *`; tsc lo resuelve
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#2F5BD3',
-    });
-  }
-
-  const current = await Notifications.getPermissionsAsync();
-  let granted = current.granted;
-  if (!granted && current.canAskAgain) {
-    granted = (await Notifications.requestPermissionsAsync()).granted;
-  }
-  if (!granted) return null;
+async function fetchAndStoreExpoPushToken(userId: string): Promise<void> {
+  if (Platform.OS === 'web' || !Device.isDevice) return;
+  if (!isSupabaseConfigured || !supabase) return;
 
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
-  if (!projectId) return null;
+  if (!projectId) return;
 
-  return (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+  const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+  if (!token) return;
+  if (lastSaved && lastSaved.userId === userId && lastSaved.token === token) return;
+
+  const { error } = await supabase.from('user_push_tokens').upsert(
+    {
+      user_id: userId,
+      expo_push_token: token,
+      platform: Platform.OS === 'ios' ? 'ios' : 'android',
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,expo_push_token' }
+  );
+  if (!error) {
+    lastSaved = { userId, token };
+  }
 }
 
-/** Registra (o refresca) el token del dispositivo para el usuario dado. Nunca lanza. */
-export async function registerPushTokenForUser(userId: string): Promise<void> {
-  if (!isSupabaseConfigured || !supabase) return;
+/** Programa un recordatorio amable todos los días a las 09:00 hs locales para el Desafío del Día. */
+export async function scheduleDailyChallengeReminder(hour = 9, minute = 0): Promise<void> {
+  if (Platform.OS === 'web') return;
   try {
-    const token = await getExpoPushToken();
-    if (!token) return;
-    if (lastSaved && lastSaved.userId === userId && lastSaved.token === token) return;
-
-    const { error } = await supabase.from('user_push_tokens').upsert(
-      {
-        user_id: userId,
-        expo_push_token: token,
-        platform: Platform.OS === 'ios' ? 'ios' : 'android',
-        is_active: true,
-        updated_at: new Date().toISOString(),
+    await ensureAndroidChannel();
+    await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
+    await Notifications.scheduleNotificationAsync({
+      identifier: DAILY_REMINDER_ID,
+      content: {
+        title: 'Nuevo Desafío del Día',
+        body: 'Leé el Evangelio de hoy, respondé 5 preguntas y mantené viva tu racha.',
+        sound: 'default',
+        data: { url: '/play/desafio-del-dia' },
       },
-      { onConflict: 'user_id,expo_push_token' }
-    );
-    if (!error) lastSaved = { userId, token };
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute,
+        channelId: Platform.OS === 'android' ? ANDROID_CHANNEL_ID : undefined,
+      },
+    });
   } catch {
-    // Sin red, sin permiso o sin FCM: se reintenta en el próximo inicio de sesión.
+    // Silencioso en emuladores o si el SO restringe alarmas exactas
+  }
+}
+
+export async function cancelDailyChallengeReminder(userId?: string): Promise<void> {
+  if (Platform.OS !== 'web') {
+    await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
+  }
+  if (userId && isSupabaseConfigured && supabase) {
+    await supabase
+      .from('user_push_tokens')
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .eq('user_id', userId);
+  }
+}
+
+/**
+ * Solicita permiso nativo (solo tras aceptar el popup personalizado Lienzo),
+ * programa el recordatorio diario y registra el Expo push token en Supabase.
+ */
+export async function requestNotificationPermissionAndSetup(userId: string): Promise<boolean> {
+  try {
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        const perm = await window.Notification.requestPermission();
+        return perm === 'granted';
+      }
+      return true;
+    }
+
+    await ensureAndroidChannel();
+    const current = await Notifications.getPermissionsAsync();
+    let granted = current.granted;
+    if (!granted) {
+      granted = (await Notifications.requestPermissionsAsync()).granted;
+    }
+    if (!granted) return false;
+
+    await scheduleDailyChallengeReminder();
+    await fetchAndStoreExpoPushToken(userId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Refresca el token silenciosamente solo si el usuario YA otorgó permiso anteriormente. */
+export async function registerPushTokenForUser(userId: string): Promise<void> {
+  if (Platform.OS === 'web' || !Device.isDevice) return;
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    if (!current.granted) return;
+    await ensureAndroidChannel();
+    await fetchAndStoreExpoPushToken(userId);
+  } catch {
+    // Sin red o sin FCM: se reintenta en la próxima sesión.
   }
 }

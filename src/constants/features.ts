@@ -9,4 +9,6 @@
  */
 export const PAYWALL_ENABLED = true;
 export const DAILY_FREE_QUIZZES_LIMIT = 3;
+export const DAILY_FREE_VERSUS_LIMIT = 1;
 export const GUEST_FREE_QUIZZES_LIMIT = 1;
+export const FREE_PLAY_QUESTIONS_LIMIT = 5;

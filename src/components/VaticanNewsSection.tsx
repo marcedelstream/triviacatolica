@@ -74,7 +74,7 @@ export function VaticanNewsSection({
   if (!items.length) return null;
 
   const containerWidth = Math.min(width, LIENZO.maxPhoneWidth);
-  const cardWidth = Math.max(276, containerWidth - 68);
+  const cardWidth = Math.min(268, Math.max(244, containerWidth - 96));
 
   const handleOpenUrl = async (url: string) => {
     try {
@@ -122,74 +122,74 @@ export function VaticanNewsSection({
 
           return (
             <View key={item.id} style={[styles.card, { width: cardWidth }]}>
-              {item.imageUrl ? (
-                <Image
-                  source={{ uri: item.imageUrl }}
-                  style={styles.thumb}
-                  contentFit="cover"
-                  transition={160}
-                />
-              ) : null}
+              <View style={styles.topRow}>
+                {item.imageUrl ? (
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    style={styles.thumb}
+                    contentFit="cover"
+                    transition={160}
+                  />
+                ) : null}
 
-              <View style={styles.cardBody}>
-                <View style={styles.metaRow}>
-                  <View style={[styles.tagChip, { backgroundColor: sourceColors.bg }]}>
-                    <Text style={[styles.tagText, { color: sourceColors.ink }]}>
-                      {item.sourceName}
-                    </Text>
-                  </View>
-                  <Text style={styles.dateText}>
-                    {item.sectionLabel} · {formatShortDate(item.publishedAt)}
-                  </Text>
-                  {isCompleted ? (
-                    <View style={styles.doneChip}>
+                <View style={styles.topMeta}>
+                  <View style={styles.metaRow}>
+                    <View style={[styles.tagChip, { backgroundColor: sourceColors.bg }]}>
+                      <Text style={[styles.tagText, { color: sourceColors.ink }]} numberOfLines={1}>
+                        {item.sourceName}
+                      </Text>
+                    </View>
+                    {isCompleted ? (
                       <CheckCircleIcon
-                        size={14}
+                        size={15}
                         color={LIENZO.color.success}
                         weight="duotone"
                       />
-                      <Text style={styles.doneText}>Jugado</Text>
-                    </View>
-                  ) : null}
+                    ) : null}
+                  </View>
+
+                  <Text style={styles.dateText} numberOfLines={1}>
+                    {formatShortDate(item.publishedAt)} · {item.sectionLabel}
+                  </Text>
+
+                  <Text style={styles.title} numberOfLines={2}>
+                    {item.title}
+                  </Text>
                 </View>
+              </View>
 
-                <Text style={styles.title} numberOfLines={2}>
-                  {item.title}
-                </Text>
+              <Text style={styles.summary} numberOfLines={2}>
+                {item.summary}
+              </Text>
 
-                <Text style={styles.summary} numberOfLines={2}>
-                  {item.summary}
-                </Text>
+              <View style={styles.actions}>
+                <Pressable
+                  onPress={() => onPlayNewsQuiz(item)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Jugar quiz de la noticia: ${item.title}`}
+                  style={({ pressed }) => [styles.quizBtn, pressed && styles.pressed]}
+                >
+                  <SparkleIcon size={15} color={LIENZO.color.primaryInk} weight="duotone" />
+                  <Text style={styles.quizBtnText} numberOfLines={1}>
+                    {isCompleted
+                      ? `Repetir (${item.questions.length})`
+                      : `Quiz (${item.questions.length})`}
+                  </Text>
+                </Pressable>
 
-                <View style={styles.actions}>
-                  <Pressable
-                    onPress={() => onPlayNewsQuiz(item)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Jugar quiz de la noticia: ${item.title}`}
-                    style={({ pressed }) => [styles.quizBtn, pressed && styles.pressed]}
-                  >
-                    <SparkleIcon size={17} color={LIENZO.color.primaryInk} weight="duotone" />
-                    <Text style={styles.quizBtnText}>
-                      {isCompleted
-                        ? `Repetir quiz (${item.questions.length})`
-                        : `Jugar quiz (${item.questions.length})`}
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => void handleOpenUrl(item.url)}
-                    accessibilityRole="link"
-                    accessibilityLabel={`Leer noticia completa en ${item.sourceName}: ${item.title}`}
-                    style={({ pressed }) => [styles.readBtn, pressed && styles.pressed]}
-                  >
-                    <ArrowSquareOutIcon
-                      size={17}
-                      color={LIENZO.color.ink2}
-                      weight="regular"
-                    />
-                    <Text style={styles.readBtnText}>Leer</Text>
-                  </Pressable>
-                </View>
+                <Pressable
+                  onPress={() => void handleOpenUrl(item.url)}
+                  accessibilityRole="link"
+                  accessibilityLabel={`Leer noticia completa en ${item.sourceName}: ${item.title}`}
+                  style={({ pressed }) => [styles.readBtn, pressed && styles.pressed]}
+                >
+                  <ArrowSquareOutIcon
+                    size={15}
+                    color={LIENZO.color.ink2}
+                    weight="regular"
+                  />
+                  <Text style={styles.readBtnText}>Nota</Text>
+                </Pressable>
               </View>
             </View>
           );
@@ -257,73 +257,69 @@ const styles = StyleSheet.create({
     borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.card,
     backgroundColor: LIENZO.color.bg,
-    overflow: 'hidden',
+    padding: 12,
+    gap: 8,
+    justifyContent: 'space-between',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
   },
   thumb: {
-    width: '100%',
-    height: 122,
+    width: 68,
+    height: 68,
+    borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.track,
+    flexShrink: 0,
   },
-  cardBody: {
-    padding: 14,
-    gap: 8,
+  topMeta: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    flexWrap: 'wrap',
+    gap: 5,
   },
   tagChip: {
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    flexShrink: 1,
   },
   tagText: {
-    fontSize: 13,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 15,
     fontFamily: LIENZO.font.bold,
   },
   dateText: {
-    fontSize: 13,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 15,
     fontFamily: LIENZO.font.regular,
     color: LIENZO.color.ink2,
   },
-  doneChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: LIENZO.color.successSoft,
-    borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginLeft: 'auto',
-  },
-  doneText: {
-    fontSize: 13,
-    lineHeight: 16,
-    fontFamily: LIENZO.font.bold,
-    color: LIENZO.color.successInk,
-  },
   title: {
-    fontSize: 16,
-    lineHeight: 21,
+    fontSize: 15,
+    lineHeight: 19,
     fontFamily: LIENZO.font.bold,
     color: LIENZO.color.ink,
   },
   summary: {
-    ...LIENZO.type.caption,
+    fontSize: 13,
+    lineHeight: 17,
+    fontFamily: LIENZO.font.regular,
     color: LIENZO.color.ink2,
   },
   actions: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
+    gap: 7,
+    marginTop: 2,
   },
   quizBtn: {
     flex: 1,
-    minHeight: 46,
+    minHeight: 40,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primarySoft,
     borderWidth: LIENZO.borderWidth.card,
@@ -331,15 +327,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
+    gap: 5,
+    paddingHorizontal: 10,
   },
   quizBtnText: {
-    ...LIENZO.type.smallBold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.primaryInk,
   },
   readBtn: {
-    minHeight: 46,
+    minHeight: 40,
     borderRadius: LIENZO.radius.icon,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
@@ -347,11 +343,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
-    paddingHorizontal: 14,
+    gap: 4,
+    paddingHorizontal: 11,
   },
   readBtnText: {
-    ...LIENZO.type.smallSemiBold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.ink,
   },
   pressed: {

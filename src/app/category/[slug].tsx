@@ -22,9 +22,9 @@ export default function CategoryDetailScreen() {
   const levelProgress = useGameStore((s) => s.levelProgress);
   const answeredCorrectByTopic = useGameStore((s) => s.answeredCorrectByTopic);
   const profile = useGameStore((s) => s.profile);
-  const hasDismissedSoftAuth = useGameStore((s) => s.hasDismissedSoftAuth);
   const refreshHearts = useGameStore((s) => s.refreshHearts);
   const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
+  const canStartQuiz = useGameStore((s) => s.canStartQuiz);
 
   const [lockedModal, setLockedModal] = useState<{
     target: Level;
@@ -63,20 +63,21 @@ export default function CategoryDetailScreen() {
     })?.id ?? topicLevels[0]?.id;
 
   const launchLevel = (level: Level) => {
-    refreshHearts();
-    const currentProfile = useGameStore.getState().profile;
-
-    if (
-      level.levelNumber >= 2 &&
-      currentProfile.isAnonymous &&
-      !hasDismissedSoftAuth
-    ) {
+    const gate = canStartQuiz();
+    if (gate === 'guest_limit') {
       router.push({
         pathname: '/auth-modal',
-        params: { nextLevelId: level.slug },
+        params: { reason: 'guest_limit', nextLevelId: level.slug },
       });
       return;
     }
+    if (gate === 'daily_limit') {
+      router.push('/paywall?reason=daily_limit');
+      return;
+    }
+
+    refreshHearts();
+    const currentProfile = useGameStore.getState().profile;
 
     if (!currentProfile.isPremium && currentProfile.hearts <= 0) {
       if (PAYWALL_ENABLED) {
@@ -118,7 +119,13 @@ export default function CategoryDetailScreen() {
       {/* Barra superior */}
       <View style={styles.topBar}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace('/(tabs)');
+            }
+          }}
           style={styles.backBtn}
           accessibilityRole="button"
           accessibilityLabel="Volver"

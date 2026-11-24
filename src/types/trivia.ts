@@ -48,6 +48,8 @@ export interface DailyChallenge {
   subtitle: string;
   firstReadingRef: string;
   gospelRef: string;
+  firstReadingText?: string;
+  gospelText?: string;
   sourceLabel: string;
   isCustom?: boolean;
   questions: Question[];
@@ -141,4 +143,54 @@ export interface VaticanNewsQuizItem {
   imageUrl?: string | null;
   publishedAt: string; // ISO
   questions: Question[];
+}
+
+export interface VersusMatch {
+  id: string;
+  challengerId: string;
+  challengerUsername: string;
+  challengerName: string;
+  opponentId?: string | null;
+  opponentUsername: string;
+  opponentName: string;
+  questionIds: string[];
+  totalQuestions: number;
+  challengerScore: number;
+  opponentScore: number | null;
+  status: 'waiting_opponent' | 'completed';
+  winner: 'challenger' | 'opponent' | 'tie' | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export type CommunityReactionEmoji = '❤️' | '🙏' | '🔥' | '👏' | '👍';
+
+export interface Community {
+  id: string;
+  name: string;
+  description: string;
+  isPrivate: boolean;
+  inviteCode: string;
+  ownerId: string | null;
+  ownerUsername: string;
+  ownerName: string;
+  groupStreak: number;
+  lastStreakDate?: string | null;
+  memberCount: number;
+  createdAt: string;
+}
+
+export interface CommunityPost {
+  id: string;
+  communityId: string;
+  authorId: string | null;
+  authorUsername: string;
+  authorName: string;
+  postType: 'message' | 'quiz';
+  body: string;
+  quizSlug?: string | null;
+  quizTitle?: string | null;
+  createdAt: string;
+  reactionCounts: Record<CommunityReactionEmoji, number>;
+  myReactions: CommunityReactionEmoji[];
 }

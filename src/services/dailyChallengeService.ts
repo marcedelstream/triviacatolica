@@ -118,6 +118,14 @@ export async function loadTodayDailyChallenge(
             subtitle: data.subtitle ?? '',
             firstReadingRef: data.first_reading_ref ?? '',
             gospelRef: data.gospel_ref ?? '',
+            firstReadingText:
+              typeof data.first_reading_text === 'string' && data.first_reading_text.trim()
+                ? data.first_reading_text.trim()
+                : undefined,
+            gospelText:
+              typeof data.gospel_text === 'string' && data.gospel_text.trim()
+                ? data.gospel_text.trim()
+                : undefined,
             sourceLabel: data.source_label ?? 'Lectura + Evangelio del día',
             isCustom: Boolean(data.is_custom),
             questions,

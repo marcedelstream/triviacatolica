@@ -1,10 +1,14 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ArrowLeftIcon,
+  BookOpenTextIcon,
   CalendarBlankIcon,
+  CrownIcon,
   FlameIcon,
+  HeartIcon,
   LightningIcon,
   MedalIcon,
+  ShieldCheckIcon,
   SparkleIcon,
   StarIcon,
   TrophyIcon,
@@ -12,8 +16,11 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { AvatarBadge } from '@/components/AvatarBadge';
 import { ScreenFrame } from '@/components/ScreenFrame';
 import { LIENZO } from '@/constants/theme';
+import { computeAchievements, type AchievementBadge } from '@/data/achievements';
+import { getCountryByCode } from '@/data/countries';
 import { fetchPublicProfile } from '@/services/quizService';
 import { useGameStore } from '@/store/useGameStore';
 import type { PublicProfile } from '@/types/trivia';
@@ -43,11 +50,27 @@ function formatMemberSince(iso?: string): string {
   return `En Trivia Católica desde el ${day} de ${month} de ${year}`;
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'TC';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+function renderBadgeIcon(icon: AchievementBadge['icon'], unlocked: boolean) {
+  const color = unlocked ? LIENZO.color.goldInk : LIENZO.color.ink2;
+  const weight = unlocked ? 'duotone' : 'regular';
+  switch (icon) {
+    case 'flame':
+      return <FlameIcon size={18} color={color} weight={weight} />;
+    case 'trophy':
+      return <TrophyIcon size={18} color={color} weight={weight} />;
+    case 'crown':
+      return <CrownIcon size={18} color={color} weight={weight} />;
+    case 'book':
+      return <BookOpenTextIcon size={18} color={color} weight={weight} />;
+    case 'shield':
+      return <ShieldCheckIcon size={18} color={color} weight={weight} />;
+    case 'star':
+      return <StarIcon size={18} color={color} weight={weight} />;
+    case 'heart':
+      return <HeartIcon size={18} color={color} weight={weight} />;
+    default:
+      return <SparkleIcon size={18} color={color} weight={weight} />;
+  }
 }
 
 export default function PublicProfileScreen() {
@@ -57,6 +80,7 @@ export default function PublicProfileScreen() {
   const currentProfile = useGameStore((s) => s.profile);
   const levelProgress = useGameStore((s) => s.levelProgress);
   const leaderboardPeers = useGameStore((s) => s.leaderboardPeers);
+  const canStartVersus = useGameStore((s) => s.canStartVersus);
 
   const cleanUsername = (username ?? '').trim().toLowerCase().replace(/^@/, '');
 
@@ -72,12 +96,15 @@ export default function PublicProfileScreen() {
         id: currentProfile.id,
         displayName: currentProfile.displayName || 'Peregrino',
         username: cleanUsername,
+        country: currentProfile.country ?? null,
+        avatarId: currentProfile.avatarId ?? 'noe',
         xp: currentProfile.xp,
         streakCount: currentProfile.streakCount,
         longestStreak: currentProfile.longestStreak,
         createdAt: currentProfile.createdAt ?? '',
         levelsCompleted: levelsList.filter((p) => p.stars > 0).length,
         totalStars: levelsList.reduce((acc, p) => acc + p.stars, 0),
+        perfectLevels: levelsList.filter((p) => p.stars >= 3).length,
         rankPosition: null,
       };
     }
@@ -92,16 +119,21 @@ export default function PublicProfileScreen() {
       id: peer.id,
       displayName: peer.displayName,
       username: peer.username,
+      country: peer.country ?? null,
+      avatarId: peer.avatarId ?? 'noe',
       xp: peer.xp,
       streakCount: peer.streakCount,
       longestStreak: peer.longestStreak ?? peer.streakCount,
       createdAt: peer.createdAt ?? '',
       levelsCompleted: 0,
       totalStars: 0,
+      perfectLevels: 0,
       rankPosition: peerIdx + 1,
     };
   }, [
     cleanUsername,
+    currentProfile.avatarId,
+    currentProfile.country,
     currentProfile.createdAt,
     currentProfile.displayName,
     currentProfile.id,
@@ -137,12 +169,44 @@ export default function PublicProfileScreen() {
         (currentProfile.username &&
           currentProfile.username.trim().toLowerCase() === player.username.toLowerCase()))
   );
+  const countryInfo = getCountryByCode(player?.country);
+  const countryRankPosition = useMemo(() => {
+    if (!player?.country) return null;
+    const code = player.country.trim().toUpperCase();
+    const sameCountry = leaderboardPeers
+      .filter((p) => p.country?.trim().toUpperCase() === code)
+      .sort((a, b) => b.xp - a.xp);
+    const idx = sameCountry.findIndex(
+      (p) =>
+        p.id === player.id ||
+        p.username?.trim().toLowerCase() === player.username.trim().toLowerCase()
+    );
+    return idx >= 0 ? idx + 1 : null;
+  }, [leaderboardPeers, player]);
+  const unlockedBadges = player
+    ? computeAchievements({
+        xp: player.xp,
+        streakCount: player.streakCount,
+        longestStreak: player.longestStreak,
+        levelsCompleted: player.levelsCompleted,
+        totalStars: player.totalStars,
+        perfectLevels: player.perfectLevels,
+      }).filter((b) => b.unlocked)
+    : [];
+
+  const handleSafeBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/ranking');
+    }
+  };
 
   return (
     <ScreenFrame edges={['top', 'bottom']}>
       <View style={styles.topBar}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={handleSafeBack}
           style={styles.backBtn}
           accessibilityRole="button"
           accessibilityLabel="Volver al ranking"
@@ -172,7 +236,7 @@ export default function PublicProfileScreen() {
               Es posible que el usuario haya cambiado su @usuario o eliminado su cuenta.
             </Text>
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleSafeBack}
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
@@ -181,11 +245,14 @@ export default function PublicProfileScreen() {
           </View>
         ) : (
           <>
-            {/* Cabecera del jugador */}
+            {/* Cabecera del jugador con personaje + bandera */}
             <View style={styles.heroCard}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{getInitials(player.displayName)}</Text>
-              </View>
+              <AvatarBadge
+                avatarId={player.avatarId}
+                country={player.country}
+                size={80}
+                highlight
+              />
 
               <View style={styles.heroNameRow}>
                 <Text style={styles.heroName}>{player.displayName}</Text>
@@ -196,16 +263,33 @@ export default function PublicProfileScreen() {
                 ) : null}
               </View>
 
-              <Text style={styles.heroUsername}>@{player.username}</Text>
+              <Text style={styles.heroUsername}>
+                @{player.username}
+                {countryInfo ? ` · ${countryInfo.flag} ${countryInfo.name}` : ''}
+              </Text>
 
-              {player.rankPosition ? (
-                <View style={styles.rankChip}>
-                  {player.rankPosition <= 3 ? (
-                    <MedalIcon size={17} color={LIENZO.color.goldInk} weight="duotone" />
-                  ) : (
-                    <TrophyIcon size={17} color={LIENZO.color.goldInk} weight="duotone" />
-                  )}
-                  <Text style={styles.rankChipText}>Puesto #{player.rankPosition} en el Ranking</Text>
+              {player.rankPosition || (countryInfo && countryRankPosition) ? (
+                <View style={styles.rankChipsRow}>
+                  {player.rankPosition ? (
+                    <View style={styles.rankChip}>
+                      {player.rankPosition <= 3 ? (
+                        <MedalIcon size={16} color={LIENZO.color.goldInk} weight="duotone" />
+                      ) : (
+                        <TrophyIcon size={16} color={LIENZO.color.goldInk} weight="duotone" />
+                      )}
+                      <Text style={styles.rankChipText}>
+                        #{player.rankPosition} en el mundo
+                      </Text>
+                    </View>
+                  ) : null}
+                  {countryInfo && countryRankPosition ? (
+                    <View style={styles.rankChip}>
+                      <Text style={styles.rankFlag}>{countryInfo.flag}</Text>
+                      <Text style={styles.rankChipText}>
+                        #{countryRankPosition} en {countryInfo.name}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
               ) : null}
 
@@ -250,6 +334,21 @@ export default function PublicProfileScreen() {
               </View>
             </View>
 
+            {/* Sellos conseguidos */}
+            {unlockedBadges.length > 0 ? (
+              <>
+                <Text style={styles.sectionTitle}>Sellos conseguidos</Text>
+                <View style={styles.badgesWrap}>
+                  {unlockedBadges.map((b) => (
+                    <View key={b.id} style={styles.badgeChip}>
+                      {renderBadgeIcon(b.icon, true)}
+                      <Text style={styles.badgeChipText}>{b.title}</Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            ) : null}
+
             {/* Base lista para futuros desafíos 1 vs 1 */}
             {isOwnProfile ? (
               <Pressable
@@ -266,20 +365,39 @@ export default function PublicProfileScreen() {
                     <LightningIcon size={24} color={LIENZO.color.primary} weight="duotone" />
                   </View>
                   <View style={styles.challengePill}>
-                    <Text style={styles.challengePillText}>Próximamente</Text>
+                    <Text style={styles.challengePillText}>Modo Versus · 1 vs 1</Text>
                   </View>
                 </View>
 
                 <Text style={styles.challengeTitle}>Desafiar a @{player.username}</Text>
                 <Text style={styles.challengeText}>
-                  Muy pronto vas a poder invitar a otros jugadores de la comunidad a una partida
-                  1 vs 1 en vivo sobre Biblia, Santos y Catecismo.
+                  Jugá una ronda de 5 preguntas mezcladas de todos los temas y compartile tu
+                  resultado a @{player.username}. Gratis tenés 1 Versus por día.
                 </Text>
 
-                <View style={styles.challengeBtnDisabled}>
-                  <LightningIcon size={18} color={LIENZO.color.ink2} weight="regular" />
-                  <Text style={styles.challengeBtnDisabledText}>Desafío 1 vs 1 · Muy pronto</Text>
-                </View>
+                <Pressable
+                  onPress={() => {
+                    const gate = canStartVersus();
+                    if (gate === 'guest_limit') {
+                      router.push('/auth-modal?reason=guest_limit');
+                      return;
+                    }
+                    if (gate === 'daily_limit') {
+                      router.push('/paywall?reason=daily_limit');
+                      return;
+                    }
+                    router.push({
+                      pathname: '/play/[levelId]',
+                      params: { levelId: `versus-${player.username}` },
+                    });
+                  }}
+                  style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.primaryBtnText}>
+                    Desafiar a @{player.username} ahora
+                  </Text>
+                </Pressable>
               </View>
             )}
           </>
@@ -354,25 +472,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: LIENZO.color.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  avatarText: {
-    fontSize: 26,
-    lineHeight: 30,
-    fontFamily: LIENZO.font.bold,
-    color: LIENZO.color.primaryInk,
-  },
   heroNameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginTop: 6,
   },
   heroName: {
     ...LIENZO.type.display,
@@ -394,16 +498,26 @@ const styles = StyleSheet.create({
   heroUsername: {
     ...LIENZO.type.item,
     color: LIENZO.color.primaryInk,
+    textAlign: 'center',
+  },
+  rankChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 6,
   },
   rankChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
     backgroundColor: LIENZO.color.goldSoft,
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginTop: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+  },
+  rankFlag: {
+    fontSize: 14,
   },
   rankChipText: {
     ...LIENZO.type.captionBold,
@@ -449,6 +563,24 @@ const styles = StyleSheet.create({
   statLabel: {
     ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
+  },
+  badgesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  badgeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: LIENZO.color.goldSoft,
+    borderRadius: LIENZO.radius.chip,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  badgeChipText: {
+    ...LIENZO.type.captionBold,
+    color: LIENZO.color.goldInk,
   },
   challengeCard: {
     borderWidth: LIENZO.borderWidth.card,

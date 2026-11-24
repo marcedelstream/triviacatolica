@@ -1,5 +1,12 @@
 import { Image } from 'expo-image';
-import { ArrowSquareOutIcon, CaretRightIcon, SparkleIcon, XIcon } from 'phosphor-react-native';
+import {
+  ArrowSquareOutIcon,
+  BookOpenTextIcon,
+  CaretRightIcon,
+  CheckCircleIcon,
+  SparkleIcon,
+  XIcon,
+} from 'phosphor-react-native';
 import { useState } from 'react';
 import {
   Linking,
@@ -25,6 +32,7 @@ interface HeroCarouselProps {
   dailyQuestionCount: number;
   dailyCompletedToday: boolean;
   onStartDaily: () => void;
+  onReadDaily?: () => void;
   banners: BannerItem[];
 }
 
@@ -37,6 +45,7 @@ export function HeroCarousel({
   dailyQuestionCount,
   dailyCompletedToday,
   onStartDaily,
+  onReadDaily,
   banners,
 }: HeroCarouselProps) {
   const { width } = useWindowDimensions();
@@ -80,47 +89,51 @@ export function HeroCarousel({
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Slide 1: Desafío del día — único bloque de color sólido de Inicio */}
+        {/* Slide 1: Desafío del día — bloque compacto */}
         <View style={[styles.dailyCard, { width: cardWidth }]}>
-          <View style={styles.dailyHead}>
-            <View style={styles.dailyTagPill}>
-              <SparkleIcon size={16} color={LIENZO.color.goldSparkle} weight="duotone" />
-              <Text style={styles.dailyTag}>
-                {dailyCompletedToday
-                  ? `Completado hoy · ${dailyQuestionCount} preguntas`
+          <View style={styles.dailyTagPill}>
+            {dailyCompletedToday ? (
+              <CheckCircleIcon size={15} color={LIENZO.color.goldSparkle} weight="duotone" />
+            ) : (
+              <SparkleIcon size={15} color={LIENZO.color.goldSparkle} weight="duotone" />
+            )}
+            <Text style={styles.dailyTag} numberOfLines={1}>
+              {dailyCompletedToday
+                ? 'Completado hoy · Volvé mañana'
+                : dailyReadingsLabel
+                  ? `Desafío · ${dailyReadingsLabel}`
                   : `Desafío del día · ${dailyQuestionCount} preguntas`}
-              </Text>
-            </View>
+            </Text>
           </View>
 
-          <Text style={styles.dailyTitle} numberOfLines={2}>
+          <Text style={styles.dailyTitle} numberOfLines={1}>
             {dailyTitle}
           </Text>
-          {dailyReadingsLabel ? (
-            <View style={styles.dailyReadingsRow}>
-              <Text style={styles.dailyReadingsText} numberOfLines={1}>
-                {dailyReadingsLabel}
-              </Text>
-            </View>
-          ) : null}
-          <Text style={styles.dailySub} numberOfLines={2}>
-            {dailySubtitle ||
-              'Sumá experiencia diaria y mantené viva tu racha respondiendo las lecturas de hoy.'}
-          </Text>
 
-          <Pressable
-            onPress={onStartDaily}
-            accessibilityRole="button"
-            accessibilityLabel={`${dailyCompletedToday ? 'Volver a jugar' : 'Comenzar'} desafío del día: ${dailyTitle}`}
-            style={({ pressed }) => [styles.dailyBtn, pressed && styles.pressed]}
-          >
-            <Text style={styles.dailyBtnText}>
-              {dailyCompletedToday ? 'Volver a jugar' : 'Comenzar desafío'}
-            </Text>
-          </Pressable>
+          {dailyCompletedToday ? (
+            <Pressable
+              onPress={onReadDaily ?? onStartDaily}
+              accessibilityRole="button"
+              accessibilityLabel={`Leer las lecturas de hoy: ${dailyTitle}`}
+              style={({ pressed }) => [styles.dailyBtnDone, pressed && styles.pressed]}
+            >
+              <BookOpenTextIcon size={16} color={LIENZO.color.onPrimary} weight="duotone" />
+              <Text style={styles.dailyBtnDoneText}>Ver lecturas de hoy</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={onStartDaily}
+              accessibilityRole="button"
+              accessibilityLabel={`Leer lecturas y comenzar desafío del día: ${dailyTitle}`}
+              style={({ pressed }) => [styles.dailyBtn, pressed && styles.pressed]}
+            >
+              <BookOpenTextIcon size={16} color={LIENZO.color.primaryInk} weight="duotone" />
+              <Text style={styles.dailyBtnText}>Leer lecturas y jugar</Text>
+            </Pressable>
+          )}
         </View>
 
-        {/* Slides 2+: Banners de novedades / oración / iniciativa integrados */}
+        {/* Slides 2+: Banners compactos */}
         {banners.map((banner) => {
           const theme = getBannerTheme(banner.tipo);
           return (
@@ -144,7 +157,7 @@ export function HeroCarousel({
                   />
                 ) : (
                   <View style={styles.bannerIconBox}>
-                    <CategoryIcon name={theme.icon} color={theme.color} size={26} />
+                    <CategoryIcon name={theme.icon} color={theme.color} size={20} />
                   </View>
                 )}
 
@@ -153,21 +166,18 @@ export function HeroCarousel({
                     {theme.label}
                   </Text>
                 </View>
+
+                <View style={styles.bannerArrow}>
+                  <CaretRightIcon size={18} color={theme.color} weight="regular" />
+                </View>
               </View>
 
-              <Text style={styles.bannerTitle} numberOfLines={2}>
+              <Text style={styles.bannerTitle} numberOfLines={1}>
                 {banner.titulo}
               </Text>
-              <Text style={styles.bannerText} numberOfLines={2}>
+              <Text style={styles.bannerText} numberOfLines={1}>
                 {banner.texto}
               </Text>
-
-              <View style={styles.bannerFooter}>
-                <Text style={[styles.bannerAction, { color: theme.color }]}>
-                  Ver detalle
-                </Text>
-                <CaretRightIcon size={18} color={theme.color} weight="regular" />
-              </View>
             </Pressable>
           );
         })}
@@ -270,7 +280,7 @@ export function HeroCarousel({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: 18,
+    marginTop: 14,
   },
   scroll: {
     marginHorizontal: -LIENZO.space.xl,
@@ -281,116 +291,106 @@ const styles = StyleSheet.create({
   },
   dailyCard: {
     backgroundColor: LIENZO.color.primary,
-    borderRadius: LIENZO.radius.block,
-    padding: 20,
+    borderRadius: LIENZO.radius.card,
+    padding: 14,
     justifyContent: 'space-between',
-    minHeight: 192,
-  },
-  dailyHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 8,
+    minHeight: 118,
   },
   dailyTagPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
   },
   dailyTag: {
     ...LIENZO.type.captionBold,
     color: LIENZO.color.onPrimary2,
+    flexShrink: 1,
   },
   dailyTitle: {
-    fontSize: 23,
-    lineHeight: 28,
+    fontSize: 18,
+    lineHeight: 22,
     fontFamily: LIENZO.font.bold,
     color: LIENZO.color.onPrimary,
-    marginTop: 8,
-  },
-  dailyReadingsRow: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    marginTop: 6,
-  },
-  dailyReadingsText: {
-    ...LIENZO.type.captionBold,
-    color: LIENZO.color.onPrimary,
-  },
-  dailySub: {
-    ...LIENZO.type.small,
-    color: LIENZO.color.onPrimary2,
-    marginTop: 6,
-    marginBottom: 14,
   },
   dailyBtn: {
     width: '100%',
-    minHeight: 48,
+    minHeight: 40,
     backgroundColor: LIENZO.color.bg,
     borderRadius: LIENZO.radius.icon,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: LIENZO.space.lg,
+    gap: 6,
+    paddingHorizontal: LIENZO.space.md,
   },
   dailyBtnText: {
-    ...LIENZO.type.button,
+    ...LIENZO.type.smallBold,
     color: LIENZO.color.primaryInk,
   },
+  dailyBtnDone: {
+    width: '100%',
+    minHeight: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderRadius: LIENZO.radius.icon,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: LIENZO.space.md,
+  },
+  dailyBtnDoneText: {
+    ...LIENZO.type.smallBold,
+    color: LIENZO.color.onPrimary,
+  },
   bannerCard: {
-    borderRadius: LIENZO.radius.block,
-    padding: 20,
+    borderRadius: LIENZO.radius.card,
+    padding: 14,
     justifyContent: 'space-between',
-    minHeight: 192,
+    gap: 6,
+    minHeight: 118,
   },
   bannerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   bannerIconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: LIENZO.radius.icon,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
     backgroundColor: LIENZO.color.bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bannerImg: {
-    width: 52,
-    height: 52,
-    borderRadius: LIENZO.radius.icon,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
   },
   bannerTagPill: {
     backgroundColor: LIENZO.color.bg,
     borderRadius: LIENZO.radius.chip,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
   },
   bannerTag: {
     ...LIENZO.type.captionBold,
   },
+  bannerArrow: {
+    marginLeft: 'auto',
+  },
   bannerTitle: {
-    fontSize: 20,
-    lineHeight: 25,
+    fontSize: 17,
+    lineHeight: 21,
     fontFamily: LIENZO.font.bold,
     color: LIENZO.color.ink,
-    marginTop: 10,
   },
   bannerText: {
-    ...LIENZO.type.body,
+    ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
-    marginTop: 4,
-  },
-  bannerFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 12,
-  },
-  bannerAction: {
-    ...LIENZO.type.smallBold,
   },
   dotsRow: {
     flexDirection: 'row',

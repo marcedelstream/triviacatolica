@@ -739,4 +739,98 @@ export const SAINTS_AND_MARY_QUESTIONS: Question[] = [
       'La medalla lleva la jaculatoria "Oh María, sin pecado concebida, ruega por nosotros que recurrimos a ti", recordando la intercesión maternal de María.',
     sourceRef: 'Jn 2,5 · CIC 2677',
   },
+
+  // ============================================================================
+  // SANTOS · Nivel 6 (Especial): San Aníbal María Di Francia (5)
+  // ============================================================================
+  {
+    id: '44444444-4444-4444-8444-444444443601',
+    topicId: TOPIC_SA,
+    topicSlug: 'santos',
+    levelId: '22222222-2222-4222-8222-222222222306',
+    levelSlug: 'santos-san-anibal-maria-di-francia',
+    difficulty: 1,
+    prompt:
+      '¿Qué mandato de Jesús descubrió san Aníbal María Di Francia como el corazón de su misión, resumido en la palabra latina «Rogate»?',
+    options: [
+      '«Rueguen al Dueño de la mies que envíe obreros a su mies»',
+      '«Vayan y construyan templos de piedra»',
+      '«Guarden silencio y no prediquen en las ciudades»',
+      '«Escriban leyes para gobernar las naciones»',
+    ],
+    correctIndex: 0,
+    explanation:
+      'San Aníbal entendió el «Rogate» (rueguen) como un verdadero mandamiento de Jesús: rezar sin descanso por buenas y santas vocaciones para la Iglesia.',
+    sourceRef: 'Mt 9,37-38 · CIC 2635',
+  },
+  {
+    id: '44444444-4444-4444-8444-444444443602',
+    topicId: TOPIC_SA,
+    topicSlug: 'santos',
+    levelId: '22222222-2222-4222-8222-222222222306',
+    levelSlug: 'santos-san-anibal-maria-di-francia',
+    difficulty: 1,
+    prompt:
+      '¿En qué ciudad italiana nació san Aníbal María Di Francia y comenzó su entrega a los pobres y huérfanos en el humilde barrio de Avignone?',
+    options: ['Venecia', 'Mesina, en Sicilia', 'Milán', 'Florencia'],
+    correctIndex: 1,
+    explanation:
+      'Nacido en Mesina en 1851 en una familia noble, san Aníbal dejó toda comodidad para entrar al barrio más pobre, Avignone, y servir a Cristo en los más abandonados.',
+    sourceRef: 'Mt 25,40 · CIC 2443',
+  },
+  {
+    id: '44444444-4444-4444-8444-444444443603',
+    topicId: TOPIC_SA,
+    topicSlug: 'santos',
+    levelId: '22222222-2222-4222-8222-222222222306',
+    levelSlug: 'santos-san-anibal-maria-di-francia',
+    difficulty: 1,
+    prompt:
+      '¿Qué dos congregaciones religiosas fundó san Aníbal María Di Francia para vivir la oración por las vocaciones y la caridad?',
+    options: [
+      'Salesianos e Hijas de María Auxiliadora',
+      'Franciscanos y Clarisas',
+      'Padres Rogacionistas del Corazón de Jesús e Hijas del Divino Celo',
+      'Jesuitas y Carmelitas Descalzas',
+    ],
+    correctIndex: 2,
+    explanation:
+      'Fundó a las Hijas del Divino Celo (1887) y a los Padres Rogacionistas del Corazón de Jesús (1897), cuyo cuarto voto es precisamente vivir y difundir el «Rogate».',
+    sourceRef: 'Lc 10,2 · CIC 926',
+  },
+  {
+    id: '44444444-4444-4444-8444-444444443604',
+    topicId: TOPIC_SA,
+    topicSlug: 'santos',
+    levelId: '22222222-2222-4222-8222-222222222306',
+    levelSlug: 'santos-san-anibal-maria-di-francia',
+    difficulty: 1,
+    prompt:
+      '¿Con qué título cariñoso recordaba el pueblo a san Aníbal por abrir orfanatos y escuelas para los niños más necesitados?',
+    options: [
+      'Doctor de los concilios',
+      'Misionero de los mares',
+      'Constructor de catedrales',
+      'Padre de los huérfanos y de los pobres',
+    ],
+    correctIndex: 3,
+    explanation:
+      'A los niños y niñas huérfanos los llamaba sus «pequeños reyes», asegurándoles techo, educación, oficio y una familia donde sentirse amados por Dios.',
+    sourceRef: 'St 1,27 · CIC 2447',
+  },
+  {
+    id: '44444444-4444-4444-8444-444444443605',
+    topicId: TOPIC_SA,
+    topicSlug: 'santos',
+    levelId: '22222222-2222-4222-8222-222222222306',
+    levelSlug: 'santos-san-anibal-maria-di-francia',
+    difficulty: 2,
+    prompt:
+      '¿Qué Papa canonizó a san Aníbal María Di Francia el 16 de mayo de 2004, llamándolo precursor de la pastoral vocacional (fiesta el 1 de junio)?',
+    options: ['San Pío X', 'San Juan Pablo II', 'San Pablo VI', 'San Juan XXIII'],
+    correctIndex: 1,
+    explanation:
+      'San Juan Pablo II lo proclamó santo en la Plaza de San Pedro el 16 de mayo de 2004, reconociendo su carisma profético de oración por las vocaciones.',
+    sourceRef: 'Jn 15,16 · CIC 828',
+  },
 ];

@@ -17,7 +17,13 @@ export default function CategoriesScreen() {
     <ScreenFrame edges={['top', 'bottom']}>
       <View style={styles.topBar}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace('/(tabs)');
+            }
+          }}
           style={styles.backBtn}
           accessibilityRole="button"
           accessibilityLabel="Volver"

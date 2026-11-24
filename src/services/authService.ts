@@ -281,6 +281,158 @@ export async function linkIdentityProvider(
 }
 
 /**
+ * Inicia sesión con correo electrónico y contraseña (para usuarios ya registrados).
+ */
+export async function signInWithEmailPassword(
+  email: string,
+  password: string
+): Promise<{ ok: boolean; userId?: string; message: string }> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { ok: false, message: 'Ingresá un correo electrónico válido.' };
+  }
+  if (!password || password.length < 6) {
+    return { ok: false, message: 'Ingresá tu contraseña (mínimo 6 caracteres).' };
+  }
+
+  if (!isSupabaseConfigured || !supabase) {
+    return { ok: true, message: 'Sesión iniciada correctamente.' };
+  }
+
+  try {
+    const handoff = await prepareGuestHandoff();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password,
+    });
+
+    if (error || !data.user) {
+      const msg = error?.message?.toLowerCase() ?? '';
+      if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+        return {
+          ok: false,
+          message:
+            'Correo o contraseña incorrectos. Si antes entrabas con código al correo, usá "Entrar con código" para definir tu contraseña.',
+        };
+      }
+      return {
+        ok: false,
+        message: error?.message || 'No pudimos iniciar sesión. Revisá tus datos.',
+      };
+    }
+
+    await completeGuestHandoff(handoff, data.user.id);
+    await updateProfileAfterAuth();
+    return {
+      ok: true,
+      userId: data.user.id,
+      message: '¡Bienvenido de nuevo!',
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message: err instanceof Error ? err.message : 'No se pudo iniciar sesión.',
+    };
+  }
+}
+
+/**
+ * Crea una cuenta nueva con correo y contraseña. Si Supabase exige confirmar el correo,
+ * devuelve `needsEmailConfirmation: true` para ingresar el código de 6 dígitos en el mismo modal.
+ */
+export async function signUpWithEmailPassword(
+  email: string,
+  password: string,
+  displayName?: string
+): Promise<{
+  ok: boolean;
+  userId?: string;
+  needsEmailConfirmation?: boolean;
+  message: string;
+}> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { ok: false, message: 'Ingresá un correo electrónico válido.' };
+  }
+  if (!password || password.length < 6) {
+    return { ok: false, message: 'Elegí una contraseña de al menos 6 caracteres.' };
+  }
+
+  if (!isSupabaseConfigured || !supabase) {
+    return { ok: true, message: '¡Cuenta creada correctamente!' };
+  }
+
+  try {
+    const handoff = await prepareGuestHandoff();
+    const { data, error } = await supabase.auth.signUp({
+      email: cleanEmail,
+      password,
+      options: {
+        data: displayName?.trim() ? { display_name: displayName.trim() } : undefined,
+      },
+    });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes('already registered') || msg.includes('user already')) {
+        return {
+          ok: false,
+          message: 'Ese correo ya tiene una cuenta. Cambiá a "Iniciar sesión" o usá un código al correo.',
+        };
+      }
+      return { ok: false, message: error.message };
+    }
+
+    if (data.session && data.user) {
+      await completeGuestHandoff(handoff, data.user.id);
+      await updateProfileAfterAuth(displayName);
+      return {
+        ok: true,
+        userId: data.user.id,
+        message: '¡Cuenta creada! Tu progreso quedó guardado.',
+      };
+    }
+
+    // Supabase envió correo de confirmación (OTP de 6 dígitos)
+    return {
+      ok: true,
+      needsEmailConfirmation: true,
+      message: `Enviamos un código de 6 dígitos a ${cleanEmail} para confirmar tu cuenta.`,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message: err instanceof Error ? err.message : 'No pudimos crear la cuenta ahora.',
+    };
+  }
+}
+
+/**
+ * Permite definir o actualizar la contraseña de la cuenta actualmente autenticada
+ * (útil después de entrar con código OTP para cuentas creadas anteriormente).
+ */
+export async function updateUserPassword(
+  newPassword: string
+): Promise<{ ok: boolean; message: string }> {
+  if (!newPassword || newPassword.length < 6) {
+    return { ok: false, message: 'La contraseña debe tener al menos 6 caracteres.' };
+  }
+  if (!isSupabaseConfigured || !supabase) {
+    return { ok: true, message: 'Contraseña guardada.' };
+  }
+  try {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) return { ok: false, message: error.message };
+    return { ok: true, message: '¡Contraseña guardada! Ya podés entrar con correo y contraseña.' };
+  } catch (err) {
+    return {
+      ok: false,
+      message: err instanceof Error ? err.message : 'No pudimos guardar la contraseña.',
+    };
+  }
+}
+
+/**
  * Envía un código OTP de 6 dígitos al correo del usuario mediante Supabase Auth.
  */
 export async function sendEmailOtp(

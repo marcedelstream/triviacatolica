@@ -1,9 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   AtIcon,
-  BookOpenTextIcon,
   CheckCircleIcon,
+  GlobeHemisphereWestIcon,
   SparkleIcon,
+  TranslateIcon,
   UserCircleIcon,
 } from 'phosphor-react-native';
 import { useEffect, useState } from 'react';
@@ -21,6 +22,8 @@ import {
 
 import { ScreenFrame } from '@/components/ScreenFrame';
 import { LIENZO } from '@/constants/theme';
+import { COUNTRY_OPTIONS } from '@/data/countries';
+import { LANGUAGE_OPTIONS, translate, type AppLanguage } from '@/i18n/translations';
 import { playGameCue } from '@/lib/gameFeedback';
 import { checkUsernameAvailability } from '@/services/quizService';
 import { sanitizeUsername, useGameStore } from '@/store/useGameStore';
@@ -30,12 +33,15 @@ export default function OnboardingScreen() {
   const { nextLevelId } = useLocalSearchParams<{ nextLevelId?: string }>();
   const profile = useGameStore((s) => s.profile);
   const completeOnboarding = useGameStore((s) => s.completeOnboarding);
+  const setLanguageInStore = useGameStore((s) => s.setLanguage);
 
-  const [step, setStep] = useState<0 | 1>(0);
+  const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [selectedLang, setSelectedLang] = useState<AppLanguage>(profile.language ?? 'es');
   const [displayName, setDisplayName] = useState(
     profile.displayName === 'Peregrino' ? '' : profile.displayName
   );
   const [usernameInput, setUsernameInput] = useState(profile.username || '');
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(profile.country ?? 'PY');
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
 
@@ -54,14 +60,20 @@ export default function OnboardingScreen() {
   const cleanUsername = sanitizeUsername(usernameInput || displayName);
   const soundEnabled = profile.soundEnabled ?? true;
 
-  const handleContinue = () => {
+  const handleSelectLanguage = (code: AppLanguage) => {
+    playGameCue('tap', soundEnabled);
+    setSelectedLang(code);
+    setLanguageInStore(code);
+  };
+
+  const handleNextFromLang = () => {
     playGameCue('tap', soundEnabled);
     setStep(1);
   };
 
-  const handleFinish = async (skipAll = false) => {
+  const handleNextFromProfile = async () => {
     if (checkingUsername) return;
-    if (!skipAll && cleanUsername && cleanUsername !== profile.username) {
+    if (cleanUsername && cleanUsername !== profile.username) {
       setCheckingUsername(true);
       const availability = await checkUsernameAvailability(cleanUsername);
       setCheckingUsername(false);
@@ -70,10 +82,17 @@ export default function OnboardingScreen() {
         return;
       }
     }
+    playGameCue('tap', soundEnabled);
+    setStep(2);
+  };
+
+  const handleFinish = (skipAll = false) => {
     playGameCue('celebrate', soundEnabled);
     completeOnboarding(
       skipAll ? profile.displayName || 'Peregrino' : displayName.trim() || 'Peregrino',
-      skipAll ? profile.username || '' : cleanUsername
+      skipAll ? profile.username || '' : cleanUsername,
+      skipAll ? profile.country ?? null : selectedCountry,
+      selectedLang
     );
     if (nextLevelId) {
       router.replace({
@@ -98,20 +117,21 @@ export default function OnboardingScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Indicador de pasos */}
+          {/* Indicador de 3 pasos: Idioma -> Perfil -> Bandera */}
           <View style={styles.stepsRow}>
-            <View
-              style={[
-                styles.stepDot,
-                step === 0 ? styles.stepDotActive : styles.stepDotDone,
-              ]}
-            />
-            <View
-              style={[
-                styles.stepDot,
-                step === 1 ? styles.stepDotActive : styles.stepDotIdle,
-              ]}
-            />
+            {[0, 1, 2].map((idx) => (
+              <View
+                key={idx}
+                style={[
+                  styles.stepDot,
+                  step === idx
+                    ? styles.stepDotActive
+                    : step > idx
+                      ? styles.stepDotDone
+                      : styles.stepDotIdle,
+                ]}
+              />
+            ))}
           </View>
 
           <Animated.View
@@ -126,48 +146,77 @@ export default function OnboardingScreen() {
             {step === 0 ? (
               <>
                 <View style={styles.heroBadge}>
-                  <BookOpenTextIcon size={40} color={LIENZO.color.primary} weight="duotone" />
+                  <TranslateIcon size={40} color={LIENZO.color.primary} weight="duotone" />
                 </View>
 
-                <Text style={styles.title}>Bienvenido a Trivia Católica</Text>
-                <Text style={styles.subtitle}>
-                  Aprendé sobre la Biblia, los Santos, los Sacramentos y la Liturgia jugando
-                  unos minutos cada día, con explicaciones claras y citas completas.
+                <Text style={styles.title}>
+                  {translate(selectedLang, 'onboardingLangTitle')}
                 </Text>
+                <Text style={styles.subtitle}>
+                  {translate(selectedLang, 'onboardingLangSub')}
+                </Text>
+
+                <View style={styles.langList}>
+                  {LANGUAGE_OPTIONS.map((lang) => {
+                    const active = selectedLang === lang.code;
+                    return (
+                      <Pressable
+                        key={lang.code}
+                        onPress={() => handleSelectLanguage(lang.code)}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: active }}
+                        style={({ pressed }) => [
+                          styles.langCard,
+                          active && styles.langCardActive,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={styles.langFlag}>{lang.flag}</Text>
+                        <Text style={[styles.langLabel, active && styles.langLabelActive]}>
+                          {lang.nativeLabel}
+                        </Text>
+                        {active ? (
+                          <CheckCircleIcon
+                            size={22}
+                            color={LIENZO.color.primary}
+                            weight="duotone"
+                          />
+                        ) : null}
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
                 <View style={styles.highlights}>
                   <View style={styles.highlightRow}>
-                    <SparkleIcon size={22} color={LIENZO.color.gold} weight="duotone" />
+                    <SparkleIcon size={20} color={LIENZO.color.gold} weight="duotone" />
                     <Text style={styles.highlightText}>
-                      Desafío diario, niveles progresivos y noticias católicas con quiz.
-                    </Text>
-                  </View>
-                  <View style={styles.highlightRow}>
-                    <CheckCircleIcon size={22} color={LIENZO.color.success} weight="duotone" />
-                    <Text style={styles.highlightText}>
-                      Cada respuesta incluye explicación y lectura de la Biblia y el Catecismo.
+                      Desafío diario por Lectura + Evangelio, avatares desbloqueables con XP y
+                      ranking mundial y nacional.
                     </Text>
                   </View>
                 </View>
 
                 <Pressable
-                  onPress={handleContinue}
+                  onPress={handleNextFromLang}
                   style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.primaryBtnText}>Continuar</Text>
+                  <Text style={styles.primaryBtnText}>
+                    {translate(selectedLang, 'onboardingContinue')}
+                  </Text>
                 </Pressable>
               </>
-            ) : (
+            ) : step === 1 ? (
               <>
                 <View style={styles.heroBadge}>
                   <UserCircleIcon size={40} color={LIENZO.color.primary} weight="duotone" />
                 </View>
 
-                <Text style={styles.title}>Elegí tu nombre de usuario</Text>
+                <Text style={styles.title}>Elegí tu nombre y @usuario</Text>
                 <Text style={styles.subtitle}>
                   Así te vamos a saludar y te van a reconocer en el ranking y en los próximos
-                  desafíos contra otros jugadores.
+                  desafíos 1 vs 1.
                 </Text>
 
                 <View style={styles.form}>
@@ -189,7 +238,7 @@ export default function OnboardingScreen() {
                   </View>
 
                   <View style={styles.field}>
-                    <Text style={styles.label}>Nombre de usuario (para desafíos)</Text>
+                    <Text style={styles.label}>Nombre de usuario (para ranking y desafíos)</Text>
                     <View style={styles.usernameBox}>
                       <AtIcon size={20} color={LIENZO.color.primary} weight="regular" />
                       <TextInput
@@ -204,7 +253,7 @@ export default function OnboardingScreen() {
                         autoCorrect={false}
                         style={styles.usernameInput}
                         returnKeyType="done"
-                        onSubmitEditing={() => void handleFinish()}
+                        onSubmitEditing={() => void handleNextFromProfile()}
                       />
                     </View>
                     {usernameError ? (
@@ -224,22 +273,79 @@ export default function OnboardingScreen() {
                 </View>
 
                 <Pressable
-                  onPress={() => void handleFinish()}
+                  onPress={() => void handleNextFromProfile()}
                   disabled={checkingUsername}
                   style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
                   accessibilityRole="button"
                 >
                   <Text style={styles.primaryBtnText}>
-                    {checkingUsername ? 'Revisando usuario…' : 'Empezar a jugar'}
+                    {checkingUsername
+                      ? 'Revisando usuario…'
+                      : translate(selectedLang, 'onboardingContinue')}
                   </Text>
                 </Pressable>
 
                 <Pressable
-                  onPress={() => void handleFinish(true)}
+                  onPress={() => handleFinish(true)}
                   style={styles.skipBtn}
                   accessibilityRole="button"
                 >
                   <Text style={styles.skipText}>Completar después</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <View style={styles.heroBadge}>
+                  <GlobeHemisphereWestIcon
+                    size={40}
+                    color={LIENZO.color.primary}
+                    weight="duotone"
+                  />
+                </View>
+
+                <Text style={styles.title}>¿De qué país jugás?</Text>
+                <Text style={styles.subtitle}>
+                  Tu bandera aparecerá junto a tu nombre en el Ranking mundial y en tu país.
+                </Text>
+
+                <View style={styles.countryGrid}>
+                  {COUNTRY_OPTIONS.map((c) => {
+                    const active = selectedCountry === c.code;
+                    return (
+                      <Pressable
+                        key={c.code}
+                        onPress={() => {
+                          playGameCue('tap', soundEnabled);
+                          setSelectedCountry(c.code);
+                        }}
+                        style={({ pressed }) => [
+                          styles.countryChip,
+                          active && styles.countryChipActive,
+                          pressed && styles.pressed,
+                        ]}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: active }}
+                      >
+                        <Text style={styles.countryFlag}>{c.flag}</Text>
+                        <Text
+                          style={[styles.countryName, active && styles.countryNameActive]}
+                          numberOfLines={1}
+                        >
+                          {c.name}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <Pressable
+                  onPress={() => handleFinish(false)}
+                  style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.primaryBtnText}>
+                    {translate(selectedLang, 'onboardingStart')}
+                  </Text>
                 </Pressable>
               </>
             )}
@@ -264,7 +370,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    marginBottom: LIENZO.space.xxl,
+    marginBottom: LIENZO.space.xl,
   },
   stepDot: {
     height: 6,
@@ -287,8 +393,8 @@ const styles = StyleSheet.create({
     gap: LIENZO.space.lg,
   },
   heroBadge: {
-    width: 76,
-    height: 76,
+    width: 72,
+    height: 72,
     borderRadius: LIENZO.radius.block,
     backgroundColor: LIENZO.color.primarySoft,
     alignItems: 'center',
@@ -304,22 +410,53 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink2,
     textAlign: 'center',
   },
+  langList: {
+    width: '100%',
+    gap: 10,
+  },
+  langCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    borderRadius: LIENZO.radius.card,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 58,
+    backgroundColor: LIENZO.color.bg,
+  },
+  langCardActive: {
+    backgroundColor: LIENZO.color.primarySoft,
+    borderColor: LIENZO.color.primary,
+    borderWidth: LIENZO.borderWidth.active,
+  },
+  langFlag: {
+    fontSize: 24,
+  },
+  langLabel: {
+    ...LIENZO.type.item,
+    color: LIENZO.color.ink,
+    flex: 1,
+  },
+  langLabelActive: {
+    color: LIENZO.color.primaryInk,
+  },
   highlights: {
     width: '100%',
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.card,
-    padding: LIENZO.space.lg,
-    gap: LIENZO.space.md,
+    padding: LIENZO.space.md,
   },
   highlightRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: LIENZO.space.md,
+    gap: LIENZO.space.sm,
   },
   highlightText: {
     ...LIENZO.type.small,
-    color: LIENZO.color.ink,
+    color: LIENZO.color.ink2,
     flex: 1,
   },
   form: {
@@ -371,6 +508,41 @@ const styles = StyleSheet.create({
   errorText: {
     ...LIENZO.type.captionBold,
     color: LIENZO.color.danger,
+  },
+  countryGrid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  countryChip: {
+    width: '48.2%',
+    flexGrow: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    borderRadius: LIENZO.radius.icon,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+    minHeight: 48,
+    backgroundColor: LIENZO.color.bg,
+  },
+  countryChipActive: {
+    backgroundColor: LIENZO.color.primarySoft,
+    borderColor: LIENZO.color.primary,
+  },
+  countryFlag: {
+    fontSize: 20,
+  },
+  countryName: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.ink,
+    flex: 1,
+  },
+  countryNameActive: {
+    color: LIENZO.color.primaryInk,
   },
   primaryBtn: {
     width: '100%',

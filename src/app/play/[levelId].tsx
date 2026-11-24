@@ -1,7 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
+  ArrowRightIcon,
   ArrowSquareOutIcon,
+  CheckCircleIcon,
   ClockIcon,
+  CrownIcon,
   FlameIcon,
   HeartBreakIcon,
   HeartIcon,
@@ -12,21 +15,45 @@ import {
   StarIcon,
   XIcon,
 } from 'phosphor-react-native';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
+import { AvatarBadge } from '@/components/AvatarBadge';
+import { DailyReadingsView } from '@/components/DailyReadingsView';
 import { FeedbackSheet } from '@/components/FeedbackSheet';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ScreenFrame } from '@/components/ScreenFrame';
-import { PAYWALL_ENABLED } from '@/constants/features';
+import {
+  DAILY_FREE_QUIZZES_LIMIT,
+  FREE_PLAY_QUESTIONS_LIMIT,
+  PAYWALL_ENABLED,
+} from '@/constants/features';
 import { LIENZO, getCategoryTheme } from '@/constants/theme';
 import { MAX_HEARTS } from '@/data/localSeed';
 import { playGameCue } from '@/lib/gameFeedback';
+import { getTodayDateKey } from '@/services/dailyChallengeService';
 import {
   selectQuestionsForDailyChallenge,
   selectQuestionsForLevel,
 } from '@/services/quizService';
+import {
+  completeOpponentVersusTurn,
+  createVersusMatchRemote,
+  fetchVersusMatchById,
+} from '@/services/versusService';
 import { useGameStore, type RoundCompletionResult } from '@/store/useGameStore';
+import type { Question, VersusMatch } from '@/types/trivia';
 
 const SECONDS_PER_QUESTION = 25;
 
@@ -38,6 +65,72 @@ const PRAISE_PHRASES = [
   '¡Respuesta perfecta!',
 ];
 
+function hashSeed(input: string, baseSeed: number): number {
+  let h = (baseSeed ^ 0x9e3779b9) >>> 0;
+  for (let i = 0; i < input.length; i += 1) {
+    h = Math.imul(h ^ input.charCodeAt(i), 0x85ebca6b) >>> 0;
+  }
+  return h || 1;
+}
+
+function nextPrng(state: number): number {
+  let t = (state + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/**
+ * Mezcla al azar el orden de las 4 opciones de cada pregunta para que cada jugador
+ * y cada partida reciba posiciones distintas, remapeando `correctIndex`.
+ */
+function shuffleQuestionOptions(question: Question, sessionSeed: number): Question {
+  const indexed = question.options.map((text, idx) => ({
+    text,
+    isCorrect: idx === question.correctIndex,
+  }));
+  let rng = hashSeed(question.id, sessionSeed);
+  for (let i = indexed.length - 1; i > 0; i -= 1) {
+    rng = (rng + 0x6d2b79f5) | 0;
+    const j = Math.floor(nextPrng(rng) * (i + 1));
+    const tmp = indexed[i];
+    indexed[i] = indexed[j];
+    indexed[j] = tmp;
+  }
+  const newCorrectIndex = indexed.findIndex((item) => item.isCorrect);
+  return {
+    ...question,
+    options: [
+      indexed[0].text,
+      indexed[1].text,
+      indexed[2].text,
+      indexed[3].text,
+    ],
+    correctIndex: (newCorrectIndex >= 0 ? newCorrectIndex : 0) as 0 | 1 | 2 | 3,
+  };
+}
+
+function pickRandomMixedQuestions(
+  pool: Question[],
+  count: number,
+  sessionSeed: number
+): Question[] {
+  const copy = [...pool];
+  let rng = hashSeed('mixed-pool', sessionSeed);
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    rng = (rng + 0x6d2b79f5) | 0;
+    const j = Math.floor(nextPrng(rng) * (i + 1));
+    const tmp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = tmp;
+  }
+  return copy.slice(0, Math.min(count, copy.length));
+}
+
+function createRandomSeed(): number {
+  return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+}
+
 export default function PlayScreen() {
   const { levelId } = useLocalSearchParams<{ levelId: string }>();
   const router = useRouter();
@@ -47,15 +140,79 @@ export default function PlayScreen() {
   const allQuestions = useGameStore((s) => s.questions);
   const dailyChallenge = useGameStore((s) => s.dailyChallenge);
   const vaticanNews = useGameStore((s) => s.vaticanNews);
+  const wrongQuestionIds = useGameStore((s) => s.wrongQuestionIds);
+  const dailyCompletedDate = useGameStore((s) => s.dailyCompletedDate);
+  const versusMatches = useGameStore((s) => s.versusMatches);
+  const leaderboardPeers = useGameStore((s) => s.leaderboardPeers);
   const profile = useGameStore((s) => s.profile);
   const consumeHeart = useGameStore((s) => s.consumeHeart);
   const refillHeartsNow = useGameStore((s) => s.refillHeartsNow);
   const completeRound = useGameStore((s) => s.completeRound);
   const submitQuestionReport = useGameStore((s) => s.submitQuestionReport);
+  const setAvatar = useGameStore((s) => s.setAvatar);
+  const upsertVersusMatch = useGameStore((s) => s.upsertVersusMatch);
+  const getDailyQuizzesPlayedToday = useGameStore((s) => s.getDailyQuizzesPlayedToday);
+
+  const [sessionSeed, setSessionSeed] = useState<number>(() => createRandomSeed());
+  const [hasStartedDailyQuiz, setHasStartedDailyQuiz] = useState(false);
+  const [loadedVersusMatch, setLoadedVersusMatch] = useState<VersusMatch | null>(null);
+  const [versusLookupKey, setVersusLookupKey] = useState<string | null>(null);
+  const [completedVersusMatch, setCompletedVersusMatch] = useState<VersusMatch | null>(null);
 
   const soundEnabled = profile.soundEnabled ?? true;
 
   const isDaily = levelId === 'daily' || levelId === 'desafio-del-dia';
+  const isErrorReview = levelId === 'repaso-errores';
+  const isFreePlay = levelId === 'jugar-libre';
+  const isVersusResponse =
+    typeof levelId === 'string' && levelId.startsWith('versus-match-');
+  const versusMatchId = isVersusResponse ? levelId.replace(/^versus-match-/, '') : null;
+  const isVersusNew =
+    typeof levelId === 'string' && levelId.startsWith('versus-') && !isVersusResponse;
+  const isVersus = isVersusNew || isVersusResponse;
+
+  const localVersusMatch = useMemo(() => {
+    if (versusMatchId) {
+      return versusMatches.find((m) => m.id === versusMatchId) ?? null;
+    }
+    if (isVersusNew) {
+      const targetUser = levelId.replace(/^versus-/, '').replace(/^@/, '').toLowerCase();
+      return (
+        versusMatches.find(
+          (m) =>
+            m.status === 'waiting_opponent' &&
+            m.challengerId === profile.id &&
+            m.opponentUsername.toLowerCase() === targetUser
+        ) ?? null
+      );
+    }
+    return null;
+  }, [isVersusNew, levelId, profile.id, versusMatchId, versusMatches]);
+
+  const activeVersusMatch = loadedVersusMatch ?? localVersusMatch;
+  const isLoadingVersusMatch =
+    Boolean(versusMatchId) && !activeVersusMatch && versusLookupKey !== versusMatchId;
+
+  useEffect(() => {
+    if (!versusMatchId || localVersusMatch) return;
+    let active = true;
+    void fetchVersusMatchById(versusMatchId).then((res) => {
+      if (!active) return;
+      if (res) setLoadedVersusMatch(res);
+      setVersusLookupKey(versusMatchId);
+    });
+    return () => {
+      active = false;
+    };
+  }, [localVersusMatch, versusMatchId]);
+
+  const versusOpponent = isVersusNew
+    ? levelId.replace(/^versus-/, '').replace(/^@/, '')
+    : activeVersusMatch
+      ? activeVersusMatch.challengerId === profile.id
+        ? activeVersusMatch.opponentUsername
+        : activeVersusMatch.challengerUsername
+      : null;
   const isNewsQuiz =
     typeof levelId === 'string' &&
     (levelId.startsWith('news-') || levelId.startsWith('noticia-'));
@@ -70,33 +227,78 @@ export default function PlayScreen() {
 
   const currentLevel = useMemo(
     () =>
-      isDaily || isNewsQuiz
+      isDaily || isNewsQuiz || isErrorReview || isFreePlay || isVersus
         ? null
         : levels.find((l) => l.slug === levelId || l.id === levelId) ?? levels[0],
-    [isDaily, isNewsQuiz, levelId, levels]
+    [isDaily, isErrorReview, isFreePlay, isNewsQuiz, isVersus, levelId, levels]
   );
 
   const shareableSlug = isDaily
     ? 'desafio-del-dia'
-    : currentNewsItem
-      ? `noticia-${currentNewsItem.id}`
-      : (currentLevel?.slug ?? 'desafio-del-dia');
+    : isFreePlay
+      ? 'jugar-libre'
+      : completedVersusMatch
+        ? `versus-match-${completedVersusMatch.id}`
+        : isVersus && versusOpponent
+          ? `versus-${versusOpponent}`
+          : currentNewsItem
+            ? `noticia-${currentNewsItem.id}`
+            : (currentLevel?.slug ?? 'desafio-del-dia');
   const shareUrl = `https://triviacatolica.com/play/${shareableSlug}`;
 
   const roundQuestions = useMemo(() => {
-    if (isNewsQuiz && currentNewsItem) {
-      return currentNewsItem.questions;
+    let base: Question[];
+    if (isErrorReview) {
+      const wrongSet = new Set(wrongQuestionIds);
+      const fromBank = allQuestions.filter((q) => wrongSet.has(q.id));
+      base = (fromBank.length > 0 ? fromBank : allQuestions).slice(0, 5);
+    } else if (isVersusResponse && activeVersusMatch && activeVersusMatch.questionIds.length > 0) {
+      const byId = new Map(allQuestions.map((q) => [q.id, q]));
+      const exact = activeVersusMatch.questionIds
+        .map((id) => byId.get(id))
+        .filter((q): q is Question => Boolean(q));
+      base =
+        exact.length > 0
+          ? exact
+          : pickRandomMixedQuestions(allQuestions, FREE_PLAY_QUESTIONS_LIMIT, sessionSeed);
+    } else if (isFreePlay || isVersus) {
+      base = pickRandomMixedQuestions(allQuestions, FREE_PLAY_QUESTIONS_LIMIT, sessionSeed);
+    } else if (isNewsQuiz && currentNewsItem) {
+      base = currentNewsItem.questions;
+    } else if (isDaily) {
+      base =
+        dailyChallenge.questions.length > 0
+          ? dailyChallenge.questions
+          : selectQuestionsForDailyChallenge(allQuestions, 5);
+    } else if (currentLevel) {
+      base = selectQuestionsForLevel(allQuestions, currentLevel);
+    } else {
+      base = allQuestions.slice(0, 5);
     }
-    if (isDaily) {
-      return dailyChallenge.questions.length > 0
-        ? dailyChallenge.questions
-        : selectQuestionsForDailyChallenge(allQuestions, 5);
+    return base.map((q) => shuffleQuestionOptions(q, sessionSeed));
+  }, [
+    activeVersusMatch,
+    allQuestions,
+    currentLevel,
+    currentNewsItem,
+    dailyChallenge.questions,
+    isDaily,
+    isErrorReview,
+    isFreePlay,
+    isNewsQuiz,
+    isVersus,
+    isVersusResponse,
+    sessionSeed,
+    wrongQuestionIds,
+  ]);
+
+  const handleSafeExit = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
     }
-    if (currentLevel) {
-      return selectQuestionsForLevel(allQuestions, currentLevel);
-    }
-    return allQuestions.slice(0, 5);
-  }, [allQuestions, currentLevel, currentNewsItem, dailyChallenge.questions, isDaily, isNewsQuiz]);
+  };
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -104,6 +306,8 @@ export default function PlayScreen() {
   const [timedOut, setTimedOut] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(SECONDS_PER_QUESTION);
   const [correctIds, setCorrectIds] = useState<string[]>([]);
+  const [wrongIds, setWrongIds] = useState<string[]>([]);
+  const [equippedAvatarId, setEquippedAvatarId] = useState<string | null>(null);
   const [comboCount, setComboCount] = useState(0);
   const [lastXpGain, setLastXpGain] = useState(15);
   const [roundXpRunning, setRoundXpRunning] = useState(0);
@@ -113,12 +317,17 @@ export default function PlayScreen() {
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Animaciones suaves Lienzo (150-250ms)
-  const shakeAnim = useRef(new Animated.Value(0)).current;
-  const xpPopAnim = useRef(new Animated.Value(0)).current;
-  const starScale1 = useRef(new Animated.Value(0.4)).current;
-  const starScale2 = useRef(new Animated.Value(0.4)).current;
-  const starScale3 = useRef(new Animated.Value(0.4)).current;
+  const [shakeAnim] = useState(() => new Animated.Value(0));
+  const [xpPopAnim] = useState(() => new Animated.Value(0));
+  const [starScale1] = useState(() => new Animated.Value(0.4));
+  const [starScale2] = useState(() => new Animated.Value(0.4));
+  const [starScale3] = useState(() => new Animated.Value(0.4));
   const starScales = useMemo(() => [starScale1, starScale2, starScale3], [starScale1, starScale2, starScale3]);
+
+  const alreadyCompletedDailyToday =
+    isDaily && dailyCompletedDate === getTodayDateKey() && !summary;
+  const showingDailyReadingsIntro =
+    isDaily && !alreadyCompletedDailyToday && !hasStartedDailyQuiz && !summary;
 
   const activeQuestion = roundQuestions[currentIndex];
   const topicForQuestion = topics.find(
@@ -126,7 +335,7 @@ export default function PlayScreen() {
   );
   const catTheme = getCategoryTheme(activeQuestion?.topicSlug ?? 'nuevo-testamento');
 
-  const triggerShake = () => {
+  const triggerShake = useCallback(() => {
     shakeAnim.setValue(0);
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 7, duration: 55, useNativeDriver: true }),
@@ -134,7 +343,7 @@ export default function PlayScreen() {
       Animated.timing(shakeAnim, { toValue: 4, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
     ]).start();
-  };
+  }, [shakeAnim]);
 
   const triggerXpPop = () => {
     xpPopAnim.setValue(0);
@@ -167,7 +376,6 @@ export default function PlayScreen() {
     let step = 0;
     const steps = 18;
     const target = summary.xpEarned;
-    setAnimatedXp(0);
     const id = setInterval(() => {
       step += 1;
       if (step >= steps) {
@@ -183,10 +391,17 @@ export default function PlayScreen() {
 
   // Temporizador opcional (desactivado por defecto en ajustes pensando en adultos mayores)
   useEffect(() => {
-    if (!profile.timerEnabled || isRevealed || summary || outOfHearts || !activeQuestion) {
+    if (
+      !profile.timerEnabled ||
+      isRevealed ||
+      summary ||
+      outOfHearts ||
+      alreadyCompletedDailyToday ||
+      showingDailyReadingsIntro ||
+      !activeQuestion
+    ) {
       return;
     }
-    setSecondsLeft(SECONDS_PER_QUESTION);
     const interval = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
@@ -194,6 +409,9 @@ export default function PlayScreen() {
           setTimedOut(true);
           setIsRevealed(true);
           setComboCount(0);
+          setWrongIds((prevWrong) =>
+            prevWrong.includes(activeQuestion.id) ? prevWrong : [...prevWrong, activeQuestion.id]
+          );
           playGameCue('wrong', soundEnabled);
           triggerShake();
           const remaining = consumeHeart();
@@ -206,7 +424,19 @@ export default function PlayScreen() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeQuestion, consumeHeart, currentIndex, isRevealed, outOfHearts, profile.timerEnabled, soundEnabled, summary]);
+  }, [
+    activeQuestion,
+    alreadyCompletedDailyToday,
+    consumeHeart,
+    currentIndex,
+    isRevealed,
+    outOfHearts,
+    profile.timerEnabled,
+    showingDailyReadingsIntro,
+    soundEnabled,
+    summary,
+    triggerShake,
+  ]);
 
   const handleSelectOption = (idx: number) => {
     setSelectedIndex(idx);
@@ -229,6 +459,9 @@ export default function PlayScreen() {
       triggerXpPop();
     } else {
       setComboCount(0);
+      setWrongIds((prev) =>
+        prev.includes(activeQuestion.id) ? prev : [...prev, activeQuestion.id]
+      );
       playGameCue('wrong', soundEnabled);
       triggerShake();
       const remaining = consumeHeart();
@@ -245,21 +478,63 @@ export default function PlayScreen() {
       setSelectedIndex(null);
       setIsRevealed(false);
       setTimedOut(false);
+      setSecondsLeft(SECONDS_PER_QUESTION);
       return;
     }
 
     const result = completeRound({
-      levelId: isDaily ? 'daily' : (currentLevel?.id ?? `news-${newsQuizId ?? 'item'}`),
+      levelId: isErrorReview
+        ? 'error-review'
+        : isFreePlay
+          ? 'free-play'
+          : isVersus
+            ? 'versus'
+            : isDaily
+              ? 'daily'
+              : (currentLevel?.id ?? `news-${newsQuizId ?? 'item'}`),
       topicSlug: currentLevel?.topicSlug ?? activeQuestion?.topicSlug ?? 'nuevo-testamento',
       newsQuizId: currentNewsItem?.id,
       correctCount: correctIds.length,
       totalQuestions: roundQuestions.length,
       correctQuestionIds: correctIds,
+      wrongQuestionIds: wrongIds,
     });
+    setAnimatedXp(0);
     setSummary(result);
+
+    // Guardar o resolver el duelo Versus por turnos (estilo Preguntados, con empate incluido)
+    if (isVersusNew && versusOpponent) {
+      const peer = leaderboardPeers.find(
+        (p) => p.username?.trim().toLowerCase() === versusOpponent.toLowerCase()
+      );
+      void createVersusMatchRemote({
+        challengerId: profile.id,
+        challengerUsername: profile.username || 'peregrino',
+        challengerName: profile.displayName || 'Peregrino',
+        opponentId: peer?.id ?? null,
+        opponentUsername: versusOpponent.toLowerCase(),
+        opponentName: peer?.displayName ?? `@${versusOpponent}`,
+        questionIds: roundQuestions.map((q) => q.id),
+        totalQuestions: roundQuestions.length,
+        challengerScore: correctIds.length,
+      }).then((saved) => {
+        upsertVersusMatch(saved);
+        setCompletedVersusMatch(saved);
+      });
+    } else if (isVersusResponse && activeVersusMatch && activeVersusMatch.status === 'waiting_opponent') {
+      void completeOpponentVersusTurn({
+        match: activeVersusMatch,
+        opponentId: profile.id,
+        opponentScore: correctIds.length,
+      }).then((resolved) => {
+        upsertVersusMatch(resolved);
+        setCompletedVersusMatch(resolved);
+      });
+    }
   };
 
   const handleRetry = () => {
+    if (isDaily) return;
     if (!profile.isPremium && profile.hearts <= 0) {
       if (PAYWALL_ENABLED) {
         router.push('/paywall?reason=hearts');
@@ -267,26 +542,261 @@ export default function PlayScreen() {
       }
       refillHeartsNow();
     }
+    setSessionSeed(createRandomSeed());
     setCurrentIndex(0);
     setSelectedIndex(null);
     setIsRevealed(false);
     setTimedOut(false);
+    setSecondsLeft(SECONDS_PER_QUESTION);
     setCorrectIds([]);
+    setWrongIds([]);
+    setEquippedAvatarId(null);
     setComboCount(0);
     setRoundXpRunning(0);
     setOutOfHearts(false);
     setSummary(null);
   };
 
+  if (isLoadingVersusMatch) {
+    return (
+      <ScreenFrame edges={['top', 'bottom']}>
+        <View style={styles.outContainer}>
+          <ActivityIndicator color={LIENZO.color.primary} size="large" />
+          <Text style={styles.summarySub}>Cargando duelo Versus…</Text>
+        </View>
+      </ScreenFrame>
+    );
+  }
+
+  // Si ya jugaste tu turno en este duelo (o el duelo ya terminó), NO dejar volver a jugarlo
+  const selfUsernameLower = profile.username?.trim().toLowerCase() ?? '';
+  const isChallengerOfActive = Boolean(
+    activeVersusMatch &&
+      (activeVersusMatch.challengerId === profile.id ||
+        (selfUsernameLower &&
+          activeVersusMatch.challengerUsername.toLowerCase() === selfUsernameLower))
+  );
+  const versusAlreadyWaitingOnOpponent = Boolean(
+    !summary &&
+      isVersus &&
+      activeVersusMatch &&
+      activeVersusMatch.status === 'waiting_opponent' &&
+      isChallengerOfActive
+  );
+  const versusAlreadyCompleted = Boolean(
+    !summary && isVersus && activeVersusMatch && activeVersusMatch.status === 'completed'
+  );
+
+  if ((versusAlreadyWaitingOnOpponent || versusAlreadyCompleted) && activeVersusMatch) {
+    const rivalName = isChallengerOfActive
+      ? activeVersusMatch.opponentUsername
+      : activeVersusMatch.challengerUsername;
+    const myScore = isChallengerOfActive
+      ? activeVersusMatch.challengerScore
+      : (activeVersusMatch.opponentScore ?? 0);
+    const rivalScore = isChallengerOfActive
+      ? (activeVersusMatch.opponentScore ?? 0)
+      : activeVersusMatch.challengerScore;
+    const inviteUrl = `https://triviacatolica.com/play/versus-match-${activeVersusMatch.id}`;
+
+    const resultTitle = versusAlreadyWaitingOnOpponent
+      ? `Esperando a @${rivalName}`
+      : activeVersusMatch.winner === 'tie'
+        ? `Empate contra @${rivalName}`
+        : (isChallengerOfActive && activeVersusMatch.winner === 'challenger') ||
+            (!isChallengerOfActive && activeVersusMatch.winner === 'opponent')
+          ? `¡Le ganaste a @${rivalName}!`
+          : `Ganó @${rivalName}`;
+
+    return (
+      <ScreenFrame edges={['top', 'bottom']}>
+        <View style={styles.outContainer}>
+          <View
+            style={[
+              styles.outIconBox,
+              { backgroundColor: LIENZO.color.primarySoft },
+            ]}
+          >
+            {versusAlreadyWaitingOnOpponent ? (
+              <ClockIcon size={36} color={LIENZO.color.primaryInk} weight="duotone" />
+            ) : (
+              <CheckCircleIcon size={36} color={LIENZO.color.success} weight="duotone" />
+            )}
+          </View>
+          <Text style={styles.summaryTitle}>{resultTitle}</Text>
+          <Text style={styles.summarySub}>
+            {versusAlreadyWaitingOnOpponent
+              ? `Ya completaste tu turno con ${activeVersusMatch.challengerScore}/${activeVersusMatch.totalQuestions}. Estamos esperando que @${rivalName} juegue su turno con las mismas ${activeVersusMatch.totalQuestions} preguntas.`
+              : `Este duelo ya finalizó con marcador ${myScore} – ${rivalScore}. Podés iniciar un nuevo desafío desde Modo Versus.`}
+          </Text>
+
+          <View style={styles.summaryActions}>
+            <Pressable
+              onPress={() => router.replace('/versus')}
+              style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.primaryBtnText}>Ir a Modo Versus</Text>
+            </Pressable>
+
+            {versusAlreadyWaitingOnOpponent ? (
+              <Pressable
+                onPress={async () => {
+                  const textOnly = `¡Te desafié en Trivia Católica! Hice ${activeVersusMatch.challengerScore}/${activeVersusMatch.totalQuestions}. Es tu turno de contestar las mismas preguntas:`;
+                  const full = `${textOnly} ${inviteUrl}`;
+                  if (Platform.OS === 'web') {
+                    try {
+                      if (typeof navigator !== 'undefined' && navigator.share) {
+                        await navigator.share({ title: 'Trivia Católica · Versus', text: textOnly, url: inviteUrl });
+                        return;
+                      }
+                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                        await navigator.clipboard.writeText(full);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2400);
+                        return;
+                      }
+                    } catch {
+                      // fallback
+                    }
+                  }
+                  await Share.share({ message: full });
+                }}
+                style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <ShareNetworkIcon size={18} color={LIENZO.color.ink} weight="regular" />
+                <Text style={styles.secondaryBtnText}>
+                  {copiedLink ? '¡Enlace copiado!' : 'Reenviar enlace al rival'}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+      </ScreenFrame>
+    );
+  }
+
+  if (alreadyCompletedDailyToday) {
+    return (
+      <ScreenFrame edges={['top', 'bottom']}>
+        <View style={styles.header}>
+          <Pressable
+            onPress={handleSafeExit}
+            style={styles.closeBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Volver al inicio"
+          >
+            <XIcon size={24} color={LIENZO.color.ink} weight="regular" />
+          </Pressable>
+          <Text style={styles.dailyHeaderTitle} numberOfLines={1}>
+            Desafío del día
+          </Text>
+          <View style={styles.dailyHeaderSpacer} />
+        </View>
+
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.dailyIntroContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.dailyDoneBanner}>
+            <CheckCircleIcon size={28} color={LIENZO.color.success} weight="duotone" />
+            <View style={styles.dailyDoneBannerBody}>
+              <Text style={styles.dailyDoneTitle}>¡Ya completaste el Desafío de hoy!</Text>
+              <Text style={styles.dailyDoneText}>
+                El desafío diario se puede jugar una sola vez por día. Volvé mañana para nuevas
+                lecturas y sumar más XP.
+              </Text>
+            </View>
+          </View>
+
+          <DailyReadingsView dailyChallenge={dailyChallenge} />
+        </ScrollView>
+
+        <View style={styles.dailyIntroFooter}>
+          <Pressable
+            onPress={handleSafeExit}
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            <Text style={styles.primaryBtnText}>Volver al inicio</Text>
+          </Pressable>
+        </View>
+      </ScreenFrame>
+    );
+  }
+
+  if (showingDailyReadingsIntro) {
+    return (
+      <ScreenFrame edges={['top', 'bottom']}>
+        <View style={styles.header}>
+          <Pressable
+            onPress={handleSafeExit}
+            style={styles.closeBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Salir de las lecturas"
+          >
+            <XIcon size={24} color={LIENZO.color.ink} weight="regular" />
+          </Pressable>
+          <Text style={styles.dailyHeaderTitle} numberOfLines={1}>
+            Lecturas de hoy
+          </Text>
+          <View style={styles.dailyHeaderSpacer} />
+        </View>
+
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.dailyIntroContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <DailyReadingsView dailyChallenge={dailyChallenge} />
+        </ScrollView>
+
+        <View style={styles.dailyIntroFooter}>
+          <Pressable
+            onPress={() => {
+              playGameCue('tap', soundEnabled);
+              setSecondsLeft(SECONDS_PER_QUESTION);
+              setHasStartedDailyQuiz(true);
+            }}
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            <Text style={styles.primaryBtnText}>
+              Ya leí · Comenzar desafío ({roundQuestions.length})
+            </Text>
+            <ArrowRightIcon size={20} color={LIENZO.color.onPrimary} weight="bold" />
+          </Pressable>
+        </View>
+      </ScreenFrame>
+    );
+  }
+
   if (summary) {
+    const versusOutcomeTitle =
+      completedVersusMatch?.status === 'completed'
+        ? completedVersusMatch.winner === 'tie'
+          ? '¡Empate en el duelo!'
+          : (completedVersusMatch.challengerId === profile.id &&
+                completedVersusMatch.winner === 'challenger') ||
+              (completedVersusMatch.challengerId !== profile.id &&
+                completedVersusMatch.winner === 'opponent')
+            ? '¡Ganaste el duelo Versus!'
+            : `Ganó @${versusOpponent ?? 'tu rival'}`
+        : isVersusNew && versusOpponent
+          ? `¡Turno listo contra @${versusOpponent}!`
+          : null;
+
     const congratsTitle =
-      summary.stars === 3
+      versusOutcomeTitle ??
+      (summary.stars === 3
         ? '¡Felicitaciones, puntaje perfecto!'
         : summary.stars === 2
           ? '¡Muy buen trabajo!'
           : summary.stars === 1
             ? '¡Bien hecho, seguís sumando!'
-            : 'Buen intento, seguí practicando';
+            : 'Buen intento, seguí practicando');
 
     return (
       <ScreenFrame edges={['top', 'bottom']}>
@@ -315,12 +825,29 @@ export default function PlayScreen() {
           <Text style={styles.summaryTitle}>{congratsTitle}</Text>
 
           <Text style={styles.summarySub}>
-            Respondiste bien {correctIds.length} de {roundQuestions.length} preguntas
-            {currentNewsItem
-              ? ` sobre "${currentNewsItem.title}".`
-              : isDaily
-                ? ' del Desafío del día.'
-                : ` en ${currentLevel?.title ?? 'este nivel'}.`}
+            {completedVersusMatch?.status === 'completed'
+              ? `Marcador final: Vos ${
+                  completedVersusMatch.challengerId === profile.id
+                    ? completedVersusMatch.challengerScore
+                    : (completedVersusMatch.opponentScore ?? correctIds.length)
+                } – ${
+                  completedVersusMatch.challengerId === profile.id
+                    ? (completedVersusMatch.opponentScore ?? 0)
+                    : completedVersusMatch.challengerScore
+                } @${versusOpponent ?? 'rival'}.`
+              : isVersusNew && versusOpponent
+                ? `Hiciste ${correctIds.length} de ${roundQuestions.length}. Ahora es el turno de @${versusOpponent} con las mismas 5 preguntas.`
+                : `Respondiste bien ${correctIds.length} de ${roundQuestions.length} preguntas${
+                    isErrorReview
+                      ? ' en tu Repaso de errores.'
+                      : isFreePlay
+                        ? ' en Juego libre (5 al azar).'
+                        : currentNewsItem
+                          ? ` sobre "${currentNewsItem.title}".`
+                          : isDaily
+                            ? ' del Desafío del día.'
+                            : ` en ${currentLevel?.title ?? 'este nivel'}.`
+                  }`}
           </Text>
 
           <View style={styles.summaryStats}>
@@ -338,21 +865,88 @@ export default function PlayScreen() {
             </View>
           </View>
 
+          {summary.streakShieldActivated ? (
+            <View style={styles.shieldBanner}>
+              <ShieldCheckIcon size={22} color={LIENZO.color.success} weight="duotone" />
+              <Text style={styles.shieldBannerText}>
+                Tu Protector de Racha Pro salvó tu racha esta semana.
+              </Text>
+            </View>
+          ) : null}
+
+          {summary.newlyUnlockedAvatars.length > 0 ? (
+            <View style={styles.avatarUnlockCard}>
+              <AvatarBadge
+                avatarId={summary.newlyUnlockedAvatars[0].id}
+                size={60}
+                highlight
+              />
+              <View style={styles.authPromptBody}>
+                <Text style={styles.avatarUnlockTag}>¡Nuevo personaje desbloqueado!</Text>
+                <Text style={styles.avatarUnlockTitle}>
+                  {summary.newlyUnlockedAvatars[0].name}
+                </Text>
+                <Text style={styles.authPromptText}>
+                  {summary.newlyUnlockedAvatars[0].subtitle}. Ya podés usarlo como tu foto de
+                  perfil.
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => {
+                  const unlocked = summary.newlyUnlockedAvatars[0];
+                  setAvatar(unlocked.id);
+                  setEquippedAvatarId(unlocked.id);
+                }}
+                style={styles.authPromptBtn}
+                accessibilityRole="button"
+              >
+                <Text style={styles.authPromptBtnText}>
+                  {equippedAvatarId === summary.newlyUnlockedAvatars[0].id
+                    ? '¡Equipado!'
+                    : 'Usar como foto de perfil'}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+
           {summary.shouldPromptAuth ? (
             <View style={styles.authPromptCard}>
               <ShieldCheckIcon size={26} color={LIENZO.color.primary} weight="duotone" />
               <View style={styles.authPromptBody}>
-                <Text style={styles.authPromptTitle}>Guardá tu racha y tu progreso</Text>
+                <Text style={styles.authPromptTitle}>¡Completaste tu quiz de prueba!</Text>
                 <Text style={styles.authPromptText}>
-                  Ya completaste varias partidas. Vinculá Google o Apple para no perder tus puntos.
+                  Creá tu cuenta gratis o iniciá sesión para seguir jugando, guardar tus XP y entrar
+                  al Ranking.
                 </Text>
               </View>
               <Pressable
-                onPress={() => router.push('/auth-modal')}
+                onPress={() => router.push('/auth-modal?reason=guest_limit')}
                 style={styles.authPromptBtn}
                 accessibilityRole="button"
               >
-                <Text style={styles.authPromptBtnText}>Guardar cuenta</Text>
+                <Text style={styles.authPromptBtnText}>Crear cuenta / Iniciar sesión</Text>
+              </Pressable>
+            </View>
+          ) : PAYWALL_ENABLED && !profile.isAnonymous && !profile.isPremium ? (
+            <View style={styles.proUpsellCard}>
+              <View style={styles.proUpsellHead}>
+                <CrownIcon size={22} color={LIENZO.color.goldInk} weight="duotone" />
+                <Text style={styles.proUpsellTitle}>
+                  {Math.max(0, DAILY_FREE_QUIZZES_LIMIT - getDailyQuizzesPlayedToday()) === 0
+                    ? 'Completaste tus 3 quizzes gratuitos de hoy'
+                    : `Te quedan ${Math.max(0, DAILY_FREE_QUIZZES_LIMIT - getDailyQuizzesPlayedToday())} quizzes gratis hoy`}
+                </Text>
+              </View>
+              <Text style={styles.authPromptText}>
+                Con Trivia Católica Pro jugás sin límite diario, sumás XP más rápido y desbloqueás
+                todos los personajes antes.
+              </Text>
+              <Pressable
+                onPress={() => router.push('/paywall?reason=daily_limit')}
+                style={styles.proUpsellBtn}
+                accessibilityRole="button"
+              >
+                <Text style={styles.proUpsellBtnText}>Ver Plan Pro</Text>
               </Pressable>
             </View>
           ) : null}
@@ -360,16 +954,22 @@ export default function PlayScreen() {
           <View style={styles.summaryActions}>
             <Pressable
               onPress={async () => {
-                const shareMessage = `Respondí ${correctIds.length}/${roundQuestions.length} en Trivia Católica (${
-                  currentNewsItem?.title ?? currentLevel?.title ?? dailyChallenge.title
-                }). ¡Probalo acá! ${shareUrl}`;
+                const shareTextOnly =
+                  isVersus && versusOpponent
+                    ? `¡Desafío Versus en Trivia Católica! Hice ${correctIds.length}/${roundQuestions.length} contra @${versusOpponent}. ¿Podés superarme?`
+                    : `Respondí ${correctIds.length}/${roundQuestions.length} en Trivia Católica (${
+                        isFreePlay
+                          ? 'Juego libre'
+                          : currentNewsItem?.title ?? currentLevel?.title ?? dailyChallenge.title
+                      }). ¡Probalo acá!`;
+                const shareMessage = `${shareTextOnly} ${shareUrl}`;
 
                 if (Platform.OS === 'web') {
                   try {
                     if (typeof navigator !== 'undefined' && navigator.share) {
                       await navigator.share({
                         title: 'Trivia Católica',
-                        text: shareMessage,
+                        text: shareTextOnly,
                         url: shareUrl,
                       });
                       return;
@@ -384,7 +984,8 @@ export default function PlayScreen() {
                     // fallback below
                   }
                 }
-                await Share.share({ message: shareMessage, url: shareUrl });
+                // Evita link duplicado en iOS/Android al incluir la URL una sola vez en `message`
+                await Share.share({ message: shareMessage });
               }}
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
@@ -396,12 +997,14 @@ export default function PlayScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleSafeExit}
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
               <Text style={styles.secondaryBtnText}>
-                {isDaily || isNewsQuiz ? 'Volver al inicio' : 'Volver a la categoría'}
+                {isDaily || isNewsQuiz || isFreePlay || isVersus || !router.canGoBack()
+                  ? 'Volver al inicio'
+                  : 'Volver a la categoría'}
               </Text>
             </Pressable>
 
@@ -418,7 +1021,7 @@ export default function PlayScreen() {
               </Pressable>
             ) : null}
 
-            {correctIds.length < roundQuestions.length ? (
+            {!isDaily && !isVersus && correctIds.length < roundQuestions.length ? (
               <Pressable
                 onPress={handleRetry}
                 style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
@@ -470,7 +1073,7 @@ export default function PlayScreen() {
             )}
 
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleSafeExit}
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
@@ -500,7 +1103,7 @@ export default function PlayScreen() {
       {/* Barra superior de la pregunta */}
       <View style={styles.header}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={handleSafeExit}
           style={styles.closeBtn}
           accessibilityRole="button"
           accessibilityLabel="Salir de la partida"
@@ -602,13 +1205,19 @@ export default function PlayScreen() {
           <QuestionCard
             question={activeQuestion}
             categoryTitle={
-              currentNewsItem
-                ? `${currentNewsItem.sourceName} · ${currentNewsItem.sectionLabel}`
-                : isDaily
-                  ? `${dailyChallenge.sourceLabel}${
-                      dailyChallenge.gospelRef ? ` · ${dailyChallenge.gospelRef}` : ''
-                    }`
-                  : (topicForQuestion?.title ?? 'Trivia')
+              isErrorReview
+                ? 'Repaso de errores'
+                : isFreePlay
+                  ? `Juego libre · ${topicForQuestion?.title ?? 'Mixto'}`
+                  : isVersus && versusOpponent
+                    ? `Versus vs @${versusOpponent} · ${topicForQuestion?.title ?? 'Mixto'}`
+                    : currentNewsItem
+                      ? `${currentNewsItem.sourceName} · ${currentNewsItem.sectionLabel}`
+                      : isDaily
+                        ? `${dailyChallenge.sourceLabel}${
+                            dailyChallenge.gospelRef ? ` · ${dailyChallenge.gospelRef}` : ''
+                          }`
+                        : (topicForQuestion?.title ?? 'Trivia')
             }
             selectedIndex={selectedIndex}
             isRevealed={isRevealed}
@@ -877,6 +1486,73 @@ const styles = StyleSheet.create({
     ...LIENZO.type.smallBold,
     color: LIENZO.color.primaryInk,
   },
+  shieldBanner: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: LIENZO.color.successSoft,
+    borderRadius: LIENZO.radius.icon,
+    padding: LIENZO.space.md,
+  },
+  shieldBannerText: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.successInk,
+    flex: 1,
+  },
+  avatarUnlockCard: {
+    width: '100%',
+    backgroundColor: LIENZO.color.goldSoft,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.gold,
+    borderRadius: LIENZO.radius.card,
+    padding: LIENZO.space.lg,
+    gap: LIENZO.space.sm,
+    alignItems: 'flex-start',
+  },
+  avatarUnlockTag: {
+    ...LIENZO.type.captionBold,
+    color: LIENZO.color.goldInk,
+  },
+  avatarUnlockTitle: {
+    ...LIENZO.type.title,
+    color: LIENZO.color.ink,
+  },
+  proUpsellCard: {
+    width: '100%',
+    backgroundColor: LIENZO.color.goldSoft,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.gold,
+    borderRadius: LIENZO.radius.card,
+    padding: LIENZO.space.lg,
+    gap: LIENZO.space.sm,
+  },
+  proUpsellHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  proUpsellTitle: {
+    ...LIENZO.type.item,
+    color: LIENZO.color.goldInk,
+    flex: 1,
+  },
+  proUpsellBtn: {
+    alignSelf: 'flex-start',
+    minHeight: LIENZO.touchMin,
+    paddingHorizontal: LIENZO.space.lg,
+    borderRadius: LIENZO.radius.icon,
+    backgroundColor: LIENZO.color.bg,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.gold,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  proUpsellBtnText: {
+    ...LIENZO.type.smallBold,
+    color: LIENZO.color.goldInk,
+  },
   summaryActions: {
     width: '100%',
     gap: LIENZO.space.sm,
@@ -928,5 +1604,50 @@ const styles = StyleSheet.create({
     backgroundColor: LIENZO.color.dangerSoft,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  dailyHeaderTitle: {
+    ...LIENZO.type.section,
+    color: LIENZO.color.ink,
+    flex: 1,
+    textAlign: 'center',
+  },
+  dailyHeaderSpacer: {
+    width: 44,
+  },
+  dailyIntroContent: {
+    paddingHorizontal: LIENZO.space.xl,
+    paddingTop: LIENZO.space.lg,
+    paddingBottom: LIENZO.space.xxl,
+    gap: LIENZO.space.lg,
+  },
+  dailyIntroFooter: {
+    paddingHorizontal: LIENZO.space.xl,
+    paddingTop: 12,
+    paddingBottom: 18,
+    borderTopWidth: LIENZO.borderWidth.hairline,
+    borderTopColor: LIENZO.color.line,
+    backgroundColor: LIENZO.color.bg,
+  },
+  dailyDoneBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    backgroundColor: LIENZO.color.successSoft,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.success,
+    borderRadius: LIENZO.radius.card,
+    padding: LIENZO.space.md,
+  },
+  dailyDoneBannerBody: {
+    flex: 1,
+    gap: 2,
+  },
+  dailyDoneTitle: {
+    ...LIENZO.type.item,
+    color: LIENZO.color.successInk,
+  },
+  dailyDoneText: {
+    ...LIENZO.type.small,
+    color: LIENZO.color.ink2,
   },
 });

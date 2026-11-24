@@ -9,6 +9,9 @@
  */
 
 export type CategorySlug =
+  | 'vida-diaria'
+  | 'completa-frase'
+  | 'canciones-catolicas'
   | 'antiguo-testamento'
   | 'nuevo-testamento'
   | 'santos'
@@ -21,6 +24,9 @@ export type CategorySlug =
 export type BannerType = 'oracion' | 'iniciativa' | 'novedad';
 
 export type CategoryIconName =
+  | 'sun-horizon'
+  | 'quotes'
+  | 'music-notes'
   | 'scroll'
   | 'book-open-text'
   | 'hands-praying'
@@ -61,6 +67,21 @@ export const LIENZO = {
   },
 
   category: {
+    'vida-diaria': {
+      color: '#5C7C28',
+      soft: '#EFF5E6',
+      icon: 'sun-horizon' as CategoryIconName,
+    },
+    'completa-frase': {
+      color: '#4C57B8',
+      soft: '#ECEEFA',
+      icon: 'quotes' as CategoryIconName,
+    },
+    'canciones-catolicas': {
+      color: '#B83B68',
+      soft: '#FBEBF1',
+      icon: 'music-notes' as CategoryIconName,
+    },
     'antiguo-testamento': {
       color: '#A94C25',
       soft: '#FBEFE6',

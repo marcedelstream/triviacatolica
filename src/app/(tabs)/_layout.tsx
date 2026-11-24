@@ -1,103 +1,114 @@
-import { Tabs } from 'expo-router';
-import { HouseIcon, TrophyIcon, UserCircleIcon } from 'phosphor-react-native';
-import { Platform, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import {
+  HouseIcon,
+  TrophyIcon,
+  UserCircleIcon,
+  UsersThreeIcon,
+} from 'phosphor-react-native';
+import type { ComponentProps } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LIENZO } from '@/constants/theme';
+import { translate } from '@/i18n/translations';
+import { useGameStore } from '@/store/useGameStore';
 
-function TabLabel({ label, focused, color }: { label: string; focused: boolean; color: string }) {
-  return (
-    <Text style={[focused ? LIENZO.type.navActive : LIENZO.type.nav, { color }]}>
-      {label}
-    </Text>
-  );
-}
+type FloatingTabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
-export default function TabsLayout() {
+function FloatingTabBar({ state, descriptors }: FloatingTabBarProps) {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isWideWeb = Platform.OS === 'web' && width >= 480;
 
   return (
+    <View
+      pointerEvents="box-none"
+      style={[
+        styles.dockWrap,
+        { bottom: isWideWeb ? 14 : Math.max(insets.bottom, 12) },
+      ]}
+    >
+      <View style={styles.dock}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+          const label =
+            typeof options.title === 'string' ? options.title : route.name;
+
+          const onPress = () => {
+            if (isFocused) return;
+            if (route.name === 'communities') {
+              router.navigate('/(tabs)/communities');
+            } else if (route.name === 'ranking') {
+              router.navigate('/(tabs)/ranking');
+            } else if (route.name === 'profile') {
+              router.navigate('/(tabs)/profile');
+            } else {
+              router.navigate('/(tabs)');
+            }
+          };
+
+          const iconColor = isFocused ? LIENZO.color.primary : LIENZO.color.ink2;
+          const iconWeight = isFocused ? 'duotone' : 'regular';
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              accessibilityRole="tab"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={label}
+              style={({ pressed }) => [
+                styles.dockItem,
+                isFocused && styles.dockItemActive,
+                pressed && styles.dockItemPressed,
+              ]}
+            >
+              {route.name === 'index' ? (
+                <HouseIcon size={22} color={iconColor} weight={iconWeight} />
+              ) : route.name === 'communities' ? (
+                <UsersThreeIcon size={22} color={iconColor} weight={iconWeight} />
+              ) : route.name === 'ranking' ? (
+                <TrophyIcon size={22} color={iconColor} weight={iconWeight} />
+              ) : (
+                <UserCircleIcon size={22} color={iconColor} weight={iconWeight} />
+              )}
+              {isFocused ? (
+                <Text style={styles.dockLabel} numberOfLines={1}>
+                  {label}
+                </Text>
+              ) : null}
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export default function TabsLayout() {
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width >= 480;
+  const lang = useGameStore((s) => s.profile.language);
+  const homeLabel = translate(lang, 'tabHome');
+  const communitiesLabel = translate(lang, 'tabCommunities');
+  const rankingLabel = translate(lang, 'tabRanking');
+  const profileLabel = translate(lang, 'tabProfile');
+
+  return (
     <View style={[styles.outer, isWideWeb && styles.outerWide]}>
       <View style={[styles.frame, isWideWeb && styles.frameWide]}>
         <Tabs
+          tabBar={(props) => <FloatingTabBar {...props} />}
           screenOptions={{
             headerShown: false,
-            tabBarActiveTintColor: LIENZO.color.primary,
-            tabBarInactiveTintColor: LIENZO.color.ink2,
-            tabBarStyle: {
-              backgroundColor: LIENZO.color.bg,
-              borderTopWidth: LIENZO.borderWidth.hairline,
-              borderTopColor: LIENZO.color.line,
-              elevation: 0,
-              shadowOpacity: 0,
-              height: 66 + (isWideWeb ? 0 : Math.max(insets.bottom, 6)),
-              paddingTop: 8,
-              paddingBottom: isWideWeb ? 10 : Math.max(insets.bottom, 10),
-            },
           }}
         >
-          <Tabs.Screen
-            name="index"
-            options={{
-              title: 'Inicio',
-              tabBarIcon: ({ focused }) => (
-                <HouseIcon
-                  size={26}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                  weight={focused ? 'duotone' : 'regular'}
-                />
-              ),
-              tabBarLabel: ({ focused }) => (
-                <TabLabel
-                  label="Inicio"
-                  focused={focused}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="ranking"
-            options={{
-              title: 'Ranking',
-              tabBarIcon: ({ focused }) => (
-                <TrophyIcon
-                  size={26}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                  weight={focused ? 'duotone' : 'regular'}
-                />
-              ),
-              tabBarLabel: ({ focused }) => (
-                <TabLabel
-                  label="Ranking"
-                  focused={focused}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: 'Perfil',
-              tabBarIcon: ({ focused }) => (
-                <UserCircleIcon
-                  size={26}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                  weight={focused ? 'duotone' : 'regular'}
-                />
-              ),
-              tabBarLabel: ({ focused }) => (
-                <TabLabel
-                  label="Perfil"
-                  focused={focused}
-                  color={focused ? LIENZO.color.primary : LIENZO.color.ink2}
-                />
-              ),
-            }}
-          />
+          <Tabs.Screen name="index" options={{ title: homeLabel }} />
+          <Tabs.Screen name="communities" options={{ title: communitiesLabel }} />
+          <Tabs.Screen name="ranking" options={{ title: rankingLabel }} />
+          <Tabs.Screen name="profile" options={{ title: profileLabel }} />
         </Tabs>
       </View>
     </View>
@@ -126,5 +137,44 @@ const styles = StyleSheet.create({
     borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.frame,
     overflow: 'hidden',
+  },
+  dockWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  dock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: LIENZO.color.bg,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: LIENZO.color.line,
+    borderRadius: 999,
+    padding: 5,
+  },
+  dockItem: {
+    minWidth: 48,
+    minHeight: 46,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+  },
+  dockItemActive: {
+    backgroundColor: LIENZO.color.primarySoft,
+    paddingHorizontal: 18,
+  },
+  dockItemPressed: {
+    opacity: 0.85,
+  },
+  dockLabel: {
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: LIENZO.font.bold,
+    color: LIENZO.color.primaryInk,
   },
 });

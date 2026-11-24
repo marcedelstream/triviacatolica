@@ -7,7 +7,10 @@ import {
   HandHeartIcon,
   HandsPrayingIcon,
   MegaphoneIcon,
+  MusicNotesIcon,
+  QuotesIcon,
   ScrollIcon,
+  SunHorizonIcon,
   UsersThreeIcon,
 } from 'phosphor-react-native';
 
@@ -21,6 +24,12 @@ interface CategoryIconProps {
 
 export function CategoryIcon({ name, color, size = 26 }: CategoryIconProps) {
   switch (name) {
+    case 'sun-horizon':
+      return <SunHorizonIcon size={size} color={color} weight="duotone" />;
+    case 'quotes':
+      return <QuotesIcon size={size} color={color} weight="duotone" />;
+    case 'music-notes':
+      return <MusicNotesIcon size={size} color={color} weight="duotone" />;
     case 'scroll':
       return <ScrollIcon size={size} color={color} weight="duotone" />;
     case 'book-open-text':

@@ -61,6 +61,7 @@ export default function RootLayout() {
         <Stack.Screen name="category/[slug]" />
         <Stack.Screen name="play/[levelId]" />
         <Stack.Screen name="versus" />
+        <Stack.Screen name="community/[id]" />
         <Stack.Screen name="u/[username]" />
         <Stack.Screen name="auth-modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />

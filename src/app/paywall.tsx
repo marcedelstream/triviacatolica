@@ -1,9 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
+  ArrowCounterClockwiseIcon,
   CheckCircleIcon,
   CrownIcon,
   HeartIcon,
   InfinityIcon,
+  LightningIcon,
   ShieldCheckIcon,
   XIcon,
 } from 'phosphor-react-native';
@@ -11,6 +13,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ScreenFrame } from '@/components/ScreenFrame';
+import { DAILY_FREE_QUIZZES_LIMIT } from '@/constants/features';
 import { LIENZO } from '@/constants/theme';
 import { MAX_HEARTS } from '@/data/localSeed';
 import { purchasePlan, type SubscriptionPlan } from '@/lib/revenuecat';
@@ -27,17 +30,26 @@ export default function PaywallScreen() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const headline =
-    reason === 'hearts'
-      ? 'Jugá sin pausas con vidas infinitas'
-      : reason === 'level'
-        ? 'Desbloqueá todos los niveles avanzados'
-        : 'Trivia Católica Pro';
+    reason === 'daily_limit'
+      ? `Completaste tus ${DAILY_FREE_QUIZZES_LIMIT} quizzes de hoy`
+      : reason === 'mistakes'
+        ? 'Repasá tus errores con Plan Pro'
+        : reason === 'hearts'
+          ? 'Jugá sin pausas con vidas infinitas'
+          : reason === 'level'
+            ? 'Desbloqueá todos los niveles avanzados'
+            : 'Trivia Católica Pro';
 
-  const handleActivateDemo = async () => {
+  const subtitle =
+    reason === 'daily_limit'
+      ? 'Pasate a Pro para jugar sin límite diario, sumar XP más rápido y desbloquear todos los personajes.'
+      : 'Acompañá el proyecto y accedé a toda la formación sin límites diarios ni de vidas.';
+
+  const handleActivatePro = async () => {
     const res = await purchasePlan(selectedPlan);
     if (res.success) {
       setPremiumDemo(true);
-      setFeedback(res.message);
+      setFeedback('¡Plan Pro activado! Ya tenés quizzes ilimitados, vidas infinitas y repaso de errores.');
     }
   };
 
@@ -65,18 +77,17 @@ export default function PaywallScreen() {
         </View>
 
         <Text style={styles.title}>{headline}</Text>
-        <Text style={styles.subtitle}>
-          Acompañá el proyecto y accedé a toda la formación sin límites de vidas.
-        </Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
 
         {/* Beneficios */}
         <View style={styles.benefitsCard}>
           <View style={styles.benefitRow}>
-            <InfinityIcon size={24} color={LIENZO.color.primary} weight="duotone" />
+            <LightningIcon size={24} color={LIENZO.color.gold} weight="duotone" />
             <View style={styles.benefitBody}>
-              <Text style={styles.benefitTitle}>Vidas infinitas</Text>
+              <Text style={styles.benefitTitle}>Quizzes ilimitados cada día</Text>
               <Text style={styles.benefitText}>
-                Respondé y aprendé a tu ritmo sin esperar recargas.
+                Sin tope de {DAILY_FREE_QUIZZES_LIMIT} partidas diarias: ganá XP más rápido y
+                desbloqueá antes a todos los personajes.
               </Text>
             </View>
           </View>
@@ -84,11 +95,23 @@ export default function PaywallScreen() {
           <View style={styles.divider} />
 
           <View style={styles.benefitRow}>
-            <CrownIcon size={24} color={LIENZO.color.gold} weight="duotone" />
+            <InfinityIcon size={24} color={LIENZO.color.primary} weight="duotone" />
             <View style={styles.benefitBody}>
-              <Text style={styles.benefitTitle}>Todos los niveles y tópicos</Text>
+              <Text style={styles.benefitTitle}>Vidas infinitas y niveles Pro</Text>
               <Text style={styles.benefitText}>
-                Acceso libre a niveles avanzados de Escritura, Santos, Sacramentos y Liturgia.
+                Respondé y aprendé a tu ritmo en todos los niveles avanzados sin esperar recargas.
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.benefitRow}>
+            <ArrowCounterClockwiseIcon size={24} color={LIENZO.color.primary} weight="duotone" />
+            <View style={styles.benefitBody}>
+              <Text style={styles.benefitTitle}>Modo Repaso de errores</Text>
+              <Text style={styles.benefitText}>
+                Practicá específicamente las preguntas en las que te equivocaste hasta dominarlas.
               </Text>
             </View>
           </View>
@@ -98,9 +121,9 @@ export default function PaywallScreen() {
           <View style={styles.benefitRow}>
             <ShieldCheckIcon size={24} color={LIENZO.color.success} weight="duotone" />
             <View style={styles.benefitBody}>
-              <Text style={styles.benefitTitle}>Protector de racha</Text>
+              <Text style={styles.benefitTitle}>Protector de racha semanal</Text>
               <Text style={styles.benefitText}>
-                Conservá tu racha aunque un día no puedas entrar a jugar.
+                Un escudo automático por semana para no perder tu racha si un día no pudiste entrar.
               </Text>
             </View>
           </View>
@@ -118,13 +141,13 @@ export default function PaywallScreen() {
             ]}
           >
             <View style={styles.planHead}>
-              <Text style={styles.planName}>Plan anual</Text>
+              <Text style={styles.planName}>Plan Anual</Text>
               <View style={styles.saveChip}>
-                <Text style={styles.saveChipText}>Ahorrás 40%</Text>
+                <Text style={styles.saveChipText}>Ahorrá 45%</Text>
               </View>
             </View>
-            <Text style={styles.planPrice}>USD 24,99 / año</Text>
-            <Text style={styles.planNote}>Equivale a USD 2,08 por mes</Text>
+            <Text style={styles.planPrice}>USD 19,99 / año</Text>
+            <Text style={styles.planSub}>Equivale a USD 1,66 por mes · 7 días gratis</Text>
           </Pressable>
 
           <Pressable
@@ -136,37 +159,57 @@ export default function PaywallScreen() {
               selectedPlan === 'monthly' && styles.planCardSelected,
             ]}
           >
-            <Text style={styles.planName}>Plan mensual</Text>
-            <Text style={styles.planPrice}>USD 3,49 / mes</Text>
-            <Text style={styles.planNote}>Cancelás cuando quieras</Text>
+            <View style={styles.planHead}>
+              <Text style={styles.planName}>Plan Mensual</Text>
+            </View>
+            <Text style={styles.planPrice}>USD 2,99 / mes</Text>
+            <Text style={styles.planSub}>Cancelás cuando quieras desde tu tienda</Text>
           </Pressable>
         </View>
 
         {feedback ? (
           <View style={styles.feedbackBox}>
-            <CheckCircleIcon size={22} color={LIENZO.color.success} weight="duotone" />
+            <CheckCircleIcon size={20} color={LIENZO.color.success} weight="duotone" />
             <Text style={styles.feedbackText}>{feedback}</Text>
           </View>
         ) : null}
 
         {profile.isPremium ? (
-          <View style={styles.actions}>
+          <View style={styles.activeActions}>
             <View style={styles.feedbackBox}>
-              <CheckCircleIcon size={22} color={LIENZO.color.success} weight="duotone" />
-              <Text style={styles.feedbackText}>Tenés el Plan Pro activo.</Text>
+              <CheckCircleIcon size={20} color={LIENZO.color.success} weight="duotone" />
+              <Text style={styles.feedbackText}>Ya tenés Trivia Católica Pro activo.</Text>
             </View>
-          </View>
-        ) : (
-          <View style={styles.actions}>
             <Pressable
-              onPress={() => void handleActivateDemo()}
+              onPress={() => router.back()}
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               accessibilityRole="button"
             >
-              <Text style={styles.primaryBtnText}>Suscribirme a Pro</Text>
+              <Text style={styles.primaryBtnText}>Seguir jugando</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setPremiumDemo(false);
+                setFeedback(null);
+              }}
+              style={styles.secondaryBtn}
+              accessibilityRole="button"
+            >
+              <Text style={styles.secondaryBtnText}>Volver a plan gratuito (prueba)</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.activeActions}>
+            <Pressable
+              onPress={() => void handleActivatePro()}
+              style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <CrownIcon size={20} color={LIENZO.color.onPrimary} weight="duotone" />
+              <Text style={styles.primaryBtnText}>Activar Plan Pro (simulación prueba)</Text>
             </Pressable>
 
-            {profile.hearts < MAX_HEARTS ? (
+            {reason === 'hearts' ? (
               <Pressable
                 onPress={() => {
                   refillHeartsNow();
@@ -175,18 +218,26 @@ export default function PaywallScreen() {
                 style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
                 accessibilityRole="button"
               >
-                <HeartIcon size={20} color={LIENZO.color.danger} weight="duotone" />
+                <HeartIcon size={18} color={LIENZO.color.danger} weight="duotone" />
                 <Text style={styles.secondaryBtnText}>
-                  Recuperar {MAX_HEARTS} vidas
+                  Recargar {MAX_HEARTS} vidas (modo prueba)
                 </Text>
               </Pressable>
             ) : null}
+
+            <Pressable
+              onPress={() => router.back()}
+              style={styles.dismissBtn}
+              accessibilityRole="button"
+            >
+              <Text style={styles.dismissText}>Ahora no</Text>
+            </Pressable>
           </View>
         )}
 
         <Text style={styles.footnote}>
-          La suscripción se gestiona de forma segura a través de tu cuenta de App Store o Google
-          Play y podés cancelarla cuando quieras.
+          Modo prueba activo para testers: al conectar RevenueCat este botón abrirá el pago real de
+          Google Play / App Store.
         </Text>
       </ScrollView>
     </ScreenFrame>
@@ -199,7 +250,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: LIENZO.space.md,
-    paddingVertical: LIENZO.space.sm,
+    paddingTop: 12,
+    paddingBottom: 10,
     borderBottomWidth: LIENZO.borderWidth.hairline,
     borderBottomColor: LIENZO.color.line,
   },
@@ -219,9 +271,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: LIENZO.space.xl,
+    paddingTop: LIENZO.space.lg,
     paddingBottom: LIENZO.space.xxxl,
-    gap: LIENZO.space.lg,
+    gap: LIENZO.space.md,
   },
   badgeWrap: {
     width: 68,
@@ -248,6 +300,7 @@ const styles = StyleSheet.create({
     borderRadius: LIENZO.radius.card,
     padding: LIENZO.space.lg,
     gap: LIENZO.space.md,
+    backgroundColor: LIENZO.color.bg,
   },
   benefitRow: {
     flexDirection: 'row',
@@ -263,7 +316,7 @@ const styles = StyleSheet.create({
     color: LIENZO.color.ink,
   },
   benefitText: {
-    ...LIENZO.type.caption,
+    ...LIENZO.type.small,
     color: LIENZO.color.ink2,
   },
   divider: {
@@ -278,19 +331,18 @@ const styles = StyleSheet.create({
     borderColor: LIENZO.color.line,
     borderRadius: LIENZO.radius.card,
     padding: LIENZO.space.lg,
+    gap: 4,
     backgroundColor: LIENZO.color.bg,
-    gap: 2,
   },
   planCardSelected: {
-    borderWidth: LIENZO.borderWidth.active,
     borderColor: LIENZO.color.primary,
+    borderWidth: LIENZO.borderWidth.active,
     backgroundColor: LIENZO.color.primarySoft,
   },
   planHead: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: LIENZO.space.sm,
   },
   planName: {
     ...LIENZO.type.item,
@@ -303,26 +355,23 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   saveChipText: {
-    fontSize: 13,
-    lineHeight: 16,
-    fontFamily: LIENZO.font.bold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.goldInk,
   },
   planPrice: {
     ...LIENZO.type.title,
     color: LIENZO.color.primaryInk,
-    marginTop: 2,
   },
-  planNote: {
+  planSub: {
     ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
   },
   feedbackBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: LIENZO.space.sm,
+    gap: 8,
     backgroundColor: LIENZO.color.successSoft,
-    borderRadius: LIENZO.radius.card,
+    borderRadius: LIENZO.radius.icon,
     padding: LIENZO.space.md,
   },
   feedbackText: {
@@ -330,16 +379,17 @@ const styles = StyleSheet.create({
     color: LIENZO.color.successInk,
     flex: 1,
   },
-  actions: {
+  activeActions: {
     gap: LIENZO.space.sm,
   },
   primaryBtn: {
-    width: '100%',
-    minHeight: LIENZO.buttonMinHeight,
+    minHeight: 52,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.primary,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     paddingHorizontal: LIENZO.space.lg,
   },
   primaryBtnText: {
@@ -347,8 +397,7 @@ const styles = StyleSheet.create({
     color: LIENZO.color.onPrimary,
   },
   secondaryBtn: {
-    width: '100%',
-    minHeight: LIENZO.buttonMinHeight,
+    minHeight: 48,
     borderRadius: LIENZO.radius.icon,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
@@ -356,12 +405,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: LIENZO.space.sm,
+    gap: 8,
     paddingHorizontal: LIENZO.space.lg,
   },
   secondaryBtnText: {
     ...LIENZO.type.smallBold,
     color: LIENZO.color.ink,
+  },
+  dismissBtn: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dismissText: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.ink2,
   },
   pressed: {
     opacity: 0.9,
@@ -370,5 +428,6 @@ const styles = StyleSheet.create({
     ...LIENZO.type.caption,
     color: LIENZO.color.ink2,
     textAlign: 'center',
+    marginTop: 4,
   },
 });

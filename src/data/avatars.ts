@@ -1,4 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
+import type { ImageSource } from 'expo-image';
 
 export type AvatarId =
   | 'noe'
@@ -15,7 +15,7 @@ export interface AvatarOption {
   name: string;
   subtitle: string;
   requiredXp: number;
-  source: ImageSourcePropType;
+  source: ImageSource;
 }
 
 export const DEFAULT_AVATAR_ID: AvatarId = 'noe';

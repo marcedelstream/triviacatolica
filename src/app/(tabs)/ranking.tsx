@@ -3,6 +3,7 @@ import {
   AtIcon,
   CaretRightIcon,
   FlameIcon,
+  GlobeHemisphereWestIcon,
   MedalIcon,
   TrophyIcon,
   UserPlusIcon,
@@ -11,7 +12,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AvatarBadge } from '@/components/AvatarBadge';
+import { CountryPromptModal } from '@/components/CountryPromptModal';
 import { LIENZO } from '@/constants/theme';
+import { getCountryByCode } from '@/data/countries';
+import { translate } from '@/i18n/translations';
 import { useGameStore } from '@/store/useGameStore';
 import type { LeaderboardEntry } from '@/types/trivia';
 
@@ -20,8 +25,14 @@ export default function RankingScreen() {
   const profile = useGameStore((s) => s.profile);
   const leaderboardPeers = useGameStore((s) => s.leaderboardPeers);
   const refreshLeaderboard = useGameStore((s) => s.refreshLeaderboard);
+  const setCountry = useGameStore((s) => s.setCountry);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [scope, setScope] = useState<'world' | 'country'>('world');
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+
+  const lang = profile.language ?? 'es';
+  const myCountry = getCountryByCode(profile.country);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,7 +49,7 @@ export default function RankingScreen() {
   const canAppearInRanking =
     !profile.isAnonymous && Boolean(profile.username && profile.username.trim().length > 0);
 
-  const rankedList = useMemo<LeaderboardEntry[]>(() => {
+  const allRanked = useMemo<LeaderboardEntry[]>(() => {
     const seenIds = new Set<string>();
     const seenUsernames = new Set<string>();
     const combined: LeaderboardEntry[] = [];
@@ -51,6 +62,8 @@ export default function RankingScreen() {
         id: profile.id,
         displayName: profile.displayName || 'Peregrino',
         username: normalizedSelfUser,
+        country: profile.country ?? null,
+        avatarId: profile.avatarId ?? 'noe',
         xp: profile.xp,
         streakCount: profile.streakCount,
         longestStreak: profile.longestStreak,
@@ -80,6 +93,8 @@ export default function RankingScreen() {
   }, [
     canAppearInRanking,
     leaderboardPeers,
+    profile.avatarId,
+    profile.country,
     profile.createdAt,
     profile.displayName,
     profile.id,
@@ -89,14 +104,34 @@ export default function RankingScreen() {
     profile.xp,
   ]);
 
-  const userRankIdx = rankedList.findIndex((item) => item.isCurrentUser);
-  const userRank = userRankIdx >= 0 ? userRankIdx + 1 : null;
+  const countryRanked = useMemo(() => {
+    if (!myCountry) return [];
+    return allRanked.filter(
+      (item) => item.country?.trim().toUpperCase() === myCountry.code
+    );
+  }, [allRanked, myCountry]);
+
+  const rankedList = scope === 'country' && myCountry ? countryRanked : allRanked;
+
+  const worldRankIdx = allRanked.findIndex((item) => item.isCurrentUser);
+  const worldRank = worldRankIdx >= 0 ? worldRankIdx + 1 : null;
+
+  const countryRankIdx = countryRanked.findIndex((item) => item.isCurrentUser);
+  const countryRank = countryRankIdx >= 0 ? countryRankIdx + 1 : null;
 
   const handleOpenProfile = (username: string) => {
     router.push({
       pathname: '/u/[username]',
       params: { username },
     });
+  };
+
+  const handleSelectCountryTab = () => {
+    if (!myCountry) {
+      setShowCountryPicker(true);
+      return;
+    }
+    setScope('country');
   };
 
   return (
@@ -115,32 +150,111 @@ export default function RankingScreen() {
         }
       >
         <View style={styles.header}>
-          <Text style={styles.subtitle}>Comunidad registrada</Text>
-          <Text style={styles.title}>Ranking</Text>
+          <Text style={styles.subtitle}>{translate(lang, 'rankingSubtitle')}</Text>
+          <Text style={styles.title}>{translate(lang, 'rankingTitle')}</Text>
         </View>
 
-        {/* Tarjeta resumen del usuario */}
+        {/* Filtro Mundial / Mi país */}
+        <View style={styles.scopeRow}>
+          <Pressable
+            onPress={() => setScope('world')}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: scope === 'world' }}
+            style={[styles.scopeBtn, scope === 'world' && styles.scopeBtnActive]}
+          >
+            <GlobeHemisphereWestIcon
+              size={18}
+              color={scope === 'world' ? LIENZO.color.primaryInk : LIENZO.color.ink2}
+              weight={scope === 'world' ? 'duotone' : 'regular'}
+            />
+            <Text style={[styles.scopeText, scope === 'world' && styles.scopeTextActive]}>
+              {translate(lang, 'rankingWorld')}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleSelectCountryTab}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: scope === 'country' }}
+            style={[styles.scopeBtn, scope === 'country' && styles.scopeBtnActive]}
+          >
+            <Text style={styles.scopeFlag}>{myCountry ? myCountry.flag : '🏳️'}</Text>
+            <Text style={[styles.scopeText, scope === 'country' && styles.scopeTextActive]}>
+              {myCountry ? myCountry.name : translate(lang, 'rankingMyCountry')}
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Tarjeta resumen del usuario: puesto en el mundo y en su país */}
         <View style={styles.summaryCard}>
-          <View style={styles.summaryIcon}>
-            <TrophyIcon size={28} color={LIENZO.color.gold} weight="duotone" />
-          </View>
-          <View style={styles.summaryBody}>
-            <Text style={styles.summaryLabel}>
-              {userRank ? 'Tu posición actual' : 'Tu puntaje acumulado'}
-            </Text>
-            <Text style={styles.summaryValue}>
-              {userRank ? `Puesto #${userRank} · ${profile.xp} XP` : `${profile.xp} XP`}
-            </Text>
-            {!userRank ? (
-              <Text style={styles.summaryHint}>
-                {profile.isAnonymous
-                  ? 'Vinculá tu cuenta y elegí tu @usuario para entrar al ranking.'
-                  : !profile.username
-                    ? 'Elegí un @usuario en tu Perfil para aparecer en la tabla.'
-                    : 'Completá tu primera partida para subir al ranking.'}
+          <View style={styles.summaryTopRow}>
+            <View style={styles.summaryIcon}>
+              <TrophyIcon size={26} color={LIENZO.color.gold} weight="duotone" />
+            </View>
+            <View style={styles.summaryBody}>
+              <Text style={styles.summaryLabel}>
+                {worldRank ? 'Tu posición en el ranking' : 'Tu puntaje acumulado'}
               </Text>
-            ) : null}
+              <Text style={styles.summaryValue}>{profile.xp} XP</Text>
+            </View>
           </View>
+
+          {worldRank ? (
+            <View style={styles.rankPillsRow}>
+              <Pressable
+                onPress={() => setScope('world')}
+                accessibilityRole="button"
+                style={[
+                  styles.rankStatPill,
+                  scope === 'world' && styles.rankStatPillActive,
+                ]}
+              >
+                <GlobeHemisphereWestIcon
+                  size={16}
+                  color={LIENZO.color.primaryInk}
+                  weight="duotone"
+                />
+                <Text style={styles.rankStatText} numberOfLines={1}>
+                  #{worldRank} en el mundo
+                </Text>
+              </Pressable>
+
+              {myCountry && countryRank ? (
+                <Pressable
+                  onPress={() => setScope('country')}
+                  accessibilityRole="button"
+                  style={[
+                    styles.rankStatPill,
+                    scope === 'country' && styles.rankStatPillActive,
+                  ]}
+                >
+                  <Text style={styles.rankStatFlag}>{myCountry.flag}</Text>
+                  <Text style={styles.rankStatText} numberOfLines={1}>
+                    #{countryRank} en {myCountry.name}
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => setShowCountryPicker(true)}
+                  accessibilityRole="button"
+                  style={styles.rankStatPill}
+                >
+                  <Text style={styles.rankStatFlag}>🏳️</Text>
+                  <Text style={styles.rankStatText} numberOfLines={1}>
+                    Elegir mi país
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          ) : (
+            <Text style={styles.summaryHint}>
+              {profile.isAnonymous
+                ? 'Vinculá tu cuenta y elegí tu @usuario para entrar al ranking.'
+                : !profile.username
+                  ? 'Elegí un @usuario en tu Perfil para aparecer en la tabla.'
+                  : 'Completá tu primera partida para subir al ranking.'}
+            </Text>
+          )}
         </View>
 
         {profile.isAnonymous ? (
@@ -183,12 +297,16 @@ export default function RankingScreen() {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Tabla de posiciones</Text>
-          <Text style={styles.sectionHint}>Tocá un jugador para ver su perfil</Text>
+          <Text style={styles.sectionHint}>{translate(lang, 'rankingHint')}</Text>
         </View>
 
         {rankedList.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>Todavía no hay jugadores en el ranking</Text>
+            <Text style={styles.emptyTitle}>
+              {scope === 'country' && myCountry
+                ? `Todavía no hay jugadores con bandera de ${myCountry.name}`
+                : 'Todavía no hay jugadores en el ranking'}
+            </Text>
             <Text style={styles.emptyText}>
               Jugá tu primera partida con tu cuenta vinculada y tu @usuario para estrenar la tabla.
             </Text>
@@ -220,11 +338,18 @@ export default function RankingScreen() {
                     ]}
                   >
                     {isTopThree ? (
-                      <MedalIcon size={20} color={LIENZO.color.goldInk} weight="duotone" />
+                      <MedalIcon size={18} color={LIENZO.color.goldInk} weight="duotone" />
                     ) : (
                       <Text style={styles.rankNumber}>{rank}</Text>
                     )}
                   </View>
+
+                  <AvatarBadge
+                    avatarId={entry.avatarId}
+                    country={entry.country}
+                    size={40}
+                    highlight={entry.isCurrentUser}
+                  />
 
                   <View style={styles.rowBody}>
                     <View style={styles.nameRow}>
@@ -262,6 +387,17 @@ export default function RankingScreen() {
           </View>
         )}
       </ScrollView>
+
+      <CountryPromptModal
+        visible={showCountryPicker}
+        selectedCountry={profile.country}
+        onSelectCountry={(code) => {
+          setCountry(code);
+          setShowCountryPicker(false);
+          setScope('country');
+        }}
+        onClose={() => setShowCountryPicker(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -276,11 +412,11 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: LIENZO.space.xl,
-    paddingTop: 38,
-    paddingBottom: LIENZO.space.xxxl,
+    paddingTop: 32,
+    paddingBottom: 104,
   },
   header: {
-    marginBottom: LIENZO.space.lg,
+    marginBottom: LIENZO.space.md,
   },
   subtitle: {
     ...LIENZO.type.body,
@@ -290,17 +426,52 @@ const styles = StyleSheet.create({
     ...LIENZO.type.display,
     color: LIENZO.color.ink,
   },
-  summaryCard: {
+  scopeRow: {
+    flexDirection: 'row',
+    backgroundColor: LIENZO.color.track,
+    borderRadius: LIENZO.radius.icon,
+    padding: 4,
+    gap: 4,
+    marginBottom: LIENZO.space.md,
+  },
+  scopeBtn: {
+    flex: 1,
+    minHeight: 42,
+    borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: LIENZO.space.ms,
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+  },
+  scopeBtnActive: {
+    backgroundColor: LIENZO.color.bg,
+  },
+  scopeFlag: {
+    fontSize: 16,
+  },
+  scopeText: {
+    ...LIENZO.type.smallSemiBold,
+    color: LIENZO.color.ink2,
+  },
+  scopeTextActive: {
+    color: LIENZO.color.primaryInk,
+    fontFamily: LIENZO.font.bold,
+  },
+  summaryCard: {
     backgroundColor: LIENZO.color.goldSoft,
     borderRadius: LIENZO.radius.banner,
     padding: LIENZO.space.lg,
+    gap: 12,
+  },
+  summaryTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: LIENZO.space.ms,
   },
   summaryIcon: {
-    width: 48,
-    height: 48,
+    width: 46,
+    height: 46,
     borderRadius: LIENZO.radius.icon,
     backgroundColor: LIENZO.color.bg,
     alignItems: 'center',
@@ -316,12 +487,42 @@ const styles = StyleSheet.create({
   summaryValue: {
     ...LIENZO.type.title,
     color: LIENZO.color.ink,
-    marginTop: 2,
+    marginTop: 1,
+  },
+  rankPillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  rankStatPill: {
+    flex: 1,
+    minWidth: 138,
+    minHeight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: LIENZO.color.bg,
+    borderRadius: LIENZO.radius.icon,
+    borderWidth: LIENZO.borderWidth.card,
+    borderColor: 'transparent',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  rankStatPillActive: {
+    borderColor: LIENZO.color.gold,
+  },
+  rankStatFlag: {
+    fontSize: 15,
+  },
+  rankStatText: {
+    ...LIENZO.type.captionBold,
+    color: LIENZO.color.ink,
+    flexShrink: 1,
   },
   summaryHint: {
     ...LIENZO.type.caption,
     color: LIENZO.color.goldInk,
-    marginTop: 4,
   },
   inviteCard: {
     marginTop: LIENZO.space.md,
@@ -361,7 +562,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   sectionHeader: {
-    marginTop: LIENZO.space.xxl,
+    marginTop: LIENZO.space.xl,
     marginBottom: LIENZO.space.sm,
     gap: 2,
   },
@@ -397,9 +598,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: LIENZO.space.md,
+    gap: 10,
     paddingVertical: LIENZO.space.md,
-    paddingHorizontal: LIENZO.space.ms,
+    paddingHorizontal: LIENZO.space.md,
     borderRadius: LIENZO.radius.card,
     borderWidth: LIENZO.borderWidth.card,
     borderColor: LIENZO.color.line,
@@ -412,15 +613,15 @@ const styles = StyleSheet.create({
     borderWidth: LIENZO.borderWidth.active,
   },
   rankBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: LIENZO.radius.icon,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   rankNumber: {
-    ...LIENZO.type.smallBold,
+    ...LIENZO.type.captionBold,
     color: LIENZO.color.ink2,
   },
   rowBody: {

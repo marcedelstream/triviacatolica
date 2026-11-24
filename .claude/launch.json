@@ -26,6 +26,17 @@
         "C:/Users/pyweb/OneDrive/Desktop/TRIVIA CATOLICA/landing"
       ],
       "port": 4190
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "admin",
+        "run",
+        "preview"
+      ],
+      "port": 4173
     }
   ]
 }

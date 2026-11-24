@@ -6,6 +6,8 @@ import {
   LOCAL_QUESTIONS,
   LOCAL_TOPICS,
 } from '@/data/localSeed';
+import type { AvatarId } from '@/data/avatars';
+import type { AppLanguage } from '@/i18n/translations';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import type {
   BannerItem,
@@ -120,6 +122,8 @@ export async function loadCatalogData(): Promise<CatalogBundle> {
         id: row.id,
         displayName: row.display_name,
         username: row.username.trim().toLowerCase(),
+        country: row.country ?? null,
+        avatarId: (row.avatar_id as AvatarId) || 'noe',
         xp: row.xp ?? 0,
         streakCount: row.streak_count ?? 0,
         longestStreak: row.longest_streak ?? undefined,
@@ -193,6 +197,8 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[] | null> {
         id: row.id,
         displayName: row.display_name,
         username: row.username.trim().toLowerCase(),
+        country: row.country ?? null,
+        avatarId: (row.avatar_id as AvatarId) || 'noe',
         xp: row.xp ?? 0,
         streakCount: row.streak_count ?? 0,
         longestStreak: row.longest_streak ?? undefined,
@@ -217,12 +223,15 @@ export async function fetchPublicProfile(username: string): Promise<PublicProfil
       id: localPeer.id,
       displayName: localPeer.displayName,
       username: localPeer.username,
+      country: localPeer.country ?? null,
+      avatarId: localPeer.avatarId ?? 'noe',
       xp: localPeer.xp,
       streakCount: localPeer.streakCount,
       longestStreak: localPeer.longestStreak ?? localPeer.streakCount,
       createdAt: localPeer.createdAt ?? new Date().toISOString(),
       levelsCompleted: Math.max(1, Math.floor(localPeer.xp / 80)),
       totalStars: Math.max(1, Math.floor(localPeer.xp / 35)),
+      perfectLevels: Math.max(1, Math.floor(localPeer.xp / 200)),
       rankPosition: rankIdx >= 0 ? rankIdx + 1 : null,
     };
   }
@@ -238,12 +247,15 @@ export async function fetchPublicProfile(username: string): Promise<PublicProfil
       id: row.id,
       displayName: row.display_name || 'Peregrino',
       username: row.username || clean,
+      country: row.country ?? null,
+      avatarId: (row.avatar_id as AvatarId) || 'noe',
       xp: row.xp ?? 0,
       streakCount: row.streak_count ?? 0,
       longestStreak: row.longest_streak ?? 0,
       createdAt: row.created_at ?? new Date().toISOString(),
       levelsCompleted: row.levels_completed ?? 0,
       totalStars: row.total_stars ?? 0,
+      perfectLevels: row.perfect_levels ?? 0,
       rankPosition: typeof row.rank_position === 'number' ? row.rank_position : null,
     };
   } catch {
@@ -275,13 +287,14 @@ export async function checkUsernameAvailability(username: string): Promise<Usern
 export type ProfileSyncResult = 'ok' | 'username_taken' | 'skipped' | 'error';
 
 const UNIQUE_VIOLATION = '23505';
+const UNDEFINED_COLUMN = '42703';
 
 export async function syncProfileToSupabase(profile: UserProfile): Promise<ProfileSyncResult> {
   if (!isSupabaseConfigured || !supabase) return 'skipped';
   // Los perfiles invitados (anónimos) no bloquean @usuarios en Supabase; el @usuario
   // se reserva oficialmente apenas vinculan su cuenta con correo, Google o Apple.
   const remoteUsername = profile.isAnonymous ? null : profile.username || null;
-  const payload = {
+  const basePayload = {
     display_name: profile.displayName,
     username: remoteUsername,
     is_anonymous: profile.isAnonymous,
@@ -296,13 +309,27 @@ export async function syncProfileToSupabase(profile: UserProfile): Promise<Profi
     timer_enabled: profile.timerEnabled,
     updated_at: new Date().toISOString(),
   };
+  const fullPayload = {
+    ...basePayload,
+    country: profile.country ?? null,
+    avatar_id: profile.avatarId ?? 'noe',
+    language: profile.language ?? 'es',
+  };
   try {
-    const { error } = await supabase.from('profiles').update(payload).eq('id', profile.id);
+    let { error } = await supabase.from('profiles').update(fullPayload).eq('id', profile.id);
     if (!error) return 'ok';
+
+    // Compatibilidad si aún no se corrió la migración 008 (country/avatar_id/language)
+    if (error.code === UNDEFINED_COLUMN) {
+      const fallback = await supabase.from('profiles').update(basePayload).eq('id', profile.id);
+      error = fallback.error;
+      if (!error) return 'ok';
+    }
+
     if (error.code !== UNIQUE_VIOLATION) return 'error';
 
     // El @usuario ya lo tiene otra persona: guardar igual XP, racha y el resto sin el usuario.
-    const { username: _taken, ...withoutUsername } = payload;
+    const { username: _taken, ...withoutUsername } = fullPayload;
     const retry = await supabase.from('profiles').update(withoutUsername).eq('id', profile.id);
     return retry.error ? 'error' : 'username_taken';
   } catch {
@@ -337,6 +364,10 @@ export async function fetchRemoteAccountData(userId: string): Promise<RemoteAcco
           longestStreak: row.longest_streak ?? 0,
           lastPlayedDate: row.last_played_date ?? null,
           timerEnabled: Boolean(row.timer_enabled),
+          isPremium: Boolean(row.is_premium),
+          country: row.country ?? null,
+          avatarId: (row.avatar_id as AvatarId) || undefined,
+          language: (row.language as AppLanguage) || undefined,
           createdAt: row.created_at ?? undefined,
         }
       : {};
