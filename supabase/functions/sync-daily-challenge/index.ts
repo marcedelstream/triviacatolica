@@ -11,6 +11,7 @@
 // Cron sugerido: todos los días a las 03:00 UTC (00:00 AR/UY/CL)
 // Secretos requeridos: GEMINI_API_KEY, CRON_SECRET (SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY los pone Supabase)
 // Cada llamada debe mandar el header `x-cron-secret: <CRON_SECRET>`; si no, responde 401.
+// Responde 202 y trabaja en segundo plano; con `{ "wait": true }` espera y devuelve el resultado.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -98,6 +99,7 @@ async function fetchReadingsText(dateKey: string): Promise<string | null> {
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'TriviaCatolicaBot/1.0 (+https://triviacatolica.com)' },
+        signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) continue;
       const html = await res.text();
@@ -125,6 +127,9 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
+// Lo provee el runtime de Supabase: mantiene viva la función después de responder.
+declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void } | undefined;
+
 Deno.serve(async (req: Request) => {
   // Solo el cron (o quien tenga CRON_SECRET) puede ejecutarla: la clave pública de la app
   // no alcanza. Sin el secreto configurado la función queda cerrada para todos.
@@ -137,8 +142,26 @@ Deno.serve(async (req: Request) => {
     });
   }
 
+  const body = await req.json().catch(() => ({}));
+
+  // El cron de Supabase corta la conexión a los 5 s y Gemini tarda más: por defecto se
+  // responde 202 al instante y la generación sigue en segundo plano (resultado en los Logs).
+  // Con { "wait": true } espera y devuelve el resultado (útil para probar a mano).
+  if (body?.wait || typeof EdgeRuntime === 'undefined') return await syncChallenge(body);
+  EdgeRuntime.waitUntil(
+    syncChallenge(body).then(async (res) =>
+      console.log(`sync-daily-challenge ${res.status}: ${await res.text()}`)
+    )
+  );
+  return new Response(JSON.stringify({ accepted: true }), {
+    status: 202,
+    headers: { 'Content-Type': 'application/json' },
+  });
+});
+
+// deno-lint-ignore no-explicit-any
+async function syncChallenge(body: any): Promise<Response> {
   try {
-    const body = await req.json().catch(() => ({}));
     const todayIso = new Date().toISOString().slice(0, 10);
     const challengeDate: string =
       typeof body?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.date)
@@ -182,7 +205,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const t0 = Date.now();
     const readingsText = await fetchReadingsText(challengeDate);
+    console.log(`lecturas: ${readingsText ? 'ok' : 'sin datos'} en ${Date.now() - t0} ms`);
 
     const promptText = [
       `Genera el Desafío del Día de Trivia Católica para la fecha ${challengeDate} en español rioplatense/neutro claro, cálido y respetuoso.`,
@@ -201,24 +226,37 @@ Deno.serve(async (req: Request) => {
       '- `topic_slug`: "antiguo-testamento" si la lectura es del AT, "nuevo-testamento" si es del NT, o "virgen-maria" en fiestas marianas.',
     ].join('\n');
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: DAILY_SCHEMA,
-            temperature: 0.3,
-          },
-        }),
+    // Gemini a veces responde 503/429 por saturación: hasta 3 intentos (35 s cada uno, con
+    // pausas de 5 y 10 s) para no pasar el límite de 150 s de la función.
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`;
+    const geminiBody = JSON.stringify({
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: DAILY_SCHEMA,
+        temperature: 0.3,
+      },
+    });
+    let geminiRes: Response | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        geminiRes = await fetch(geminiUrl, {
+          method: 'POST',
+          signal: AbortSignal.timeout(35000),
+          headers: { 'Content-Type': 'application/json' },
+          body: geminiBody,
+        });
+        console.log(`gemini intento ${attempt}: HTTP ${geminiRes.status} en ${Date.now() - t0} ms`);
+      } catch (err) {
+        geminiRes = null;
+        console.log(`gemini intento ${attempt}: ${err instanceof Error ? err.message : String(err)}`);
       }
-    );
+      if (geminiRes && geminiRes.status !== 503 && geminiRes.status !== 429) break;
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 5000));
+    }
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
+    if (!geminiRes || !geminiRes.ok) {
+      const errText = geminiRes ? await geminiRes.text() : 'Gemini no respondió a tiempo.';
       return new Response(JSON.stringify({ error: 'Error de Gemini API', details: errText }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' },
@@ -300,4 +338,4 @@ Deno.serve(async (req: Request) => {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-});
+}
