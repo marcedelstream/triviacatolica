@@ -10,11 +10,13 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 - [ ] **Deep links sin verificar:** `app.json` declara `associatedDomains` (iOS) e `intentFilters` con `autoVerify` (Android), pero faltan `/.well-known/apple-app-site-association` y `/.well-known/assetlinks.json`. Hacen falta el **Apple Team ID** y el **SHA-256 del certificado de firma** (Play Console → Integridad de la app). El redirect de `www` ya excluye `/.well-known` y `vercel.json` sirve ambos archivos como JSON; solo falta crearlos en `landing/.well-known/`.
 - [x] **Eliminar cuenta desde la app (Apple 5.1.1(v)):** Perfil → *Cuenta y ayuda* tiene Soporte, Privacidad, Términos, **Cerrar sesión** (solo cuentas vinculadas) y **Eliminar cuenta y datos** con confirmación (borra el usuario real vía `delete_own_account`).
 - [x] **Usuario repetido rompe la sincronización:** onboarding y Perfil consultan `is_username_available` antes de guardar; si igual choca, se guarda XP y racha sin el usuario y se avisa en Perfil. Al iniciar sesión con correo se trae el progreso de la cuenta y se combina con el local en vez de pisarlo.
-- [ ] **Migración 005 (usuario libre + eliminar cuenta):** correr `supabase/migrations/005_username_check_y_borrar_cuenta.sql` en el SQL Editor. **Sin ella el botón de eliminar cuenta da error.**
-- [ ] **Correos de Supabase:** pegar las plantillas de `supabase/email-templates/` en **Confirm signup** y **Magic Link** (sin la primera, los usuarios nuevos no reciben el código), configurar SMTP propio (Purelymail) y OTP de 6 dígitos. Ver `supabase/email-templates/README.md`.
-- [ ] **Migración 004 (categoría Virgen María):** correr `supabase/migrations/004_categoria_virgen_maria.sql` en el SQL Editor; la app lee las categorías desde Supabase.
-- [ ] **Lint:** `npx expo lint` da 34 errores de reglas del React Compiler (31 `react-hooks/refs` por `useRef(new Animated.Value())`, 3 `set-state-in-effect`) en onboarding, play, FeedbackSheet, ReferenceModal y ranking. No rompen el build, pero el compilador saltea esos componentes. `tsc` pasa sin errores.
-- [ ] Fichas de tiendas: capturas, Feature Graphic, Data Safety, IARC y App Privacy (ver sección A).
+- [x] **Migración 005 (usuario libre + eliminar cuenta):** ejecutada en Supabase.
+- [x] **Correos de Supabase:** plantillas activas y enviando correctamente.
+- [x] **Migración 004 (categoría Virgen María):** ejecutada en Supabase.
+- [x] **Migración 006 (cuestionarios, niveles, fuentes y Desafío del día):** ejecutada el 2026-11-23 en el SQL Editor de Supabase (`questions.level_id`, `public.daily_challenges`, 8 categorías, 32 niveles, 160 preguntas vinculadas 1-a-1 a su nivel, 316 textos en `reference_texts` y 13 desafíos diarios iniciales).
+- [ ] **Edge Function `sync-daily-challenge` + cron diario:** desplegar `sync-daily-challenge` con `GEMINI_API_KEY` y programar un cron diario (`0 3 * * *` UTC) para que genere automáticamente el Desafío del día según la Primera Lectura + Evangelio del día (respetando cualquier fecha programada manualmente con `is_custom = true`). Además requiere el secreto `CRON_SECRET` (está en `supabase/.env.local`, no se sube al repo): cargarlo en Edge Functions → Secrets y mandarlo en el header `x-cron-secret` del cron; sin él responde 401.
+- [ ] **Lint:** `npx expo lint` da errores de reglas del React Compiler (`react-hooks/refs` por `useRef(new Animated.Value())`, `set-state-in-effect`) en onboarding, play, ReferenceModal y ranking. No rompen el build, pero el compilador saltea esos componentes. `tsc` pasa sin errores.
+- [x] **Fichas de tiendas:** completadas.
 
 ---
 
@@ -74,3 +76,15 @@ Documento vivo de trabajo. Separa lo que queda **pendiente para el próximo cicl
 - **Perfil público individual:** pantalla `/u/<username>` con bandera, nivel, racha, estadísticas y sellos, punto de entrada para **desafiar en versus**.
 - **Panel de logros (sellos):** sellos por hitos (rachas, categorías completas, niveles perfectos, primer versus), con tablas `achievements` y `user_achievements`.
 - **Versus 1 vs 1** contra otros jugadores (se conecta con el desafío al Sacerdote de la sección C).
+
+### E. Panel de administración personal (`app.triviacatolica.com` — estética *Lienzo*) (pedido 2026-11-23)
+Panel web privado para administrar todo el ecosistema de Trivia Católica, respetando la línea gráfica *Lienzo* (fondo blanco limpio, Source Sans 3, acentos de color por categoría, cero sombras ni sobrecarga) y protegido con autenticación de administrador (Supabase Auth + rol `admin` en RLS):
+- **Desafío del día (calendario):** vista mensual/semanal de `daily_challenges`, ver qué días tienen desafío automático vs. programado (`is_custom = true`), crear/editar desafíos especiales por fecha (solemnidades, Adviento, Cuaresma, campañas), disparar manualmente `sync-daily-challenge` y previsualizar cómo se verá la tarjeta en Inicio.
+- **Categorías, niveles y preguntas:** CRUD completo de `topics`, `levels` (orden, slug compartible, dificultad, gratuito/Pro) y `questions` vinculadas a `level_id`, con vista previa de opciones, explicación y chips de `source_ref` + botón para generar borradores con Gemini (`generate-questions`) y aprobarlos antes de activar (`is_active`).
+- **Banco de fuentes (Biblia, CIC, IGMR):** buscador y editor de `reference_texts` para agregar, corregir o importar pasajes bíblicos y numerales del Catecismo, con alerta automática si alguna pregunta cita una referencia sin texto cargado.
+- **Banners de Inicio:** alta, edición, orden y programación por vigencia (`vigencia_desde` / `vigencia_hasta`) de avisos de *Oración*, *Iniciativa* y *Novedad* (`public.banners`).
+- **Noticias y mini-quizzes:** gestionar `news_quizzes`, disparar `sync-vatican-news` manualmente, editar preguntas generadas o desactivar notas.
+- **Moderación de reportes doctrinales:** bandeja de entrada de `question_reports` enviados por usuarios desde la app, con acceso directo a editar la pregunta reportada y marcar el reporte como resuelto.
+- **Notificaciones push personalizadas:** envío de notificaciones desde el panel (vía Expo Push Service + tabla `user_push_tokens` / `notification_campaigns` en Supabase) con título, mensaje, enlace interno opcional (ej. abrir directo `/play/desafio-del-dia` o una categoría), segmentación (todos los usuarios, usuarios con racha en riesgo, inactivos, por país o un `@usuario` puntual), programación por fecha/hora e historial de envíos.
+- **Usuarios y comunidad:** listado y búsqueda de `profiles` (`@username`, XP, racha, estado Pro/gratuito, fecha de actividad), gestión de insignias verificadas (ej. sello de *Sacerdote* cuando se habilite) y métricas básicas de uso (jugadores activos diarios, niveles más jugados, preguntas con mayor tasa de error).
+- **Configuración operativa y checklists de publicación:** estado de migraciones, links de tiendas / deep links (`/.well-known/`), estado de RevenueCat / paywall y acceso rápido a logs de Edge Functions.
