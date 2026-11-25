@@ -13,6 +13,7 @@ interface CampaignRow {
   status: 'draft' | 'scheduled' | 'sent' | 'failed';
   sent_at: string | null;
   sent_count: number;
+  error_message: string | null;
   created_at: string;
 }
 
@@ -224,6 +225,11 @@ export function NotificationsPage() {
                     >
                       {c.status}
                     </span>
+                    {c.error_message ? (
+                      <div style={{ fontSize: 12, color: 'var(--ink2)', marginTop: 4 }}>
+                        {c.error_message}
+                      </div>
+                    ) : null}
                   </td>
                 </tr>
               ))}

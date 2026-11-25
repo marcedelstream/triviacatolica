@@ -28,6 +28,13 @@
       "port": 4190
     },
     {
+      "name": "app-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start", "--web", "--port", "8095"],
+      "port": 8095,
+      "autoPort": false
+    },
+    {
       "name": "admin",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

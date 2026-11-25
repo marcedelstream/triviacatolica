@@ -17,7 +17,83 @@
 //   }
 // ============================================================================
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
+
+const summarize = (errors: string[]) =>
+  Object.entries(
+    errors.reduce<Record<string, number>>((acc, e) => ((acc[e] = (acc[e] ?? 0) + 1), acc), {})
+  ).map(([e, n]) => (n > 1 ? `${e} x${n}` : e));
+
+/**
+ * "ok" en el ticket solo significa que Expo aceptó el mensaje. La entrega real a
+ * Google (FCM) o Apple se ve en el recibo, unos segundos después. Esto lo consulta en
+ * segundo plano y deja en la campaña cuántos se entregaron y el error real
+ * (ej. InvalidCredentials = falta la clave FCM V1 en EAS).
+ */
+async function checkReceipts(
+  adminClient: SupabaseClient,
+  campaignId: string,
+  refs: Array<{ id: string; token: string }>
+): Promise<void> {
+  const pending = new Map(refs.map((r) => [r.id, r.token]));
+  let delivered = 0;
+  const errors: string[] = [];
+  const deadTokens: string[] = [];
+
+  for (const waitMs of [15000, 45000]) {
+    if (pending.size === 0) break;
+    await new Promise((r) => setTimeout(r, waitMs));
+    const ids = [...pending.keys()];
+    for (let i = 0; i < ids.length; i += 1000) {
+      try {
+        const res = await fetch('https://exp.host/--/api/v2/push/getReceipts', {
+          method: 'POST',
+          signal: AbortSignal.timeout(15000),
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: ids.slice(i, i + 1000) }),
+        });
+        if (!res.ok) continue;
+        const receipts: Record<string, { status: string; message?: string; details?: { error?: string } }> =
+          (await res.json())?.data ?? {};
+        for (const [id, receipt] of Object.entries(receipts)) {
+          const token = pending.get(id);
+          pending.delete(id);
+          if (receipt.status === 'ok') {
+            delivered += 1;
+          } else {
+            const code = receipt.details?.error ?? 'Error';
+            if (code === 'DeviceNotRegistered' && token) deadTokens.push(token);
+            errors.push(code);
+            console.log(`recibo ${id}: ${code} — ${receipt.message ?? ''}`);
+          }
+        }
+      } catch (err) {
+        console.log('getReceipts falló:', err instanceof Error ? err.message : err);
+      }
+    }
+  }
+
+  if (deadTokens.length > 0) {
+    await adminClient
+      .from('user_push_tokens')
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .in('expo_push_token', deadTokens);
+  }
+
+  const parts = summarize(errors);
+  if (pending.size > 0) parts.push(`sin recibo todavía x${pending.size}`);
+  console.log(`campaña ${campaignId}: entregadas ${delivered}/${refs.length}`, parts.join('; '));
+  await adminClient
+    .from('notification_campaigns')
+    .update({
+      sent_count: delivered,
+      status: delivered === 0 && errors.length > 0 ? 'failed' : 'sent',
+      error_message: parts.length > 0 ? `Entregadas ${delivered}/${refs.length}. ${parts.join('; ')}` : null,
+    })
+    .eq('id', campaignId);
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -121,6 +197,7 @@ Deno.serve(async (req) => {
     let sentCount = 0;
     const errors: string[] = [];
     const deadTokens: string[] = [];
+    const ticketRefs: Array<{ id: string; token: string }> = [];
     // Solo rutas internas de la app (la app ignora cualquier otra cosa).
     const deepLink = payload.deepLink?.trim().startsWith('/') ? payload.deepLink.trim() : null;
 
@@ -151,11 +228,12 @@ Deno.serve(async (req) => {
           continue;
         }
         const result = await res.json();
-        const tickets: Array<{ status: string; message?: string; details?: { error?: string } }> =
+        const tickets: Array<{ status: string; id?: string; message?: string; details?: { error?: string } }> =
           Array.isArray(result?.data) ? result.data : [];
         tickets.forEach((ticket, idx) => {
           if (ticket.status === 'ok') {
             sentCount += 1;
+            if (ticket.id) ticketRefs.push({ id: ticket.id, token: chunk[idx] });
           } else if (ticket.details?.error === 'DeviceNotRegistered') {
             deadTokens.push(chunk[idx]);
           } else {
@@ -174,9 +252,7 @@ Deno.serve(async (req) => {
         .in('expo_push_token', deadTokens);
     }
     // Errores repetidos resumidos (ej. "InvalidCredentials x40").
-    const errorSummary = Object.entries(
-      errors.reduce<Record<string, number>>((acc, e) => ((acc[e] = (acc[e] ?? 0) + 1), acc), {})
-    ).map(([e, n]) => (n > 1 ? `${e} x${n}` : e));
+    const errorSummary = summarize(errors);
     errors.length = 0;
     errors.push(...errorSummary);
 
@@ -184,7 +260,8 @@ Deno.serve(async (req) => {
     const status = errors.length > 0 && sentCount === 0 ? 'failed' : 'sent';
 
     // 4. Registrar o actualizar campaña en notification_campaigns
-    if (payload.campaignId) {
+    let campaignId: string | null = payload.campaignId ?? null;
+    if (campaignId) {
       await adminClient
         .from('notification_campaigns')
         .update({
@@ -193,20 +270,34 @@ Deno.serve(async (req) => {
           sent_count: sentCount,
           error_message: errors.length > 0 ? errors.join('; ') : null,
         })
-        .eq('id', payload.campaignId);
+        .eq('id', campaignId);
     } else {
-      await adminClient.from('notification_campaigns').insert({
-        title,
-        body,
-        deep_link: deepLink,
-        segment_type: payload.segmentType,
-        segment_value: segVal || null,
-        status,
-        sent_at: nowIso,
-        sent_count: sentCount,
-        error_message: errors.length > 0 ? errors.join('; ') : null,
-        created_by: adminUserId,
-      });
+      const { data: inserted } = await adminClient
+        .from('notification_campaigns')
+        .insert({
+          title,
+          body,
+          deep_link: deepLink,
+          segment_type: payload.segmentType,
+          segment_value: segVal || null,
+          status,
+          sent_at: nowIso,
+          sent_count: sentCount,
+          error_message: errors.length > 0 ? errors.join('; ') : null,
+          created_by: adminUserId,
+        })
+        .select('id')
+        .single();
+      campaignId = inserted?.id ?? null;
+    }
+
+    // 5. Confirmar la entrega real con los recibos de Expo (en segundo plano).
+    if (campaignId && ticketRefs.length > 0) {
+      const job = checkReceipts(adminClient, campaignId, ticketRefs).catch((err) =>
+        console.log('checkReceipts:', err instanceof Error ? err.message : err)
+      );
+      if (typeof EdgeRuntime !== 'undefined') EdgeRuntime.waitUntil(job);
+      else await job;
     }
 
     return new Response(
@@ -219,7 +310,7 @@ Deno.serve(async (req) => {
         errors,
         message:
           sentCount > 0
-            ? `Notificación enviada a ${sentCount} dispositivos.`
+            ? `Expo aceptó la notificación para ${sentCount} dispositivos. En un minuto el historial muestra cuántas se entregaron de verdad.`
             : tokens.length === 0
               ? 'Campaña registrada. Todavía no hay dispositivos con token push en ese segmento.'
               : `No se pudo enviar a los ${tokens.length} dispositivos: ${errors.join('; ') || 'sin detalle'}.`,

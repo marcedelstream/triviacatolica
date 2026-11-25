@@ -30,6 +30,7 @@ import {
 } from 'react-native';
 
 import { AvatarBadge } from '@/components/AvatarBadge';
+import { CloudBackdrop } from '@/components/CloudBackdrop';
 import { DailyReadingsView } from '@/components/DailyReadingsView';
 import { FeedbackSheet } from '@/components/FeedbackSheet';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -1100,6 +1101,8 @@ export default function PlayScreen() {
 
   return (
     <ScreenFrame edges={['top', 'bottom']}>
+      <CloudBackdrop />
+
       {/* Barra superior de la pregunta */}
       <View style={styles.header}>
         <Pressable
@@ -1271,8 +1274,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: LIENZO.space.md,
     paddingTop: 14,
     paddingBottom: 10,
-    borderBottomWidth: LIENZO.borderWidth.hairline,
-    borderBottomColor: LIENZO.color.line,
   },
   closeBtn: {
     width: 44,

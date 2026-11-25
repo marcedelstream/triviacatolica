@@ -11,26 +11,27 @@ interface ReferenceModalProps {
 }
 
 export function ReferenceModal({ referenceToken, onClose }: ReferenceModalProps) {
-  const [entry, setEntry] = useState<ReferenceTextEntry | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Guarda el resultado junto con la referencia que lo pidió: así "cargando" y el
+  // texto a mostrar se derivan en el render, sin setState sincrónico en el efecto.
+  const [result, setResult] = useState<{
+    token: string;
+    entry: ReferenceTextEntry | null;
+  } | null>(null);
 
   useEffect(() => {
-    if (!referenceToken) {
-      setEntry(null);
-      return;
-    }
+    if (!referenceToken) return;
     let active = true;
-    setLoading(true);
     void lookupReferenceText(referenceToken).then((res) => {
-      if (active) {
-        setEntry(res);
-        setLoading(false);
-      }
+      if (active) setResult({ token: referenceToken, entry: res });
     });
     return () => {
       active = false;
     };
   }, [referenceToken]);
+
+  const isCurrent = Boolean(referenceToken) && result?.token === referenceToken;
+  const loading = Boolean(referenceToken) && !isCurrent;
+  const entry = isCurrent ? (result?.entry ?? null) : null;
 
   const isBible = entry?.sourceType === 'biblia';
   const badgeBg = isBible ? LIENZO.color.primarySoft : LIENZO.color.goldSoft;
